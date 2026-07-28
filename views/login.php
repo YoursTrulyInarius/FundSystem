@@ -125,7 +125,10 @@ if (isset($_SESSION['user_id'])) {
                     </div>
 
                     <div class="form-group opacity-0 transform translate-y-4">
-                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
+                            <a href="#" class="text-sm font-medium text-slate-900 hover:underline">Forgot password?</a>
+                        </div>
                         <div class="relative">
                             <input id="password" name="password" type="password" required
                                 class="input-field w-full px-4 py-3 rounded-lg font-medium pr-12"

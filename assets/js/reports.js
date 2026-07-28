@@ -46,3 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+window.viewFiles = function(sessionMinutes, attendance, postActivity, financial) {
+    document.getElementById('link_session_minutes').href = sessionMinutes;
+    document.getElementById('link_attendance_records').href = attendance;
+    document.getElementById('link_post_activity').href = postActivity;
+    document.getElementById('link_financial_reports').href = financial;
+    
+    document.getElementById('viewFilesModal').classList.remove('hidden');
+};

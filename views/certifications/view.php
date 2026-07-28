@@ -21,7 +21,7 @@
 
     <!-- Print/Back Controls -->
     <div class="no-print max-w-4xl mx-auto mb-6 flex items-center justify-between">
-        <a href="javascript:history.back()" class="sans inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium shadow-sm transition-colors">
+        <a href="dashboard" class="sans inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium shadow-sm transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             Go Back
         </a>

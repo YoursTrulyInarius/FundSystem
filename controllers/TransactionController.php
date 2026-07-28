@@ -26,31 +26,53 @@ class TransactionController {
             $transaction->reference_no = $_POST['reference_no'] ?? '';
             $transaction->remarks = $_POST['remarks'] ?? '';
 
-            if (isset($_FILES['document']) && $_FILES['document']['error'] === UPLOAD_ERR_OK) {
-                $upload_dir = 'uploads/transactions/';
-                $tmp_name = $_FILES['document']['tmp_name'];
-                $name = basename($_FILES['document']['name']);
-                $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            $document_paths = [];
+            if (isset($_FILES['document'])) {
+                $file_array = $_FILES['document'];
+                $is_multiple = is_array($file_array['name']);
+                $file_count = $is_multiple ? count($file_array['name']) : 1;
                 
+                $upload_dir = 'uploads/transactions/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+
                 $allowed = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'];
-                if (!in_array($ext, $allowed)) {
+                $has_invalid_format = false;
+
+                for ($i = 0; $i < $file_count; $i++) {
+                    $error = $is_multiple ? $file_array['error'][$i] : $file_array['error'];
+                    if ($error === UPLOAD_ERR_OK) {
+                        $tmp_name = $is_multiple ? $file_array['tmp_name'][$i] : $file_array['tmp_name'];
+                        $name = $is_multiple ? basename($file_array['name'][$i]) : basename($file_array['name']);
+                        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                        
+                        if (!in_array($ext, $allowed)) {
+                            $has_invalid_format = true;
+                            continue;
+                        }
+
+                        $new_name = 'tx_' . time() . '_' . rand(1000,9999) . '_' . $i . '.' . $ext;
+                        $dest_path = $upload_dir . $new_name;
+
+                        if (move_uploaded_file($tmp_name, $dest_path)) {
+                            $document_paths[] = $dest_path;
+                        }
+                    }
+                }
+
+                if ($has_invalid_format && empty($document_paths)) {
                     echo json_encode(['success' => false, 'message' => "Invalid file format. Please upload PDF, Word, Excel, or Images."]);
                     return;
                 }
+            }
 
-                $new_name = 'tx_' . time() . '_' . rand(1000,9999) . '.' . $ext;
-                $dest_path = $upload_dir . $new_name;
-
-                if (move_uploaded_file($tmp_name, $dest_path)) {
-                    $transaction->document_path = $dest_path;
-                } else {
-                    echo json_encode(['success' => false, 'message' => "Failed to upload document."]);
-                    return;
-                }
-            } else {
-                echo json_encode(['success' => false, 'message' => "Document is required."]);
+            if (empty($document_paths)) {
+                echo json_encode(['success' => false, 'message' => "At least one valid document is required."]);
                 return;
             }
+
+            $transaction->document_path = json_encode($document_paths);
 
             if ($transaction->create()) {
                 // Auto-mark Authorization milestone for this project

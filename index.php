@@ -66,6 +66,14 @@ switch ($route) {
         }
         break;
 
+    case 'transactions':
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: " . $base_path . "login");
+            exit;
+        }
+        require 'views/transactions.php';
+        break;
+
     case 'projects':
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
             header("Location: " . $base_path . "login");

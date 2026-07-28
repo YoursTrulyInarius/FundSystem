@@ -50,7 +50,7 @@ ob_start();
                             </td>
                             <td class="px-6 py-4 text-slate-500"><?= date('M d, Y', strtotime($row['submitted_at'])) ?></td>
                             <td class="px-6 py-4 text-right">
-                                <a href="#" class="text-accent hover:text-blue-700 font-medium">View Files</a>
+                                <button onclick="viewFiles('<?= htmlspecialchars($row['session_minutes_path']) ?>', '<?= htmlspecialchars($row['attendance_records_path']) ?>', '<?= htmlspecialchars($row['post_activity_reports_path']) ?>', '<?= htmlspecialchars($row['financial_reports_path']) ?>')" class="text-accent hover:text-blue-700 font-medium focus:outline-none">View Files</button>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -125,6 +125,45 @@ ob_start();
                 </button>
                 <button type="button" onclick="document.getElementById('marModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                     Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Files Modal -->
+<div id="viewFilesModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-50 transition-opacity" aria-hidden="true" onclick="document.getElementById('viewFilesModal').classList.add('hidden')"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-200">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-slate-900 mb-4">Submitted Documents</h3>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                        <span class="text-sm font-medium text-slate-700">1. Session Minutes</span>
+                        <a id="link_session_minutes" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                    </div>
+                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                        <span class="text-sm font-medium text-slate-700">2. Attendance Records</span>
+                        <a id="link_attendance_records" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                    </div>
+                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                        <span class="text-sm font-medium text-slate-700">3. Post-Activity Reports</span>
+                        <a id="link_post_activity" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                    </div>
+                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                        <span class="text-sm font-medium text-slate-700">4. Financial Reports</span>
+                        <a id="link_financial_reports" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-200">
+                <button type="button" onclick="document.getElementById('viewFilesModal').classList.add('hidden')" class="w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none sm:w-auto sm:text-sm">
+                    Close
                 </button>
             </div>
         </div>

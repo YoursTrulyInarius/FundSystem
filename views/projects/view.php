@@ -110,10 +110,20 @@ ob_start();
                                         </td>
                                         <td class="px-6 py-4">
                                             <?php if($row['document_path']): ?>
-                                                <a href="<?= htmlspecialchars($row['document_path']) ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-md text-xs font-bold transition-all border border-blue-100">
-                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                    View
-                                                </a>
+                                                <?php 
+                                                    $paths = json_decode($row['document_path'], true);
+                                                    if (json_last_error() !== JSON_ERROR_NONE || !is_array($paths)) {
+                                                        $paths = [$row['document_path']]; // Fallback for old single paths
+                                                    }
+                                                ?>
+                                                <div class="flex flex-col gap-2">
+                                                    <?php foreach ($paths as $idx => $path): ?>
+                                                        <a href="<?= htmlspecialchars($path) ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-md text-xs font-bold transition-all border border-blue-100 w-max" title="<?= htmlspecialchars(basename($path)) ?>">
+                                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                            <span class="max-w-[150px] truncate"><?= htmlspecialchars(basename($path)) ?></span>
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             <?php else: ?>
                                                 <span class="text-slate-400 text-sm">—</span>
                                             <?php endif; ?>
@@ -206,56 +216,100 @@ ob_start();
 </div>
 
 <!-- Add Transaction Modal -->
-<div id="txModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<div id="txModal" class="hidden fixed inset-0 z-50 overflow-y-auto transition-all duration-300" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         
-        <div class="fixed inset-0 bg-slate-900 bg-opacity-50 transition-opacity" aria-hidden="true" onclick="document.getElementById('txModal').classList.add('hidden')"></div>
+        <!-- Premium glassmorphism backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300" aria-hidden="true" onclick="document.getElementById('txModal').classList.add('hidden')"></div>
 
-        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-200">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg leading-6 font-medium text-slate-900 mb-4">Add Financial Transaction</h3>
-                
-                <div id="txAlert" class="hidden mb-4 p-3 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200"></div>
+        <!-- Modal panel with premium shadow and rounded corners -->
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 ring-1 ring-slate-900/5">
+            
+            <!-- Header with subtle gradient -->
+            <div class="bg-gradient-to-b from-slate-50 to-white px-6 py-5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800" id="modal-title">Add Financial Transaction</h3>
+                </div>
+                <p class="text-sm text-slate-500 mt-2 ml-13">Record a new disbursement or liquidation for this project.</p>
+            </div>
+            
+            <div id="txAlert" class="hidden mx-6 mt-4 p-4 rounded-xl text-sm bg-red-50 text-red-600 border border-red-100 flex items-start gap-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="flex-1 message-content"></span>
+            </div>
 
-                <form id="txForm" class="space-y-4" enctype="multipart/form-data">
+            <div class="px-6 py-5">
+                <form id="txForm" class="space-y-5" enctype="multipart/form-data">
                     <input type="hidden" name="project_id" value="<?= $project_id ?>">
                     
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Transaction Type</label>
-                        <select name="type" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none" required>
-                            <option value="disbursement">Disbursement Voucher</option>
-                            <option value="liquidation">Liquidation Report</option>
-                        </select>
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-slate-700">Transaction Type</label>
+                        <div class="relative">
+                            <select name="type" class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-700 font-medium appearance-none transition-colors duration-200" required>
+                                <option value="disbursement">Disbursement Voucher</option>
+                                <option value="liquidation">Liquidation Report</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Amount (₱)</label>
-                            <input type="number" step="0.01" name="amount" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none" required>
+                    <div class="flex flex-col sm:flex-row gap-5">
+                        <div class="flex-1 space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700">Amount (₱)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-medium">₱</div>
+                                <input type="number" step="0.01" name="amount" class="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 font-bold transition-colors duration-200" placeholder="0.00" required>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Reference No.</label>
-                            <input type="text" name="reference_no" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none" required>
+                        <div class="flex-1 space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700">Reference No.</label>
+                            <input type="text" name="reference_no" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 font-medium transition-colors duration-200" placeholder="e.g. DV-2023-001" required>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Supporting Document</label>
-                        <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-slate-700">Supporting Document</label>
+                        <div id="dropzone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-200 group relative">
+                            <!-- Native file input covering the entire dropzone area -->
+                            <input id="file-upload" name="document[]" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" multiple required>
+                            
+                            <div class="space-y-1 text-center relative z-0">
+                                <svg class="mx-auto h-10 w-10 text-slate-400 group-hover:text-blue-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-slate-600 justify-center flex-col items-center gap-1">
+                                    <div class="flex">
+                                        <span class="relative bg-transparent rounded-md font-medium text-blue-600 group-hover:text-blue-500">
+                                            Upload files
+                                        </span>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <span id="file-name-display" class="text-xs text-slate-500 font-medium"></span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">PDF, PNG, JPG, DOC up to 10MB</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Remarks (Optional)</label>
-                        <textarea name="remarks" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none"></textarea>
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-slate-700">Remarks <span class="text-slate-400 font-normal">(Optional)</span></label>
+                        <textarea name="remarks" rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-700 resize-none transition-colors duration-200" placeholder="Add any additional details here..."></textarea>
                     </div>
                 </form>
             </div>
-            <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-200">
-                <button type="submit" form="txForm" id="submitTxBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-slate-900 text-base font-medium text-white hover:bg-slate-800 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                    Save Transaction
-                </button>
-                <button type="button" onclick="document.getElementById('txModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-2xl">
+                <button type="button" onclick="document.getElementById('txModal').classList.add('hidden')" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all duration-200 shadow-sm">
                     Cancel
+                </button>
+                <button type="submit" form="txForm" id="submitTxBtn" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-6 py-2.5 rounded-xl border border-transparent bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Save Transaction
                 </button>
             </div>
         </div>

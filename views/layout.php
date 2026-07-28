@@ -67,6 +67,14 @@
                 Dashboard
             </a>
             <!-- Role specific links could be dynamically loaded here based on $_SESSION['role'] -->
+            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['lydo', 'sk_fed'])): ?>
+            <a href="transactions" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
+                <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Transaction History
+            </a>
+            <?php endif; ?>
             <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'sk_admin'): ?>
             <a href="projects" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
                 <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

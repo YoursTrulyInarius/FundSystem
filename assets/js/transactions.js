@@ -58,4 +58,69 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Drag and Drop Logic
+    const fileUpload = document.getElementById('file-upload');
+    const dropZone = document.getElementById('dropzone');
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    if (fileUpload && dropZone) {
+        // Prevent default drag behaviors on the whole window to stop accidental redirects
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            window.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500', 'bg-blue-50');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+        }
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            
+            if (files.length) {
+                fileUpload.files = files; // Assign files to the input
+                updateFileName(files);
+            }
+        }
+
+        // Handle file selected via click
+        fileUpload.addEventListener('change', function(e) {
+            if (this.files && this.files.length > 0) {
+                updateFileName(this.files);
+            }
+        });
+
+        function updateFileName(files) {
+            if (fileNameDisplay && files.length > 0) {
+                let fileNames = [];
+                for (let i = 0; i < files.length; i++) {
+                    fileNames.push(files[i].name);
+                }
+                fileNameDisplay.innerHTML = fileNames.join('<br>');
+                fileNameDisplay.classList.add('text-blue-600', 'font-semibold');
+            }
+        }
+    }
 });
