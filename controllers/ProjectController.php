@@ -24,6 +24,8 @@ class ProjectController {
             $project->user_id = $_SESSION['user_id'];
             $project->title = $_POST['title'] ?? '';
             $project->description = $_POST['description'] ?? '';
+            $project->abyip_code = $_POST['abyip_code'] ?? '';
+            $project->budget_category = $_POST['budget_category'] ?? '';
             $project->budget = $_POST['budget'] ?? 0;
 
             if (empty($project->title) || empty($project->budget)) {

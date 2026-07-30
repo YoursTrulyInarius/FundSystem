@@ -66,21 +66,26 @@
                 </svg>
                 Dashboard
             </a>
-            <!-- Role specific links could be dynamically loaded here based on $_SESSION['role'] -->
-            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['lydo', 'sk_fed'])): ?>
-            <a href="transactions" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
-                <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Transaction History
-            </a>
-            <?php endif; ?>
-            <?php if(isset($_SESSION['role']) && $_SESSION['role'] == 'sk_admin'): ?>
+            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin'): ?>
             <a href="projects" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
                 <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
                 Projects & ABYIP
+            </a>
+            <?php endif; ?>
+            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed', 'verification'])): ?>
+            <a href="transactions" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
+                <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Financial Transactions
+            </a>
+            <a href="reports" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-1">
+                <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                MAR & Compliance Reports
             </a>
             <?php endif; ?>
         </nav>

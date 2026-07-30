@@ -8,6 +8,8 @@ class Project {
     public $user_id;
     public $title;
     public $description;
+    public $abyip_code;
+    public $budget_category;
     public $budget;
     public $status;
     public $created_at;
@@ -34,16 +36,20 @@ class Project {
 
     // Create a new project
     public function create() {
-        $query = 'INSERT INTO ' . $this->table . ' (user_id, title, description, budget) VALUES (:user_id, :title, :description, :budget)';
+        $query = 'INSERT INTO ' . $this->table . ' (user_id, title, description, abyip_code, budget_category, budget) VALUES (:user_id, :title, :description, :abyip_code, :budget_category, :budget)';
         $stmt = $this->conn->prepare($query);
 
         $this->title = htmlspecialchars(strip_tags($this->title));
         $this->description = htmlspecialchars(strip_tags($this->description));
+        $this->abyip_code = htmlspecialchars(strip_tags($this->abyip_code));
+        $this->budget_category = htmlspecialchars(strip_tags($this->budget_category));
         $this->budget = htmlspecialchars(strip_tags($this->budget));
 
         $stmt->bindParam(':user_id', $this->user_id);
         $stmt->bindParam(':title', $this->title);
         $stmt->bindParam(':description', $this->description);
+        $stmt->bindParam(':abyip_code', $this->abyip_code);
+        $stmt->bindParam(':budget_category', $this->budget_category);
         $stmt->bindParam(':budget', $this->budget);
 
         if ($stmt->execute()) {

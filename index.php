@@ -61,6 +61,8 @@ switch ($route) {
             require 'views/dashboards/lydo.php';
         } elseif ($role === 'sk_fed') {
             require 'views/dashboards/fed.php';
+        } elseif ($role === 'verification') {
+            require 'views/dashboards/verification.php';
         } else {
             require 'views/dashboards/public.php';
         }

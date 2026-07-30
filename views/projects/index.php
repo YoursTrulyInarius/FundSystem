@@ -35,6 +35,7 @@ ob_start();
                 class="bg-slate-50/80 border-b border-slate-200 text-slate-700 uppercase tracking-wider text-xs font-bold">
                 <tr>
                     <th class="px-6 py-5">Project Title</th>
+                    <th class="px-6 py-5">ABYIP Code</th>
                     <th class="px-6 py-5">Budget</th>
                     <th class="px-6 py-5">Status</th>
                     <th class="px-6 py-5">Registered Date</th>
@@ -50,6 +51,9 @@ ob_start();
                                     <?= htmlspecialchars($row['title']) ?></div>
                                 <div class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">
                                     <?= htmlspecialchars($row['description'] ?? 'No description') ?></div>
+                            </td>
+                            <td class="px-6 py-5 font-mono text-xs text-slate-600">
+                                <?= htmlspecialchars($row['abyip_code'] ?? 'N/A') ?>
                             </td>
                             <td class="px-6 py-5 font-medium text-slate-700">₱<?= number_format($row['budget'], 2) ?></td>
                             <td class="px-6 py-5">
@@ -73,7 +77,7 @@ ob_start();
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" class="px-6 py-16 text-center">
+                        <td colspan="6" class="px-6 py-16 text-center">
                             <div
                                 class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
                                 <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,11 +129,32 @@ ob_start();
                             class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
                             required placeholder="e.g. Inter-Barangay Basketball League">
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1.5">ABYIP Reference Code</label>
+                            <input type="text" name="abyip_code"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
+                                placeholder="e.g. ABYIP-2026-01">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1.5">Approved Budget (₱)</label>
+                            <input type="number" step="0.01" name="budget"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
+                                required placeholder="0.00">
+                        </div>
+                    </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1.5">Approved Budget (₱)</label>
-                        <input type="number" step="0.01" name="budget"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
-                            required placeholder="0.00">
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">Budget Category</label>
+                        <select name="budget_category"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                            <option value="Equitable Access to Education">Equitable Access to Education</option>
+                            <option value="Environmental Protection">Environmental Protection</option>
+                            <option value="Climate Change Adaptation">Climate Change Adaptation & Disaster Risk</option>
+                            <option value="Youth Employment & Livelihood">Youth Employment & Livelihood</option>
+                            <option value="Health & Anti-Drug Abuse">Health & Anti-Drug Abuse</option>
+                            <option value="Sports Development">Sports Development</option>
+                            <option value="Capability Building">Capability Building</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Description / Alignment with

@@ -5,7 +5,7 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('sk_admin', 'lydo', 'sk_fed', 'public') NOT NULL,
+    role ENUM('sk_admin', 'lydo', 'sk_fed', 'verification', 'public') NOT NULL,
     barangay_name VARCHAR(100) NULL,
     full_name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -16,6 +16,8 @@ CREATE TABLE projects (
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    abyip_code VARCHAR(100) NULL,
+    budget_category VARCHAR(100) NULL,
     budget DECIMAL(15, 2) NOT NULL,
     status ENUM('planned', 'ongoing', 'completed') DEFAULT 'planned',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -35,14 +37,15 @@ CREATE TABLE project_milestones (
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
-    type ENUM('disbursement', 'liquidation') NOT NULL,
+    type ENUM('disbursement', 'liquidation', 'roa', 'procurement') NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
     reference_no VARCHAR(100) NOT NULL,
-    status ENUM('pending', 'reviewed', 'recorded') DEFAULT 'pending',
+    status ENUM('pending', 'reviewed', 'recorded', 'returned') DEFAULT 'pending',
     document_path VARCHAR(255) NULL,
     reviewed_by INT NULL,
     recorded_by INT NULL,
     remarks TEXT,
+    deficiency_reason TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
@@ -54,11 +57,12 @@ CREATE TABLE reports (
     user_id INT NOT NULL,
     month TINYINT NOT NULL,
     year YEAR NOT NULL,
-    status ENUM('pending', 'reviewed') DEFAULT 'pending',
+    status ENUM('pending', 'reviewed', 'returned') DEFAULT 'pending',
     session_minutes_path VARCHAR(255) NULL,
     attendance_records_path VARCHAR(255) NULL,
     post_activity_reports_path VARCHAR(255) NULL,
     financial_reports_path VARCHAR(255) NULL,
+    remarks TEXT NULL,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -83,6 +87,7 @@ CREATE TABLE feedback (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     user_name VARCHAR(100) NOT NULL,
+    contact_info VARCHAR(100) NULL,
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
@@ -90,7 +95,9 @@ CREATE TABLE feedback (
 
 -- Insert default admin users
 INSERT INTO users (username, password, role, full_name, barangay_name) VALUES 
-('sk_admin1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_admin', 'SK Chairperson Juan', 'Barangay 1'),
+('sk_admin1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_admin', 'SK Chairperson Juan', 'Barangay Poblacion'),
 ('lydo_admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lydo', 'LYDO Officer Maria', NULL),
-('sk_fed', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_fed', 'SK Fed President Jose', NULL);
+('sk_fed', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_fed', 'SK Fed President Jose', NULL),
+('accountant', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'verification', 'Municipal Accountant', NULL),
+('mayor_office', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'verification', 'Office of the Mayor Rep', NULL);
 -- Note: Default password is 'password' for all.
