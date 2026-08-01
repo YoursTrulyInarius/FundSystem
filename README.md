@@ -1,5 +1,5 @@
 # Web-Based SK Fund Monitoring and Transparency Management System
-aaaa
+
 > **Municipality of Ramon Magsaysay, Zamboanga del Sur**  
 > A digitalized review, recording, financial reporting, milestone tracking, and public transparency platform mandated under the Sangguniang Kabataan (SK) Fund Program Ordinance.
 
