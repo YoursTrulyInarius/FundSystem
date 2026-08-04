@@ -4,16 +4,24 @@ require_once 'core/Database.php';
 require_once 'models/Report.php';
 
 class ReportController {
+    private function respond($payload) {
+        if (ob_get_length() > 0) {
+            ob_clean();
+        }
+        header('Content-Type: application/json');
+        echo json_encode($payload);
+        exit;
+    }
+
     public function submit_mar() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        header('Content-Type: application/json');
+        ob_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
-                echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
-                return;
+                $this->respond(['success' => false, 'message' => 'Unauthorized access.']);
             }
 
             $database = new Database();
@@ -26,6 +34,9 @@ class ReportController {
 
             // Handle 4 file uploads
             $upload_dir = 'uploads/mars/';
+            if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
+                $this->respond(['success' => false, 'message' => 'Unable to create upload directory for MAR documents.']);
+            }
             $uploaded_paths = [];
             
             $file_fields = [
@@ -41,11 +52,10 @@ class ReportController {
                     $name = basename($_FILES[$field]['name']);
                     $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
                     
-                    // Allow pdf, doc, docx, jpg, png
+                    // Allow pdf, doc, docx, jpg, jpeg, png
                     $allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-                    if (!in_array($ext, $allowed)) {
-                        echo json_encode(['success' => false, 'message' => "Invalid file format for $field."]);
-                        return;
+                    if (!in_array($ext, $allowed, true)) {
+                        $this->respond(['success' => false, 'message' => "Invalid file format for $field. Allowed: PDF, DOC/DOCX, JPG, JPEG, PNG."]);
                     }
 
                     $new_name = $field . '_' . time() . '_' . rand(1000,9999) . '.' . $ext;
@@ -54,23 +64,20 @@ class ReportController {
                     if (move_uploaded_file($tmp_name, $dest_path)) {
                         $report->$model_prop = $dest_path;
                     } else {
-                        echo json_encode(['success' => false, 'message' => "Failed to upload $field."]);
-                        return;
+                        $this->respond(['success' => false, 'message' => "Failed to upload $field."]);
                     }
                 } else {
-                    echo json_encode(['success' => false, 'message' => "Missing required file: $field."]);
-                    return;
+                    $this->respond(['success' => false, 'message' => "Missing required file: $field."]);
                 }
             }
 
             if ($report->create()) {
-                echo json_encode(['success' => true, 'message' => 'MAR submitted successfully.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to record submission in database.']);
+                $this->respond(['success' => true, 'message' => 'MAR submitted successfully.']);
             }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            $this->respond(['success' => false, 'message' => 'Failed to record submission in database.']);
         }
+
+        $this->respond(['success' => false, 'message' => 'Invalid request method.']);
     }
 }
 ?>

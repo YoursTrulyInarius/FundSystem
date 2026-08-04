@@ -5,7 +5,7 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('sk_admin', 'lydo', 'sk_fed', 'verification', 'public') NOT NULL,
+    role ENUM('sk_admin', 'lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office', 'public') NOT NULL,
     barangay_name VARCHAR(100) NULL,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NULL UNIQUE,
@@ -97,10 +97,10 @@ CREATE TABLE feedback (
 );
 
 -- Insert default admin users
-INSERT INTO users (username, password, role, full_name, barangay_name, email) VALUES 
+INSERT INTO users (username, password, role, full_name, barangay_name, email) VALUES
 ('sk_admin1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_admin', 'SK Chairperson Juan', 'Barangay Poblacion', 'sk_admin1@example.com'),
 ('lydo_admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lydo', 'LYDO Officer Maria', NULL, 'lydo_admin@example.com'),
 ('sk_fed', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_fed', 'SK Fed President Jose', NULL, 'sk_fed@example.com'),
-('accountant', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'verification', 'Municipal Accountant', NULL, 'accountant@example.com'),
-('mayor_office', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'verification', 'Office of the Mayor Rep', NULL, 'mayor_office@example.com');
+('accountant', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'accountant', 'Municipal Accountant', NULL, 'accountant@example.com'),
+('mayor_office', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mayor_office', 'Office of the Mayor Rep', NULL, 'mayor_office@example.com');
 -- Note: Default password is 'password' for all.

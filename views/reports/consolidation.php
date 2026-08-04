@@ -4,27 +4,119 @@ require_once 'core/Database.php';
 $database = new Database();
 $db = $database->connect();
 
-// Fetch MAR submissions across all barangays
-$stmt = $db->query("SELECT r.*, u.barangay_name, u.full_name as submitter 
+$selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+$selected_year = $selected_year > 2000 ? $selected_year : date('Y');
+$selected_quarter = isset($_GET['quarter']) ? intval($_GET['quarter']) : ceil(date('n') / 3);
+$selected_quarter = in_array($selected_quarter, [1, 2, 3, 4]) ? $selected_quarter : ceil(date('n') / 3);
+
+$quarter_months = [
+    1 => [1, 2, 3],
+    2 => [4, 5, 6],
+    3 => [7, 8, 9],
+    4 => [10, 11, 12]
+];
+$months = $quarter_months[$selected_quarter];
+$month_list = implode(', ', $months);
+
+$reportQuery = "SELECT r.*, u.barangay_name, u.full_name as submitter 
     FROM reports r 
     JOIN users u ON r.user_id = u.id 
-    ORDER BY r.submitted_at DESC");
+    WHERE MONTH(r.submitted_at) IN ($month_list) 
+      AND YEAR(r.submitted_at) = :year 
+    ORDER BY r.submitted_at DESC";
+$stmt = $db->prepare($reportQuery);
+$stmt->execute([':year' => $selected_year]);
 $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$summaryQuery = "SELECT 
+    COUNT(*) AS total_submissions,
+    SUM(CASE WHEN r.status = 'reviewed' THEN 1 ELSE 0 END) AS reviewed_count,
+    SUM(CASE WHEN r.status = 'returned' THEN 1 ELSE 0 END) AS returned_count,
+    SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END) AS pending_count,
+    COUNT(DISTINCT u.barangay_name) AS barangay_count
+    FROM reports r 
+    JOIN users u ON r.user_id = u.id 
+    WHERE MONTH(r.submitted_at) IN ($month_list) 
+      AND YEAR(r.submitted_at) = :year";
+$summaryStmt = $db->prepare($summaryQuery);
+$summaryStmt->execute([':year' => $selected_year]);
+$summary = $summaryStmt->fetch(PDO::FETCH_ASSOC);
+
+$quarter_label = 'Q' . $selected_quarter . ' ' . $selected_year;
+
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    $filename = sprintf('mar_consolidation_Q%d_%d.csv', $selected_quarter, $selected_year);
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['Barangay', 'Submitter', 'Reporting Period', 'Status', 'Remarks', 'Submitted At']);
+    foreach ($reports as $report) {
+        fputcsv($output, [
+            $report['barangay_name'] ?? '',
+            $report['submitter'] ?? '',
+            date('F', mktime(0, 0, 0, $report['month'], 10)) . ' ' . $report['year'],
+            $report['status'],
+            $report['remarks'] ?? '',
+            date('Y-m-d H:i:s', strtotime($report['submitted_at']))
+        ]);
+    }
+    fclose($output);
+    exit;
+}
 
 $page_title = 'MAR Consolidation & Compliance Monitoring';
 ob_start();
 ?>
 
 <!-- Header -->
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-2xl font-extrabold text-slate-900">MAR Consolidation & Compliance Monitoring</h2>
         <p class="text-sm text-slate-500">Review, track compliance deadlines, and consolidate Monthly Accomplishment Reports across constituent barangays.</p>
     </div>
-    <div class="flex gap-3">
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-            Municipal SK Federation / LYDO Portal
-        </span>
+    <div class="flex flex-wrap gap-3 items-center">
+        <label class="text-sm text-slate-500">Quarter</label>
+        <form action="" method="get" class="flex flex-wrap gap-2 items-center">
+            <select name="quarter" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm text-slate-700 focus:outline-none focus:border-blue-500">
+                <option value="1" <?= $selected_quarter === 1 ? 'selected' : '' ?>>Q1</option>
+                <option value="2" <?= $selected_quarter === 2 ? 'selected' : '' ?>>Q2</option>
+                <option value="3" <?= $selected_quarter === 3 ? 'selected' : '' ?>>Q3</option>
+                <option value="4" <?= $selected_quarter === 4 ? 'selected' : '' ?>>Q4</option>
+            </select>
+            <select name="year" class="px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm text-slate-700 focus:outline-none focus:border-blue-500">
+                <?php for ($year = date('Y'); $year >= date('Y') - 3; $year--): ?>
+                    <option value="<?= $year ?>" <?= $selected_year === $year ? 'selected' : '' ?>><?= $year ?></option>
+                <?php endfor; ?>
+            </select>
+            <button type="submit" class="btn-primary text-sm">Filter</button>
+        </form>
+        <a href="?quarter=<?= $selected_quarter ?>&year=<?= $selected_year ?>&export=csv" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+    <div class="card p-5 border border-slate-200 rounded-2xl bg-slate-50">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Selected Period</p>
+        <p class="text-lg font-bold text-slate-900"><?= htmlspecialchars($quarter_label) ?></p>
+    </div>
+    <div class="card p-5 border border-slate-200 rounded-2xl bg-white">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Total Submissions</p>
+        <p class="text-3xl font-black text-slate-900"><?= number_format($summary['total_submissions'] ?: 0) ?></p>
+    </div>
+    <div class="card p-5 border border-slate-200 rounded-2xl bg-white">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Reviewed</p>
+        <p class="text-3xl font-black text-emerald-700"><?= number_format($summary['reviewed_count'] ?: 0) ?></p>
+    </div>
+    <div class="card p-5 border border-slate-200 rounded-2xl bg-white">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Returned</p>
+        <p class="text-3xl font-black text-red-700"><?= number_format($summary['returned_count'] ?: 0) ?></p>
+    </div>
+    <div class="card p-5 border border-slate-200 rounded-2xl bg-white">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Barangays Covered</p>
+        <p class="text-3xl font-black text-slate-900"><?= number_format($summary['barangay_count'] ?: 0) ?></p>
     </div>
 </div>
 

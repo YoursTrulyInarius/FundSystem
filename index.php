@@ -28,6 +28,12 @@ switch ($route) {
         $publicCtrl->index();
         break;
 
+    case 'public/project':
+        require 'controllers/PublicController.php';
+        $publicCtrl = new PublicController();
+        $publicCtrl->project();
+        break;
+
     case 'login':
         if (isset($_SESSION['user_id'])) {
             header("Location: " . $base_path . "dashboard");
@@ -91,8 +97,8 @@ switch ($route) {
         break;
 
     case 'register':
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
-            header("Location: " . $base_path . "login");
+        if (isset($_SESSION['user_id'])) {
+            header("Location: " . $base_path . "dashboard");
             exit;
         }
         require 'views/register.php';
@@ -117,7 +123,7 @@ switch ($route) {
             require 'views/dashboards/lydo.php';
         } elseif ($role === 'sk_fed') {
             require 'views/dashboards/fed.php';
-        } elseif ($role === 'verification') {
+        } elseif (in_array($role, ['verification', 'accountant', 'mayor_office'])) {
             require 'views/dashboards/verification.php';
         } else {
             require 'views/dashboards/public.php';
@@ -175,11 +181,14 @@ switch ($route) {
             header("Location: " . $base_path . "login");
             exit;
         }
-        // SK Admin sees submission form, LYDO/Fed sees consolidation view
+        // SK Admin sees submission form, oversight roles see consolidation view
         if ($_SESSION['role'] === 'sk_admin') {
             require 'views/reports/sk_reports.php';
-        } else {
+        } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office'])) {
             require 'views/reports/consolidation.php';
+        } else {
+            header("Location: " . $base_path . "dashboard");
+            exit;
         }
         break;
 

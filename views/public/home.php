@@ -143,137 +143,163 @@
 
         /* ─── Hero ─── */
         .hero-section {
-            background: var(--c-secondary);
+            background: linear-gradient(180deg, rgba(241, 245, 249, 0.95) 0%, rgba(248, 250, 252, 0.97) 45%, #ffffff 100%);
             border-bottom: 1px solid var(--c-border);
         }
         .hero-inner {
-            max-width: 900px;
+            max-width: 1040px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 1.5rem 2rem;
             text-align: center;
+            position: relative;
         }
+        .hero-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: min(96%, 1040px);
+            height: min(76%, 540px);
+            border-radius: 2rem;
+            background: radial-gradient(circle at top, rgba(59, 130, 246, 0.08), transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-inner > * { position: relative; z-index: 1; }
         .live-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.3rem 0.9rem;
-            border-radius: 99px;
-            border: 1px solid var(--c-border);
-            background: var(--c-accent-light);
-            color: var(--c-accent);
-            font-size: 0.75rem;
+            padding: 0.6rem 1rem;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+            font-size: 0.8rem;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
         }
         .live-dot {
-            width: 7px; height: 7px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: var(--c-accent);
-            animation: blink 2s ease-in-out infinite;
+            background: #2563eb;
+            animation: blink 1.8s ease-in-out infinite;
         }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
 
         .hero-title {
             font-family: 'Outfit', sans-serif;
-            font-size: clamp(2.6rem, 5.5vw, 4.5rem);
+            font-size: clamp(3rem, 6vw, 5.2rem);
             font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-            color: var(--c-primary);
-            margin-top: 1.5rem;
-            margin-bottom: 1.25rem;
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+            color: #0f172a;
+            margin-top: 1.6rem;
+            margin-bottom: 1.2rem;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .hero-title span { color: var(--c-accent); }
+        .hero-title span { color: #2563eb; }
         .hero-sub {
-            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
-            color: var(--c-text-muted);
-            line-height: 1.7;
-            max-width: 600px;
-            margin: 0 auto 3rem;
+            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            color: #475569;
+            line-height: 1.9;
+            max-width: 680px;
+            margin: 0 auto 2.5rem;
         }
 
         /* ─── Stat cards ─── */
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.25rem;
-            max-width: 720px;
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            gap: 1rem;
+            max-width: 860px;
             margin: 0 auto;
         }
-        @media (max-width: 640px) { .stat-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 820px) { .stat-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); } }
+        @media (max-width: 560px) { .stat-grid { grid-template-columns: 1fr; } }
         .stat-card {
-            background: var(--c-secondary);
-            border: 1px solid var(--c-border);
-            border-radius: 12px;
-            padding: 1.5rem 1.25rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 28px;
+            padding: 1.6rem 1.5rem;
             text-align: left;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            overflow: hidden;
         }
         .stat-card:hover {
-            border-color: var(--c-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transform: translateY(-6px);
+            border-color: rgba(37, 99, 235, 0.32);
+            box-shadow: 0 28px 72px rgba(15, 23, 42, 0.08);
         }
         .stat-card-top {
-            width: 36px; height: 36px;
-            background: var(--c-accent-light);
-            border-radius: 8px;
+            width: 44px; height: 44px;
+            background: rgba(59, 130, 246, 0.14);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.15rem;
+            box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.1);
         }
         .stat-value {
             font-family: 'Outfit', sans-serif;
             font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--c-primary);
+            font-weight: 900;
+            color: #0f172a;
             line-height: 1;
+            letter-spacing: -0.02em;
         }
         .stat-label {
-            font-size: 0.8rem;
-            color: var(--c-text-muted);
-            margin-top: 0.35rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            color: #475569;
+            margin-top: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
-        
-        /* Left border accent on stat cards */
         .stat-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 3px; height: 100%;
-            background: var(--c-primary);
-            border-radius: 12px 0 0 12px;
+            top: 18px; left: 0;
+            width: 5px; height: calc(100% - 36px);
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 999px;
+            opacity: 0.95;
         }
 
         /* ─── Scroll hint ─── */
         .scroll-hint {
             position: absolute;
-            bottom: 2rem; left: 50%;
+            bottom: 1.9rem; left: 50%;
             transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
             opacity: 0;
             animation: fadeUp 1s 1.8s ease forwards;
         }
-        .scroll-hint span { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-text-muted); }
+        .scroll-hint span { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8; }
         .scroll-mouse {
-            width: 20px; height: 30px;
-            border: 1.5px solid var(--c-border);
-            border-radius: 10px;
-            display: flex; justify-content: center; padding-top: 5px;
+            width: 22px; height: 34px;
+            border: 1.8px solid rgba(148, 163, 184, 0.7);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            padding-top: 6px;
         }
         .scroll-mouse::after {
             content: '';
-            width: 3px; height: 5px;
-            background: var(--c-primary);
+            width: 3px; height: 6px;
+            background: #2563eb;
             border-radius: 2px;
             animation: wheel 1.8s ease-in-out infinite;
         }
-        @keyframes wheel  { 0%,100%{transform:translateY(0);opacity:1;} 60%{transform:translateY(5px);opacity:0;} }
+        @keyframes wheel  { 0%,100%{transform:translateY(0);opacity:1;} 55%{transform:translateY(6px);opacity:0;} }
         @keyframes fadeUp { from{opacity:0;transform:translate(-50%,8px);} to{opacity:1;transform:translate(-50%,0);} }
 
         /* ─── Section shared ─── */
@@ -425,6 +451,140 @@
         }
         .project-footer-label { font-size: 0.75rem; color: var(--c-text-muted); font-weight: 600; }
         .project-footer-amount { font-size: 0.875rem; font-weight: 800; color: var(--c-accent); }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.56);
+            backdrop-filter: blur(8px);
+            z-index: 60;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-backdrop.active {
+            display: flex;
+        }
+        .project-modal {
+            width: min(100%, 950px);
+            max-height: calc(100vh - 3rem);
+            overflow: hidden;
+            border-radius: 28px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 36px 90px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            position: relative;
+        }
+        .project-modal-inner {
+            max-height: calc(100vh - 5rem);
+            overflow: auto;
+            padding: 2rem;
+        }
+        .project-modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(255,255,255,0.95);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .project-modal-close:hover {
+            transform: scale(1.05);
+            background: rgba(248,250,252,0.95);
+        }
+        .project-modal-header {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+        .project-modal-header h2 {
+            font-size: clamp(1.75rem, 2.3vw, 2.75rem);
+            margin: 0;
+            line-height: 1.04;
+        }
+        .project-modal-header .subline {
+            color: #475569;
+            font-size: 0.98rem;
+            max-width: 720px;
+            line-height: 1.8;
+        }
+        .project-modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .project-modal-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 0.65rem 1rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .project-modal .modal-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+        .project-modal .meta-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.25rem;
+            padding: 1.05rem 1.15rem;
+            transition: transform 0.2s ease;
+        }
+        .project-modal .meta-card:hover {
+            transform: translateY(-1px);
+        }
+        .project-modal .meta-card strong {
+            display: block;
+            margin-bottom: 0.55rem;
+            color: #475569;
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        .project-modal .meta-card span {
+            display: block;
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .project-modal .section-block {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+        }
+        .project-modal .section-block h3 {
+            margin-bottom: 0.9rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .project-modal .section-block p,
+        .project-modal .section-block li {
+            color: #475569;
+            line-height: 1.8;
+            font-size: 0.96rem;
+        }
+        .project-modal .section-block ul {
+            padding-left: 1.15rem;
+            margin: 0;
+            list-style-type: disc;
+        }
+        .project-modal .section-block li {
+            margin-bottom: 0.65rem;
+        }
 
         /* ─── Status badges ─── */
         .badge {
@@ -631,7 +791,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                             </svg>
                         </div>
-                        <p class="stat-value"><?= count($projects ?? []) ?></p>
+                        <p class="stat-value"><?= $total_projects ?? 0 ?></p>
                         <p class="stat-label">Tracked projects</p>
                     </div>
 
@@ -642,7 +802,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                         </div>
-                        <p class="stat-value"><?= count($transactions ?? []) ?></p>
+                        <p class="stat-value"><?= $recorded_transactions ?? 0 ?></p>
                         <p class="stat-label">Recorded transactions</p>
                     </div>
 
@@ -654,18 +814,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                         </div>
-                        <p class="stat-value">
-                            <?php
-                                $barangays = [];
-                                foreach (($projects ?? []) as $proj) {
-                                    if (!empty($proj['barangay_name'])) $barangays[$proj['barangay_name']] = true;
-                                }
-                                foreach (($transactions ?? []) as $tx) {
-                                    if (!empty($tx['barangay_name'])) $barangays[$tx['barangay_name']] = true;
-                                }
-                                echo count($barangays);
-                            ?>
-                        </p>
+                        <p class="stat-value"><?= $barangay_count ?? 0 ?></p>
                         <p class="stat-label">Barangays covered</p>
                     </div>
 
@@ -764,6 +913,23 @@
                                         <span class="project-footer-label">Approved Budget</span>
                                         <span class="project-footer-amount">₱<?= number_format($proj['budget'], 2) ?></span>
                                     </div>
+                                    <div class="mt-4 text-right">
+                                        <?php
+                                            $projectData = json_encode([
+                                                'id' => $proj['id'],
+                                                'title' => $proj['title'],
+                                                'description' => $proj['description'] ?? 'No description provided.',
+                                                'budget' => number_format($proj['budget'], 2),
+                                                'status' => $proj['status'],
+                                                'barangay' => $proj['barangay_name'] ?? 'N/A',
+                                                'owner' => $proj['project_owner'] ?? 'SK Barangay Representative',
+                                                'abyip_code' => $proj['abyip_code'] ?? 'N/A',
+                                                'budget_category' => $proj['budget_category'] ?? 'N/A',
+                                                'created_at' => date('M d, Y', strtotime($proj['created_at']))
+                                            ], JSON_HEX_APOS | JSON_HEX_QUOT);
+                                        ?>
+                                        <button type="button" class="view-details-btn inline-flex items-center justify-center px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition" data-project='<?= htmlspecialchars($projectData, ENT_QUOTES, 'UTF-8') ?>'>View details</button>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -781,6 +947,50 @@
             </div>
         </section>
 
+        <!-- ─── Project Details Modal ─── -->
+        <div id="projectDetailModal" class="modal-backdrop" aria-hidden="true">
+            <div class="project-modal">
+                <button id="projectModalClose" type="button" class="project-modal-close" aria-label="Close project details">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div class="modal-body">
+                    <div>
+                        <h2 id="modalProjectTitle">Project Title</h2>
+                        <p id="modalProjectDescription" style="margin-top:.75rem;color:#475569;line-height:1.7;font-size:.98rem;">Project description goes here.</p>
+                    </div>
+                    <div class="modal-meta">
+                        <div class="meta-card">
+                            <strong>Barangay</strong>
+                            <span id="modalProjectBarangay">N/A</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>SK Owner</strong>
+                            <span id="modalProjectOwner">N/A</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>Budget</strong>
+                            <span id="modalProjectBudget">₱0.00</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>Status</strong>
+                            <span id="modalProjectStatus">Pending</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>ABYIP Code</strong>
+                            <span id="modalProjectAbyip">N/A</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>Budget category</strong>
+                            <span id="modalProjectBudgetCategory">N/A</span>
+                        </div>
+                        <div class="meta-card">
+                            <strong>Created on</strong>
+                            <span id="modalProjectCreatedAt">N/A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- ─── OFFICIAL REGISTRY ─── -->
         <section id="registry" class="snap-start h-screen pt-20 pb-4" style="background: var(--c-bg);">
@@ -1016,6 +1226,45 @@
             });
 
             document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+            // ── Project details modal ─────────────────────
+            const modalBackdrop = document.getElementById('projectDetailModal');
+            const modalClose = document.getElementById('projectModalClose');
+            const modalTitle = document.getElementById('modalProjectTitle');
+            const modalDescription = document.getElementById('modalProjectDescription');
+            const modalOwner = document.getElementById('modalProjectOwner');
+            const modalBarangay = document.getElementById('modalProjectBarangay');
+            const modalBudget = document.getElementById('modalProjectBudget');
+            const modalStatus = document.getElementById('modalProjectStatus');
+            const modalCode = document.getElementById('modalProjectAbyip');
+            const modalCategory = document.getElementById('modalProjectBudgetCategory');
+            const modalCreated = document.getElementById('modalProjectCreatedAt');
+
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const projectData = JSON.parse(button.getAttribute('data-project'));
+                    modalTitle.textContent = projectData.title;
+                    modalDescription.textContent = projectData.description;
+                    modalOwner.textContent = projectData.owner;
+                    modalBarangay.textContent = projectData.barangay;
+                    modalBudget.textContent = projectData.budget;
+                    modalStatus.textContent = projectData.status;
+                    modalCode.textContent = projectData.abyip_code;
+                    modalCategory.textContent = projectData.budget_category;
+                    modalCreated.textContent = projectData.created_at;
+                    modalBackdrop.classList.add('active');
+                });
+            });
+
+            function closeProjectModal() {
+                modalBackdrop.classList.remove('active');
+            }
+            modalClose.addEventListener('click', closeProjectModal);
+            modalBackdrop.addEventListener('click', (event) => {
+                if (event.target === modalBackdrop) {
+                    closeProjectModal();
+                }
+            });
         });
     </script>
 

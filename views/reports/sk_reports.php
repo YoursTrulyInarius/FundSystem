@@ -33,6 +33,7 @@ ob_start();
                 <tr>
                     <th class="px-6 py-4 font-medium">Reporting Period</th>
                     <th class="px-6 py-4 font-medium">Status</th>
+                    <th class="px-6 py-4 font-medium">Remarks</th>
                     <th class="px-6 py-4 font-medium">Submitted At</th>
                     <th class="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
@@ -43,11 +44,15 @@ ob_start();
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 font-medium text-slate-900"><?= date("F", mktime(0, 0, 0, $row['month'], 10)) ?> <?= htmlspecialchars($row['year']) ?></td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize 
-                                    <?= $row['status'] == 'reviewed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' ?>">
-                                    <?= htmlspecialchars($row['status']) ?>
-                                </span>
+                                <?php if ($row['status'] === 'reviewed'): ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">Reviewed & Approved</span>
+                                <?php elseif ($row['status'] === 'returned'): ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">Returned for Correction</span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">Pending Review</span>
+                                <?php endif; ?>
                             </td>
+                            <td class="px-6 py-4 text-slate-500"><?= htmlspecialchars($row['remarks'] ?: 'No remarks available.') ?></td>
                             <td class="px-6 py-4 text-slate-500"><?= date('M d, Y', strtotime($row['submitted_at'])) ?></td>
                             <td class="px-6 py-4 text-right">
                                 <button onclick="viewFiles('<?= htmlspecialchars($row['session_minutes_path']) ?>', '<?= htmlspecialchars($row['attendance_records_path']) ?>', '<?= htmlspecialchars($row['post_activity_reports_path']) ?>', '<?= htmlspecialchars($row['financial_reports_path']) ?>')" class="text-accent hover:text-blue-700 font-medium focus:outline-none">View Files</button>
@@ -101,19 +106,19 @@ ob_start();
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">1. Session Minutes</label>
-                                <input type="file" name="session_minutes" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
+                                <input type="file" name="session_minutes" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">2. Attendance Records</label>
-                                <input type="file" name="attendance_records" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
+                                <input type="file" name="attendance_records" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">3. Post-Activity Reports</label>
-                                <input type="file" name="post_activity_reports" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
+                                <input type="file" name="post_activity_reports" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-600 mb-1">4. Monthly Financial Reports</label>
-                                <input type="file" name="financial_reports" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
+                                <input type="file" name="financial_reports" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 border border-slate-200 rounded-md p-1" required>
                             </div>
                         </div>
                     </div>

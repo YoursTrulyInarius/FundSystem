@@ -3,7 +3,7 @@ require_once 'includes/config.php';
 require_once 'core/Database.php';
 
 // Access control check
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['verification', 'lydo', 'sk_fed'])) {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['verification', 'accountant', 'mayor_office', 'lydo', 'sk_fed'])) {
     header("Location: " . $base_path . "login");
     exit;
 }
@@ -31,7 +31,7 @@ $stmtTxList = $db->query("SELECT t.*, p.title as project_title, u.barangay_name,
     ORDER BY t.created_at DESC");
 $transactions = $stmtTxList->fetchAll();
 
-$page_title = 'Verification & Oversight Dashboard';
+$page_title = 'Municipal Oversight Dashboard';
 ob_start();
 ?>
 
@@ -60,7 +60,7 @@ ob_start();
     <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
         <div>
             <h3 class="text-lg font-bold text-slate-900">Barangay Financial Transactions Ledger</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Verification & oversight view of recorded SK financial transactions</p>
+            <p class="text-xs text-slate-500 mt-0.5">Oversight view for the Municipal Accountant and Office of the Mayor.</p>
         </div>
         <span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-3 py-1 rounded-full border border-indigo-200">Official Audit Trail</span>
     </div>

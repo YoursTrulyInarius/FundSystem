@@ -283,9 +283,10 @@ class AuthController {
             return;
         }
 
-        // Only SK Admin can register users
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
+        // Allow registration from the login page for new SK accounts,
+        // while also allowing SK Admins to create accounts when already signed in.
+        if (isset($_SESSION['user_id']) && $_SESSION['role'] !== 'sk_admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users from the dashboard.']);
             return;
         }
 
@@ -304,7 +305,7 @@ class AuthController {
         }
 
         // Validate role
-        $valid_roles = ['sk_admin', 'lydo', 'sk_fed', 'verification'];
+        $valid_roles = ['sk_admin', 'lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office'];
         if (!in_array($role, $valid_roles)) {
             echo json_encode(['success' => false, 'message' => 'Invalid role selected.']);
             return;

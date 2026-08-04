@@ -137,6 +137,9 @@ ob_start();
                                             <?php else: ?>
                                                 <span class="text-slate-400 text-sm">Pending</span>
                                             <?php endif; ?>
+                                            <?php if ($row['status'] === 'returned'): ?>
+                                                <p class="text-xs text-red-700 mt-2">Returned reason: <?= htmlspecialchars($row['remarks'] ?: 'No reason provided.') ?></p>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -216,14 +219,14 @@ ob_start();
 </div>
 
 <!-- Add Transaction Modal -->
-<div id="txModal" class="hidden fixed inset-0 z-50 overflow-y-auto transition-all duration-300" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<div id="txModal" class="hidden fixed inset-0 z-50 transition-all duration-300" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         
         <!-- Premium glassmorphism backdrop -->
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300" aria-hidden="true" onclick="document.getElementById('txModal').classList.add('hidden')"></div>
 
         <!-- Modal panel with premium shadow and rounded corners -->
-        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100 ring-1 ring-slate-900/5">
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full max-h-[calc(100vh-3rem)] overflow-y-auto border border-slate-100 ring-1 ring-slate-900/5">
             
             <!-- Header with subtle gradient -->
             <div class="bg-gradient-to-b from-slate-50 to-white px-6 py-5 border-b border-slate-100">

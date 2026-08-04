@@ -23,6 +23,20 @@ $stmt = $db->prepare($recorded_tx_query);
 $stmt->execute([':user_id' => $user_id]);
 $recorded_tx = $stmt->fetchColumn() ?: 0;
 
+// Get Returned MARs for correction
+$returned_reports_query = "SELECT r.id, r.month, r.year, r.remarks, r.status FROM reports r WHERE r.user_id = :user_id AND r.status = 'returned' ORDER BY r.submitted_at DESC";
+$stmt = $db->prepare($returned_reports_query);
+$stmt->execute([':user_id' => $user_id]);
+$returned_reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get Returned Transactions for correction
+$returned_txs_query = "SELECT t.*, p.title as project_title FROM transactions t JOIN projects p ON t.project_id = p.id WHERE p.user_id = :user_id AND t.status = 'returned' ORDER BY t.created_at DESC";
+$stmt = $db->prepare($returned_txs_query);
+$stmt->execute([':user_id' => $user_id]);
+$returned_txs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$returned_count = count($returned_reports) + count($returned_txs);
+
 // Get Recent Projects
 $recent_proj_query = "SELECT * FROM projects WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 5";
 $stmt = $db->prepare($recent_proj_query);
@@ -45,6 +59,58 @@ ob_start();
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
         <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Recorded Transactions</h3>
         <p class="text-4xl font-black text-slate-900"><?= $recorded_tx ?></p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
+    <div class="card p-6 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
+        <h3 class="text-sm font-bold text-amber-800 mb-1 uppercase tracking-wider">Returned Corrections</h3>
+        <p class="text-xs text-amber-700 mb-4">LYDO returned these items for correction and resubmission.</p>
+        <p class="text-4xl font-black text-amber-900"><?= $returned_count ?></p>
+    </div>
+
+    <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Returned Items for Correction</h3>
+                <p class="text-sm text-slate-500 mt-1">Review LYDO remarks and resubmit the required documents.</p>
+            </div>
+            <span class="text-xs uppercase font-semibold text-slate-500 tracking-[0.2em]">Last updated</span>
+        </div>
+        <?php if ($returned_count === 0): ?>
+            <div class="px-6 py-10 text-center text-slate-500">No returned items at this time. Keep your reports and transactions on track.</div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-xs font-bold">
+                        <tr>
+                            <th class="px-4 py-3">Type</th>
+                            <th class="px-4 py-3">Subject</th>
+                            <th class="px-4 py-3">Remarks</th>
+                            <th class="px-4 py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <?php foreach ($returned_reports as $item): ?>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 font-semibold text-slate-900">MAR</td>
+                                <td class="px-4 py-3 text-slate-700"><?= htmlspecialchars(date('F', mktime(0,0,0,$item['month'],1))) ?> <?= htmlspecialchars($item['year']) ?></td>
+                                <td class="px-4 py-3 text-slate-700"><?= htmlspecialchars($item['remarks'] ?: 'No remarks provided.') ?></td>
+                                <td class="px-4 py-3 text-right"><a href="reports" class="text-blue-600 hover:text-blue-800 font-semibold">View MAR</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php foreach ($returned_txs as $item): ?>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 font-semibold text-slate-900">Transaction</td>
+                                <td class="px-4 py-3 text-slate-700"><?= htmlspecialchars($item['project_title']) ?> &#8226; ₱<?= number_format($item['amount'], 2) ?></td>
+                                <td class="px-4 py-3 text-slate-700"><?= htmlspecialchars($item['remarks'] ?: 'No remarks provided.') ?></td>
+                                <td class="px-4 py-3 text-right"><a href="project-view?id=<?= $item['project_id'] ?>" class="text-blue-600 hover:text-blue-800 font-semibold">View Transaction</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

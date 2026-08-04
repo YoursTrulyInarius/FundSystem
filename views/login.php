@@ -125,10 +125,7 @@ if (isset($_SESSION['user_id'])) {
                     </div>
 
                     <div class="form-group opacity-0 transform translate-y-4">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                            <a href="forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
-                        </div>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
                         <div class="relative">
                             <input id="password" name="password" type="password" required
                                 class="input-field w-full px-4 py-3 rounded-lg font-medium pr-12"
@@ -142,6 +139,9 @@ if (isset($_SESSION['user_id'])) {
                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                             </button>
+                        </div>
+                        <div class="mt-3 text-right">
+                            <a href="forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
                         </div>
                     </div>
 
@@ -158,6 +158,9 @@ if (isset($_SESSION['user_id'])) {
                                 </path>
                             </svg>
                         </button>
+                    </div>
+                    <div class="text-center text-sm text-slate-500 mt-4">
+                        No account yet? <a href="register" class="font-semibold text-blue-600 hover:text-blue-700">Register here</a>
                     </div>
                 </form>
 

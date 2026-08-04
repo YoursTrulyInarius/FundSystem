@@ -79,7 +79,7 @@
                 Projects & ABYIP
             </a>
             <?php endif; ?>
-            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed', 'verification'])): ?>
+            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office'])): ?>
             <a href="transactions" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'transactions') ? $active_class : $inactive_class ?> mt-1">
                 <svg class="mr-3 h-5 w-5 <?= ($current_route === 'transactions') ? 'text-slate-500' : 'text-slate-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -91,14 +91,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 MAR & Compliance Reports
-            </a>
-            <?php endif; ?>
-            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin'): ?>
-            <a href="register" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'register') ? $active_class : $inactive_class ?> mt-1">
-                <svg class="mr-3 h-5 w-5 <?= ($current_route === 'register') ? 'text-slate-500' : 'text-slate-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Register User
             </a>
             <?php endif; ?>
         </nav>
