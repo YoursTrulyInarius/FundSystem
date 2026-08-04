@@ -93,6 +93,32 @@
                 MAR & Compliance Reports
             </a>
             <?php endif; ?>
+            
+            <!-- SK Admin Only Section -->
+            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin'): ?>
+            <a href="feedback" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'feedback') ? $active_class : $inactive_class ?> mt-1">
+                <div class="relative">
+                    <svg class="mr-3 h-5 w-5 <?= ($current_route === 'feedback') ? 'text-slate-500' : 'text-slate-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    <?php 
+                        if (session_status() === PHP_SESSION_NONE) session_start();
+                        if (isset($_SESSION['user_id'])) {
+                            require_once 'core/Database.php';
+                            $db_inst = new Database();
+                            $conn = $db_inst->connect();
+                            $countStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM feedback f LEFT JOIN projects p ON f.project_id = p.id WHERE p.user_id = :uid AND f.read_at IS NULL");
+                            $countStmt->bindParam(':uid', $_SESSION['user_id'], PDO::PARAM_INT);
+                            $countStmt->execute();
+                            $unread = $countStmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
+                            if ($unread > 0):
+                    ?>
+                    <span class="absolute -top-1 -right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"><?= $unread ?></span>
+                    <?php endif; } ?>
+                </div>
+                Community Feedback
+            </a>
+            <?php endif; ?>
         </nav>
 
         <div class="p-4 border-t border-slate-200">

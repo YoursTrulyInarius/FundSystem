@@ -89,6 +89,12 @@ switch ($route) {
         $auth = new AuthController();
         $auth->login();
         break;
+
+    case 'api/feedback':
+        require 'controllers/PublicController.php';
+        $publicCtrl = new PublicController();
+        $publicCtrl->submitFeedback();
+        break;
         
     case 'logout':
         require 'controllers/AuthController.php';
@@ -190,6 +196,22 @@ switch ($route) {
             header("Location: " . $base_path . "dashboard");
             exit;
         }
+        break;
+
+    case 'feedback':
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+            header("Location: " . $base_path . "dashboard");
+            exit;
+        }
+        require 'controllers/FeedbackController.php';
+        $feedbackCtrl = new FeedbackController();
+        $feedbackCtrl->index();
+        break;
+
+    case 'api/feedback/delete':
+        require 'controllers/FeedbackController.php';
+        $feedbackCtrl = new FeedbackController();
+        $feedbackCtrl->delete();
         break;
 
     case 'api/reports/submit':

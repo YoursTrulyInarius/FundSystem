@@ -7,6 +7,7 @@
     <meta name="description" content="Track SK-funded projects, inspect public transactions, and stay informed with a transparent view of how youth development programs are managed in Ramon Magsaysay.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -455,8 +456,8 @@
         .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.56);
-            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.62);
+            backdrop-filter: blur(10px);
             z-index: 60;
             display: none;
             align-items: center;
@@ -467,87 +468,154 @@
             display: flex;
         }
         .project-modal {
-            width: min(100%, 950px);
+            width: min(100%, 980px);
             max-height: calc(100vh - 3rem);
             overflow: hidden;
-            border-radius: 28px;
+            border-radius: 32px;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-            box-shadow: 0 36px 90px rgba(15, 23, 42, 0.18);
+            box-shadow: 0 42px 110px rgba(15, 23, 42, 0.2);
             border: 1px solid rgba(148, 163, 184, 0.22);
             position: relative;
         }
         .project-modal-inner {
             max-height: calc(100vh - 5rem);
-            overflow: auto;
+            overflow-y: auto;
             padding: 2rem;
+            display: grid;
+            gap: 1.5rem;
         }
         .project-modal-close {
             position: absolute;
             top: 1.25rem;
             right: 1.25rem;
-            width: 42px;
-            height: 42px;
-            border-radius: 999px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             border: 1px solid rgba(148, 163, 184, 0.22);
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s ease, background 0.2s ease;
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
         .project-modal-close:hover {
-            transform: scale(1.05);
-            background: rgba(248,250,252,0.95);
+            transform: scale(1.04);
+            background: rgba(248, 250, 252, 0.95);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
         }
         .project-modal-header {
             display: grid;
+            gap: 1.5rem;
+            margin-bottom: 0;
+            grid-template-columns: 1.45fr 1fr;
+            align-items: start;
+        }
+        @media (max-width: 860px) {
+            .project-modal-header {
+                grid-template-columns: 1fr;
+            }
+        }
+        .project-modal-header-left,
+        .project-modal-header-right {
+            display: grid;
             gap: 1rem;
-            margin-bottom: 1.75rem;
+        }
+        .project-modal-badge {
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.7rem 1rem;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+            font-size: 0.80rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
         }
         .project-modal-header h2 {
-            font-size: clamp(1.75rem, 2.3vw, 2.75rem);
+            font-size: clamp(2.2rem, 3vw, 3.2rem);
             margin: 0;
-            line-height: 1.04;
+            line-height: 1.02;
+            color: #0f172a;
         }
         .project-modal-header .subline {
             color: #475569;
-            font-size: 0.98rem;
-            max-width: 720px;
-            line-height: 1.8;
+            font-size: 1rem;
+            max-width: 700px;
+            line-height: 1.9;
+            margin: 0;
         }
-        .project-modal-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-        .project-modal-tag {
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 0.65rem 1rem;
-            border-radius: 999px;
-            font-size: 0.82rem;
+        .project-modal-budget-label {
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.16em;
+            color: #64748b;
             font-weight: 700;
+        }
+        .project-modal-budget-value {
+            font-size: clamp(2.6rem, 4vw, 3.8rem);
+            color: #0f172a;
+            line-height: 1;
+            font-weight: 800;
+        }
+        .project-modal-wide-tags {
+            display: grid;
+            gap: 0.85rem;
+        }
+        .project-modal-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            min-width: 190px;
+            padding: 0.95rem 1.15rem;
+            background: #eef6ff;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            border-radius: 999px;
+            color: #0f172a;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .project-modal-pill strong {
+            font-size: 0.84rem;
+            font-weight: 700;
+            text-transform: none;
+            color: #1f2937;
         }
         .project-modal .modal-meta {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 1rem;
-            margin-bottom: 1.75rem;
+        }
+        @media (max-width: 840px) {
+            .project-modal .modal-meta {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 620px) {
+            .project-modal .modal-meta {
+                grid-template-columns: 1fr;
+            }
         }
         .project-modal .meta-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 1.25rem;
-            padding: 1.05rem 1.15rem;
-            transition: transform 0.2s ease;
+            border-radius: 24px;
+            padding: 1.3rem 1.4rem;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
         }
         .project-modal .meta-card:hover {
             transform: translateY(-1px);
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
         }
         .project-modal .meta-card strong {
             display: block;
-            margin-bottom: 0.55rem;
+            margin-bottom: 0.6rem;
             color: #475569;
             font-size: 0.72rem;
             letter-spacing: 0.14em;
@@ -558,15 +626,17 @@
             font-size: 1rem;
             color: #0f172a;
             font-weight: 700;
+            line-height: 1.4;
         }
         .project-modal .section-block {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 1.5rem;
-            padding: 1.5rem;
+            border-radius: 28px;
+            padding: 1.75rem;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
         }
         .project-modal .section-block h3 {
-            margin-bottom: 0.9rem;
+            margin-bottom: 1rem;
             font-size: 1.05rem;
             font-weight: 700;
             color: #0f172a;
@@ -578,12 +648,27 @@
             font-size: 0.96rem;
         }
         .project-modal .section-block ul {
-            padding-left: 1.15rem;
+            padding-left: 1.25rem;
             margin: 0;
             list-style-type: disc;
         }
         .project-modal .section-block li {
-            margin-bottom: 0.65rem;
+            margin-bottom: 0.75rem;
+        }
+        .project-modal .project-meta-group {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        @media (max-width: 840px) {
+            .project-modal .project-meta-group {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 560px) {
+            .project-modal .project-meta-group {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* ─── Status badges ─── */
@@ -662,11 +747,124 @@
         }
         .empty-text { font-size: 0.875rem; color: var(--c-text-muted); font-weight: 500; }
 
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 0;
+            align-content: center;
+        }
+        .summary-section-wrap {
+            justify-content: center;
+            height: auto;
+            overflow: visible;
+        }
+        @media (max-width: 980px) { .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 640px) { .summary-grid { grid-template-columns: 1fr; } }
+        .summary-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 1.35rem 1.5rem;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+        }
+        .summary-card strong {
+            display: block;
+            margin-bottom: 0.65rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #64748b;
+        }
+        .summary-card .summary-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+        .summary-card .summary-meta {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            margin-top: 0.55rem;
+        }
+        .feedback-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 28px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+        .feedback-card h3 {
+            margin-bottom: 0.6rem;
+            font-size: 1.5rem;
+            color: #0f172a;
+        }
+        .feedback-card p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.8;
+        }
+        .feedback-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1.2fr 0.8fr;
+        }
+        @media (max-width: 900px) { .feedback-grid { grid-template-columns: 1fr; } }
+        .feedback-field {
+            display: grid;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .feedback-field label {
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.88rem;
+        }
+        .feedback-field input,
+        .feedback-field select,
+        .feedback-field textarea {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 0.95rem 1rem;
+            font-size: 0.95rem;
+            color: #0f172a;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .feedback-field input:focus,
+        .feedback-field select:focus,
+        .feedback-field textarea:focus {
+            border-color: #2563eb;
+        }
+        .feedback-field textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+        .feedback-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .feedback-footer .feedback-message {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            flex: 1;
+        }
+        .feedback-footer .btn-primary {
+            min-width: 180px;
+        }
+
         /* ─── Footer ─── */
         .site-footer {
-            padding: 0 0 1.25rem;
-            margin-top: auto;
-            flex-shrink: 0;
+            padding: 1.2rem 0 0;
         }
         .site-footer-card {
             width: min(100%, 980px);
@@ -947,18 +1145,56 @@
             </div>
         </section>
 
+        <!-- ─── Barangay Summary ─── -->
+        <section id="overview" class="snap-start py-8 md:py-10" style="background: var(--c-bg);">
+            <div class="section-wrap summary-section-wrap">
+                <div class="summary-grid opacity-0">
+                    <?php if (!empty($barangaySummaries)): ?>
+                        <?php foreach ($barangaySummaries as $summary): ?>
+                            <div class="summary-card">
+                                <strong><?= htmlspecialchars($summary['barangay_name']) ?></strong>
+                                <div class="summary-value"><?= (int)$summary['project_count'] ?> projects</div>
+                                <div class="summary-meta">
+                                    Total budget approved: ₱<?= number_format($summary['total_budget'], 2) ?><br>
+                                    Recorded utilization: ₱<?= number_format($summary['recorded_amount'], 2) ?><br>
+                                    Pending utilization: ₱<?= number_format($summary['pending_amount'], 2) ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="summary-card">
+                            <strong>No barangay summary found</strong>
+                            <div class="summary-meta">There are currently no registered projects or fund utilization records available.</div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
+
         <!-- ─── Project Details Modal ─── -->
         <div id="projectDetailModal" class="modal-backdrop" aria-hidden="true">
             <div class="project-modal">
                 <button id="projectModalClose" type="button" class="project-modal-close" aria-label="Close project details">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
-                <div class="modal-body">
-                    <div>
-                        <h2 id="modalProjectTitle">Project Title</h2>
-                        <p id="modalProjectDescription" style="margin-top:.75rem;color:#475569;line-height:1.7;font-size:.98rem;">Project description goes here.</p>
+                        <div class="project-modal-inner">
+                    <div class="project-modal-header">
+                        <div class="project-modal-header-left">
+                            <span class="project-modal-badge" id="modalProjectStatus">Status</span>
+                            <h2 id="modalProjectTitle">Project Title</h2>
+                            <p class="subline" id="modalProjectSubtitle">Project overview in a short, easy-to-read summary.</p>
+                        </div>
+                        <div class="project-modal-header-right">
+                            <div class="project-modal-budget-label">Approved budget</div>
+                            <div class="project-modal-budget-value" id="modalProjectBudget">₱0.00</div>
+                            <div class="project-modal-wide-tags">
+                                <span class="project-modal-pill">ABYIP <strong id="modalProjectAbyip">N/A</strong></span>
+                                <span class="project-modal-pill">CATEGORY <strong id="modalProjectBudgetCategory">N/A</strong></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-meta">
+
+                    <div class="modal-meta project-meta-group">
                         <div class="meta-card">
                             <strong>Barangay</strong>
                             <span id="modalProjectBarangay">N/A</span>
@@ -968,24 +1204,37 @@
                             <span id="modalProjectOwner">N/A</span>
                         </div>
                         <div class="meta-card">
-                            <strong>Budget</strong>
-                            <span id="modalProjectBudget">₱0.00</span>
-                        </div>
-                        <div class="meta-card">
-                            <strong>Status</strong>
-                            <span id="modalProjectStatus">Pending</span>
-                        </div>
-                        <div class="meta-card">
-                            <strong>ABYIP Code</strong>
-                            <span id="modalProjectAbyip">N/A</span>
-                        </div>
-                        <div class="meta-card">
-                            <strong>Budget category</strong>
-                            <span id="modalProjectBudgetCategory">N/A</span>
-                        </div>
-                        <div class="meta-card">
                             <strong>Created on</strong>
                             <span id="modalProjectCreatedAt">N/A</span>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <h3>Project Overview</h3>
+                        <p id="modalProjectDescription">Project description goes here.</p>
+                    </div>
+
+                    <div class="section-block">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <h3>Share feedback</h3>
+                            <button type="button" id="toggleFeedbackFormBtn" class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                                Add feedback
+                            </button>
+                        </div>
+                        <div id="projectFeedbackPanel" class="hidden rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p class="text-sm text-slate-600 mb-3">Your feedback will be submitted anonymously so the community can speak freely.</p>
+                            <form id="projectFeedbackForm" class="space-y-3">
+                                <input type="hidden" name="project_id" id="feedbackProjectId">
+                                <input type="hidden" name="user_name" value="Anonymous">
+                                <div class="feedback-field">
+                                    <label for="feedbackMessageModal">Message</label>
+                                    <textarea id="feedbackMessageModal" name="message" placeholder="Share your concern or suggestion about this project" required></textarea>
+                                </div>
+                                <div class="feedback-footer">
+                                    <div id="projectFeedbackStatus" class="feedback-message"></div>
+                                    <button type="submit" class="btn-primary">Submit anonymous feedback</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1203,6 +1452,33 @@
             // IMPORTANT: The scrolling element is .snap-container (not the viewport),
             // so we must set it as the IntersectionObserver root.
             const scrollContainer = document.getElementById('main-scroll');
+            const scrollKey = 'public-transparency-scroll';
+            let scrollSaveScheduled = false;
+
+            const restoreScroll = () => {
+                const saved = localStorage.getItem(scrollKey);
+                if (!saved) return;
+                const value = parseInt(saved, 10);
+                if (!Number.isNaN(value)) {
+                    window.requestAnimationFrame(() => {
+                        scrollContainer.scrollTop = value;
+                    });
+                }
+            };
+            const saveScroll = () => {
+                localStorage.setItem(scrollKey, String(scrollContainer.scrollTop));
+                scrollSaveScheduled = false;
+            };
+            const scheduleSaveScroll = () => {
+                if (scrollSaveScheduled) return;
+                scrollSaveScheduled = true;
+                window.requestAnimationFrame(saveScroll);
+            };
+
+            restoreScroll();
+            window.addEventListener('load', restoreScroll);
+            scrollContainer.addEventListener('scroll', scheduleSaveScroll);
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -1231,6 +1507,7 @@
             const modalBackdrop = document.getElementById('projectDetailModal');
             const modalClose = document.getElementById('projectModalClose');
             const modalTitle = document.getElementById('modalProjectTitle');
+            const modalSubtitle = document.getElementById('modalProjectSubtitle');
             const modalDescription = document.getElementById('modalProjectDescription');
             const modalOwner = document.getElementById('modalProjectOwner');
             const modalBarangay = document.getElementById('modalProjectBarangay');
@@ -1240,18 +1517,33 @@
             const modalCategory = document.getElementById('modalProjectBudgetCategory');
             const modalCreated = document.getElementById('modalProjectCreatedAt');
 
+            const summarize = (text, limit = 120) => {
+                if (!text) { return 'No summary available.'; }
+                return text.length > limit ? text.slice(0, limit).trim() + '...' : text;
+            };
+
             document.querySelectorAll('.view-details-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const projectData = JSON.parse(button.getAttribute('data-project'));
                     modalTitle.textContent = projectData.title;
+                    modalSubtitle.textContent = summarize(projectData.description);
                     modalDescription.textContent = projectData.description;
                     modalOwner.textContent = projectData.owner;
                     modalBarangay.textContent = projectData.barangay;
-                    modalBudget.textContent = projectData.budget;
+                    modalBudget.textContent = '₱' + projectData.budget;
                     modalStatus.textContent = projectData.status;
                     modalCode.textContent = projectData.abyip_code;
                     modalCategory.textContent = projectData.budget_category;
                     modalCreated.textContent = projectData.created_at;
+                    if (feedbackProjectId) {
+                        feedbackProjectId.value = projectData.id;
+                    }
+                    if (projectFeedbackStatus) {
+                        projectFeedbackStatus.textContent = '';
+                    }
+                    if (feedbackPanel) {
+                        feedbackPanel.classList.add('hidden');
+                    }
                     modalBackdrop.classList.add('active');
                 });
             });
@@ -1265,6 +1557,70 @@
                     closeProjectModal();
                 }
             });
+
+            const feedbackToggle = document.getElementById('toggleFeedbackFormBtn');
+            const feedbackPanel = document.getElementById('projectFeedbackPanel');
+            const feedbackProjectId = document.getElementById('feedbackProjectId');
+            const projectFeedbackForm = document.getElementById('projectFeedbackForm');
+            const projectFeedbackStatus = document.getElementById('projectFeedbackStatus');
+
+            if (feedbackToggle && feedbackPanel) {
+                feedbackToggle.addEventListener('click', () => {
+                    feedbackPanel.classList.toggle('hidden');
+                });
+            }
+
+            if (projectFeedbackForm && projectFeedbackStatus) {
+                projectFeedbackForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    projectFeedbackStatus.textContent = 'Submitting feedback...';
+                    projectFeedbackStatus.style.color = '#2563eb';
+
+                    const formData = new FormData(projectFeedbackForm);
+                    try {
+                        const response = await fetch('api/feedback', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thank you!',
+                                text: 'Your feedback has been submitted successfully.',
+                                confirmButtonColor: '#2563eb',
+                                confirmButtonText: 'Got it'
+                            });
+                            const messageField = document.getElementById('feedbackMessageModal');
+                            if (messageField) {
+                                messageField.value = '';
+                            }
+                            projectFeedbackStatus.textContent = '';
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops!',
+                                text: result.message || 'Unable to submit feedback. Please try again.',
+                                confirmButtonColor: '#2563eb',
+                                confirmButtonText: 'Try again'
+                            });
+                            projectFeedbackStatus.textContent = result.message || 'Unable to submit feedback.';
+                            projectFeedbackStatus.style.color = '#991b1b';
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Connection Error',
+                            text: 'Unable to submit feedback. Please check your connection and try again.',
+                            confirmButtonColor: '#2563eb',
+                            confirmButtonText: 'Okay'
+                        });
+                        projectFeedbackStatus.textContent = 'Unable to submit feedback. Please try again later.';
+                        projectFeedbackStatus.style.color = '#991b1b';
+                    }
+                });
+            }
         });
     </script>
 

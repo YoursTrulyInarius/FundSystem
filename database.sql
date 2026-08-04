@@ -11,7 +11,9 @@ CREATE TABLE users (
     email VARCHAR(100) NULL UNIQUE,
     reset_token VARCHAR(255) NULL,
     reset_token_expires DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_role (role)
 );
 
 CREATE TABLE projects (
@@ -24,7 +26,10 @@ CREATE TABLE projects (
     budget DECIMAL(15, 2) NOT NULL,
     status ENUM('planned', 'ongoing', 'completed') DEFAULT 'planned',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
 );
 
 CREATE TABLE project_milestones (
@@ -34,7 +39,9 @@ CREATE TABLE project_milestones (
     description TEXT,
     date_achieved DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    INDEX idx_project_id (project_id),
+    INDEX idx_stage (stage)
 );
 
 CREATE TABLE transactions (
@@ -52,7 +59,13 @@ CREATE TABLE transactions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_project_id (project_id),
+    INDEX idx_status (status),
+    INDEX idx_type (type),
+    INDEX idx_created_at (created_at),
+    INDEX idx_reviewed_by (reviewed_by),
+    INDEX idx_recorded_by (recorded_by)
 );
 
 CREATE TABLE reports (
@@ -67,7 +80,11 @@ CREATE TABLE reports (
     financial_reports_path VARCHAR(255) NULL,
     remarks TEXT NULL,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_year_month (year, month),
+    INDEX idx_status (status),
+    INDEX idx_submitted_at (submitted_at)
 );
 
 CREATE TABLE certifications (
@@ -83,7 +100,10 @@ CREATE TABLE certifications (
     issued_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
-    FOREIGN KEY (issued_by) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (issued_by) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_transaction_id (transaction_id),
+    INDEX idx_issued_by (issued_by),
+    INDEX idx_type (type)
 );
 
 CREATE TABLE feedback (
@@ -93,7 +113,11 @@ CREATE TABLE feedback (
     contact_info VARCHAR(100) NULL,
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    read_at TIMESTAMP NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    INDEX idx_project_id (project_id),
+    INDEX idx_read_at (read_at),
+    INDEX idx_created_at (created_at)
 );
 
 -- Insert default admin users

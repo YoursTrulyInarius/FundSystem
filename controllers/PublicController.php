@@ -49,7 +49,65 @@ class PublicController {
         $recorded_transactions = (int) ($liveStats['recorded_transactions'] ?? 0);
         $barangay_count = (int) ($liveStats['barangay_count'] ?? 0);
 
+        // Fetch barangay-level project and fund utilization summary
+        $summaryQuery = "SELECT
+                COALESCE(u.barangay_name, 'Unknown') AS barangay_name,
+                COUNT(DISTINCT p.id) AS project_count,
+                COALESCE(SUM(p.budget), 0) AS total_budget,
+                COALESCE(SUM(CASE WHEN t.status = 'recorded' THEN t.amount ELSE 0 END), 0) AS recorded_amount,
+                COALESCE(SUM(CASE WHEN t.status != 'recorded' THEN t.amount ELSE 0 END), 0) AS pending_amount
+            FROM projects p
+            LEFT JOIN users u ON p.user_id = u.id
+            LEFT JOIN transactions t ON p.id = t.project_id
+            WHERE p.status IN ('ongoing', 'completed')
+            GROUP BY u.barangay_name
+            ORDER BY u.barangay_name";
+        $summaryStmt = $db->prepare($summaryQuery);
+        $summaryStmt->execute();
+        $barangaySummaries = $summaryStmt->fetchAll(PDO::FETCH_ASSOC);
+
         require 'views/public/home.php';
+    }
+
+    public function submitFeedback() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            return;
+        }
+
+        $project_id   = isset($_POST['project_id']) ? (int) $_POST['project_id'] : 0;
+        $user_name    = trim($_POST['user_name'] ?? '');
+        $contact_info = trim($_POST['contact_info'] ?? '');
+        $message      = trim($_POST['message'] ?? '');
+
+        if ($project_id <= 0 || empty($message)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Please select a project and share your message.']);
+            return;
+        }
+
+        if ($user_name === '') {
+            $user_name = 'Anonymous';
+        }
+
+        $database = new Database();
+        $db = $database->connect();
+
+        $insert = "INSERT INTO feedback (project_id, user_name, contact_info, message) VALUES (:project_id, :user_name, :contact_info, :message)";
+        $stmt = $db->prepare($insert);
+        $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+        $stmt->bindParam(':user_name', $user_name);
+        $stmt->bindParam(':contact_info', $contact_info);
+        $stmt->bindParam(':message', $message);
+        $success = $stmt->execute();
+
+        header('Content-Type: application/json');
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Thank you! Your feedback has been submitted successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Unable to submit feedback at this time. Please try again later.']);
+        }
     }
 
     public function project() {
