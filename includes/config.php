@@ -21,4 +21,13 @@ try {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// SMTP Settings for Password Reset (PHPMailer)
+define('SMTP_HOST', 'localhost');
+define('SMTP_PORT', 1025); // Mailpit or Mailhog default
+define('SMTP_USER', '');
+define('SMTP_PASS', '');
+define('SMTP_SECURE', ''); // 'tls', 'ssl', or ''
+define('MAIL_FROM', 'noreply@watchskfund.gov.ph');
+define('MAIL_FROM_NAME', 'Watch SK Fund Portal');
 ?>

@@ -7,10 +7,10 @@ $request_uri = $_SERVER['REQUEST_URI'];
 $parsed_url = parse_url($request_uri);
 $path = $parsed_url['path'];
 
-// Remove the base directory from the path dynamically
 $script_name = dirname($_SERVER['SCRIPT_NAME']); // e.g., /FundSystem or \FundSystem
 $script_name = str_replace('\\', '/', $script_name);
 if ($script_name === '/') $script_name = '';
+$base_path = $script_name === '' ? '/' : $script_name . '/';
 
 if (strpos(strtolower($path), strtolower($script_name)) === 0) {
     $route = substr($path, strlen($script_name));
@@ -36,6 +36,48 @@ switch ($route) {
         require 'views/login.php';
         break;
 
+    case 'forgot-password':
+        if (isset($_SESSION['user_id'])) {
+            header("Location: " . $base_path . "dashboard");
+            exit;
+        }
+        require 'views/forgot-password.php';
+        break;
+
+    case 'api/forgot-password':
+        require 'controllers/AuthController.php';
+        $auth = new AuthController();
+        $auth->forgot_password();
+        break;
+
+    case 'verify-otp':
+        if (isset($_SESSION['user_id'])) {
+            header("Location: " . $base_path . "dashboard");
+            exit;
+        }
+        require 'views/verify-otp.php';
+        break;
+
+    case 'api/verify-otp':
+        require 'controllers/AuthController.php';
+        $auth = new AuthController();
+        $auth->verify_otp();
+        break;
+
+    case 'reset-password':
+        if (isset($_SESSION['user_id'])) {
+            header("Location: " . $base_path . "dashboard");
+            exit;
+        }
+        require 'views/reset-password.php';
+        break;
+
+    case 'api/reset-password':
+        require 'controllers/AuthController.php';
+        $auth = new AuthController();
+        $auth->reset_password();
+        break;
+
     case 'api/login':
         require 'controllers/AuthController.php';
         $auth = new AuthController();
@@ -46,6 +88,20 @@ switch ($route) {
         require 'controllers/AuthController.php';
         $auth = new AuthController();
         $auth->logout();
+        break;
+
+    case 'register':
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+            header("Location: " . $base_path . "login");
+            exit;
+        }
+        require 'views/register.php';
+        break;
+
+    case 'api/register':
+        require 'controllers/AuthController.php';
+        $auth = new AuthController();
+        $auth->register();
         break;
 
     case 'dashboard':

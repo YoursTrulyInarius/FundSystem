@@ -36,9 +36,9 @@ if (isset($_SESSION['user_id'])) {
 
         .input-field:focus {
             background-color: #ffffff;
-            border-color: #0f172a;
+            border-color: #2563eb;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
     </style>
 </head>
@@ -53,11 +53,11 @@ if (isset($_SESSION['user_id'])) {
             <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');">
             </div>
             <!-- Dark Overlay for Readability -->
-            <div class="absolute inset-0 bg-slate-900/85 z-0"></div>
+            <div class="absolute inset-0 bg-black/75 z-0"></div>
 
             <div class="relative z-10 w-full max-w-lg left-content opacity-0 transform translate-y-8">
                 <a href="/FundSystem/"
-                    class="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white transition mb-12 group">
+                    class="inline-flex items-center text-sm font-medium text-slate-400 hover:text-blue-400 transition mb-12 group">
                     <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -101,7 +101,7 @@ if (isset($_SESSION['user_id'])) {
 
                 <!-- Mobile Back Button (Only visible on small screens) -->
                 <a href="/FundSystem/"
-                    class="lg:hidden inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition mb-8 group">
+                    class="lg:hidden inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition mb-8 group">
                     <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -127,7 +127,7 @@ if (isset($_SESSION['user_id'])) {
                     <div class="form-group opacity-0 transform translate-y-4">
                         <div class="flex items-center justify-between mb-1.5">
                             <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                            <a href="#" class="text-sm font-medium text-slate-900 hover:underline">Forgot password?</a>
+                            <a href="forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
                         </div>
                         <div class="relative">
                             <input id="password" name="password" type="password" required
@@ -147,7 +147,7 @@ if (isset($_SESSION['user_id'])) {
 
                     <div class="form-group opacity-0 transform translate-y-4 pt-2">
                         <button type="submit" id="loginBtn"
-                            class="w-full flex justify-center items-center py-3.5 px-4 rounded-lg text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+                            class="w-full flex justify-center items-center py-3.5 px-4 rounded-lg text-sm font-bold text-white bg-black hover:bg-zinc-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                             <span id="btnText">Sign In</span>
                             <svg id="btnLoader" class="hidden animate-spin ml-3 h-5 w-5 text-white"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

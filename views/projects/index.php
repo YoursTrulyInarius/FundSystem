@@ -19,7 +19,7 @@ ob_start();
     </div>
     <button
         onclick="document.getElementById('projectModal').classList.remove('hidden')"
-        class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
+        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -126,27 +126,27 @@ ob_start();
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Project Title</label>
                         <input type="text" name="title"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition"
                             required placeholder="e.g. Inter-Barangay Basketball League">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1.5">ABYIP Reference Code</label>
                             <input type="text" name="abyip_code"
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition"
                                 placeholder="e.g. ABYIP-2026-01">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1.5">Approved Budget (₱)</label>
                             <input type="number" step="0.01" name="budget"
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition"
                                 required placeholder="0.00">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Budget Category</label>
                         <select name="budget_category"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition">
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition">
                             <option value="Equitable Access to Education">Equitable Access to Education</option>
                             <option value="Environmental Protection">Environmental Protection</option>
                             <option value="Climate Change Adaptation">Climate Change Adaptation & Disaster Risk</option>
@@ -160,18 +160,18 @@ ob_start();
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Description / Alignment with
                             ABYIP</label>
                         <textarea name="description" rows="3"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition resize-none"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition resize-none"
                             placeholder="Briefly describe the project..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100">
                 <button type="submit" form="projectForm" id="submitProjectBtn"
-                    class="flex-1 sm:flex-none inline-flex justify-center rounded-xl border border-transparent shadow-sm px-6 py-2.5 bg-slate-900 text-sm font-bold text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all">
+                    class="flex-1 sm:flex-none inline-flex justify-center rounded-xl border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-bold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all">
                     Save Project
                 </button>
                 <button type="button" onclick="document.getElementById('projectModal').classList.add('hidden')"
-                    class="flex-1 sm:flex-none inline-flex justify-center rounded-xl border border-slate-200 shadow-sm px-6 py-2.5 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 focus:outline-none transition-all">
+                    class="flex-1 sm:flex-none inline-flex justify-center rounded-xl border border-slate-200 shadow-sm px-6 py-2.5 bg-white text-sm font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:outline-none transition-all">
                     Cancel
                 </button>
             </div>
