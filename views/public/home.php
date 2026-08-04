@@ -8,29 +8,55 @@
     <!-- Anime.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; overflow: hidden; }
-        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        
-        /* Hide scrollbar for the main container but allow scrolling */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root {
+            color-scheme: light;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(12px);
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(8px);
+            color: #e2e8f0;
+        }
+        .stat-card {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+        }
         .snap-container::-webkit-scrollbar {
             width: 8px;
         }
         .snap-container::-webkit-scrollbar-track {
-            background: #f1f1f1; 
+            background: transparent;
         }
         .snap-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
+            background: #cbd5e1;
+            border-radius: 999px;
         }
         .snap-container::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
+            background: #94a3b8;
         }
 
-        /* Inner scrollbars for sections */
         .inner-scroll::-webkit-scrollbar { width: 6px; }
         .inner-scroll::-webkit-scrollbar-track { background: transparent; }
-        .inner-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+        .inner-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 999px; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -58,22 +84,48 @@
     <main class="snap-container h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth">
         
         <!-- Hero Section -->
-        <section id="hero" class="snap-start h-screen w-full flex flex-col justify-center items-center relative overflow-hidden pt-16">
-            <!-- New Background Image -->
-            <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');"></div>
-            <!-- Dark Overlay for Readability -->
-            <div class="absolute inset-0 bg-slate-900/85 z-0"></div>
+        <section id="hero" class="snap-start h-screen w-full flex flex-col justify-center items-center relative overflow-hidden pt-16 bg-slate-950">
+            <div class="absolute inset-0 z-0"></div>
             
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                <h2 class="hero-text text-4xl md:text-5xl lg:text-6xl tracking-tight font-extrabold text-white opacity-0 transform translate-y-8">
+                <div class="hero-badge mx-auto w-fit rounded-full px-4 py-2 text-sm font-medium hero-text opacity-0 transform translate-y-6">
+                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                    Open, verified, and citizen-friendly
+                </div>
+                <h2 class="hero-text mt-6 text-4xl md:text-5xl lg:text-6xl tracking-tight font-extrabold text-white opacity-0 transform translate-y-8">
                     Public Transparency Portal
                 </h2>
-                <p class="hero-subtext mt-6 max-w-2xl text-lg md:text-xl text-slate-300 mx-auto opacity-0 transform translate-y-8">
-                    Monitoring youth development programs and ensuring transparency, accountability, and fiscal responsibility in the management of SK Funds.
+                <p class="hero-subtext mt-6 max-w-3xl text-lg md:text-xl text-slate-300 mx-auto opacity-0 transform translate-y-8">
+                    Follow SK-funded projects, inspect public transactions, and stay informed with a cleaner view of how youth development programs are managed.
                 </p>
-                <div class="mt-10 flex justify-center gap-4 hero-buttons opacity-0">
-                    <a href="#projects" class="px-8 py-3 rounded-full bg-white text-slate-900 font-bold hover:bg-slate-100 transition shadow-lg">View Projects</a>
-                    <a href="#registry" class="px-8 py-3 rounded-full bg-slate-800 text-white font-bold hover:bg-slate-700 transition border border-slate-700">See Registry</a>
+                <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <div class="stat-card rounded-2xl p-4 text-left">
+                        <p class="text-2xl font-bold text-slate-900"><?= count($projects ?? []) ?></p>
+                        <p class="text-sm text-slate-500">Tracked projects</p>
+                    </div>
+                    <div class="stat-card rounded-2xl p-4 text-left">
+                        <p class="text-2xl font-bold text-slate-900"><?= count($transactions ?? []) ?></p>
+                        <p class="text-sm text-slate-500">Recorded transactions</p>
+                    </div>
+                    <div class="stat-card rounded-2xl p-4 text-left">
+                        <p class="text-2xl font-bold text-slate-900">
+                            <?php
+                                $barangays = [];
+                                foreach (($projects ?? []) as $proj) {
+                                    if (!empty($proj['barangay_name'])) {
+                                        $barangays[$proj['barangay_name']] = true;
+                                    }
+                                }
+                                foreach (($transactions ?? []) as $tx) {
+                                    if (!empty($tx['barangay_name'])) {
+                                        $barangays[$tx['barangay_name']] = true;
+                                    }
+                                }
+                                echo count($barangays);
+                            ?>
+                        </p>
+                        <p class="text-sm text-slate-500">Barangays covered</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -81,10 +133,14 @@
         <!-- Active Projects -->
         <section id="projects" class="snap-start h-screen w-full bg-[#f8fafc] pt-24 pb-10">
             <div class="flex flex-col h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 shrink-0 section-header opacity-0 transform -translate-x-8">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 shrink-0 section-header opacity-0 transform -translate-x-8">
                     <div>
-                        <h3 class="text-3xl font-bold text-slate-900">Active SK Projects</h3>
-                        <p class="text-slate-500 mt-1">Ongoing and completed youth programs in the municipality.</p>
+                        <div class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                            Public projects
+                        </div>
+                        <h3 class="mt-3 text-3xl font-bold text-slate-900">Active SK Projects</h3>
+                        <p class="mt-2 max-w-2xl text-slate-500">A clearer view of the youth programs and community initiatives currently being delivered across the municipality.</p>
                     </div>
                     <div class="flex items-center gap-3 shrink-0">
                         <select id="projectBarangayFilter" class="pl-3 pr-8 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent appearance-none cursor-pointer transition-all">
@@ -126,7 +182,7 @@
                         <p class="text-slate-500 col-span-full">No active projects found.</p>
                     <?php else: ?>
                         <?php foreach($projects as $index => $proj): ?>
-                            <div class="card p-6 hover:shadow-md transition-shadow project-card opacity-0 transform translate-y-4" data-barangay="<?= htmlspecialchars($proj['barangay_name'] ?? '') ?>">
+                            <div class="card p-6 hover:-translate-y-1 transition-all project-card opacity-0 transform translate-y-4" data-barangay="<?= htmlspecialchars($proj['barangay_name'] ?? '') ?>">
                                 <div class="flex justify-between items-start mb-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize <?= $proj['status'] == 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800' ?>">
                                         <?= htmlspecialchars($proj['status']) ?>
@@ -154,10 +210,14 @@
         <section id="registry" class="snap-start h-screen w-full bg-[#f8fafc] pt-24 pb-10">
             <div class="flex flex-col h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                 <div class="mb-6 shrink-0 section-header-2 opacity-0 transform -translate-x-8">
-                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                         <div>
-                            <h3 class="text-3xl font-bold text-slate-900">Watch SK Fund Registry</h3>
-                            <p class="text-slate-500 mt-1">All SK financial transactions across all barangays, updated in real-time.</p>
+                            <div class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                                <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+                                Registry
+                            </div>
+                            <h3 class="mt-3 text-3xl font-bold text-slate-900">Watch SK Fund Registry</h3>
+                            <p class="mt-2 max-w-2xl text-slate-500">A structured public ledger of financial transactions, organized by barangay and reference number.</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
                             <div class="relative">

@@ -29,41 +29,74 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
 
 ### 1. 🏢 SK Barangay Council Dashboard (`sk_admin`)
 * **Target Users**: SK Chairpersons, SK Treasurers, and Council Members at the barangay level.
-* **Detailed Functionalities**:
-  - **Project Registry & ABYIP Profiling**: Register SK projects linked directly to their approved Annual Barangay Youth Investment Program (ABYIP) reference codes and official budget categories (e.g., *Equitable Access to Education*, *Environmental Protection*, *Sports Development*, *Youth Employment & Livelihood*).
-  - **Milestone & Progress Tracking**: Track physical project execution across 4 sequential stages (*Planning*, *Authorization*, *Implementation*, *Monitoring*).
-  - **Financial Transaction Encoding**: Encode financial records including Requests for Obligation of Allotment (ROA), Procurement Documents, Disbursement Vouchers (DV), and Liquidation Reports with mandatory file uploads.
-  - **MAR Submission Module**: Compile and submit Monthly Accomplishment Reports (Session Minutes, Attendance Records, Post-Activity Reports, Financial Reports) directly to the LYDO before monthly compliance deadlines.
+* **Dashboard Displays**:
+  - **Total Project Budget**: Aggregate sum of all approved SK projects under the barangay
+  - **Pending/Returned MARs**: Count of Monthly Accomplishment Reports awaiting resubmission due to deficiencies
+  - **Recorded Transactions**: Count of successfully recorded financial transactions in the municipal registry
+  - **Recent Projects List**: Quick view of the 5 most recently created or updated projects
+* **Core Functionalities**:
+  - **Project Registry & ABYIP Profiling**: Register and manage SK projects linked directly to their approved Annual Barangay Youth Investment Program (ABYIP) reference codes. Categorize by budget category (Equitable Access to Education, Environmental Protection, Climate Change Adaptation, Youth Employment & Livelihood, Health & Anti-Drug Abuse, Sports Development, or Capability Building).
+  - **Milestone & Progress Tracking**: Track physical project execution across 4 sequential stages (Planning → Authorization → Implementation → Monitoring) with status updates and date markers.
+  - **Financial Transaction Encoding**: Encode and upload financial records including ROA (Request for Obligation of Allotment), Disbursement Vouchers (DV), Procurement Documents, and Liquidation Reports with required file attachments for audit trail.
+  - **MAR Submission Module**: Compile Monthly Accomplishment Reports with required supporting documents (Session Minutes, Attendance Records, Post-Activity Reports, Financial Statements) and submit directly to LYDO before monthly deadlines.
+  - **Status Monitoring**: View transaction and report status progression from pending → reviewed → recorded to ensure timely compliance.
 
 ### 2. 📋 Local Youth Development Office (LYDO) Dashboard (`lydo`)
-* **Target Users**: Municipal LYDO Officers and Compliance Reviewers.
-* **Detailed Functionalities**:
-  - **Compliance & Completeness Review**: Review incoming MAR submissions and financial documents against approved ABYIP budgets and COA rules.
-  - **Deficiency Routing & Notifications**: Flag incomplete or non-compliant submissions, attach detailed deficiency remarks, and return documents back to the concerned SK Barangay Council for correction.
-  - **Compliance Status Tracker**: Monitor submission timeliness and compliance rates across all constituent barangays in real time.
-  - **Endorsement & Certification**: Issue digital *Certifications of Review Completeness* upon endorsing compliant transactions to the SK Federation.
+* **Target Users**: Municipal LYDO Officers, Compliance Reviewers, and Administrative Staff.
+* **Dashboard Displays**:
+  - **Pending Reviews**: Count of MARs and transactions awaiting compliance review from all barangays
+  - **Reviewed MARs**: Count of Monthly Accomplishment Reports already reviewed and marked compliant or deficient
+  - **Reviewed Transactions**: Count of financial transactions that have passed compliance screening
+  - **Pending MARs Queue**: Filterable list of barangay-submitted MARs with submission dates and barangay names
+  - **Pending Transactions Queue**: List of financial transactions waiting for completeness and rule-based validation
+* **Core Functionalities**:
+  - **Compliance & Completeness Review**: Validate incoming MAR submissions and transaction documents against approved ABYIP budgets, Commission on Audit (COA) rules, and municipal ordinance requirements. Check for missing attachments, correct amounts, and proper references.
+  - **Deficiency Flagging & Routing**: Identify incomplete or non-compliant submissions; attach detailed deficiency remarks (budget overages, missing documents, wrong budget codes); and return to the originating SK Barangay Council for correction with deadline reminders.
+  - **Barangay Compliance Status Tracker**: Monitor submission timeliness, compliance rates, and common deficiency patterns across all constituent barangays in real-time dashboards.
+  - **Approval & Endorsement**: Issue digital *Certifications of Review Completeness* for compliant submissions, marking them as "reviewed" and ready for SK Federation recording.
+  - **Batch Processing**: Manage high-volume MARs and transactions with queue prioritization and bulk action capabilities during month-end deadline periods.
 
 ### 3. 🏛️ Municipal SK Federation Dashboard (`sk_fed`)
-* **Target Users**: SK Federation Officers and Municipal Archivists.
-* **Detailed Functionalities**:
-  - **Digital SK Fund Registry**: Record LYDO-approved financial transactions into the official municipal ledger (capturing barangay name, transaction date, nature of expenditure, amount, reference number, and compliance remarks).
-  - **Certification Generation**: Auto-generate digital *Certifications of Recording* for official archiving.
-  - **Report Consolidation Module**: Merge barangay-level MAR submissions into a municipal-wide compliance dataset.
-  - **Quarterly Monitoring Report Generation**: Aggregate compliance rates and common deficiencies into downloadable Quarterly Compliance Monitoring Reports for the Sangguniang Bayan and Office of the Mayor.
+* **Target Users**: SK Federation Officers, Municipal Archivists, and Central Records Administrators.
+* **Dashboard Displays**:
+  - **Pending Recording**: Count of LYDO-approved transactions and MARs awaiting official ledger entry
+  - **Recorded MARs**: Count of successfully recorded Monthly Accomplishment Reports in the municipal archive
+  - **Recorded Transactions**: Count of financial transactions officially inscribed in the SK Fund registry
+  - **Queue of Reviewed Items**: List of approved transactions and MARs ready to be recorded, organized by submission date
+* **Core Functionalities**:
+  - **Digital SK Fund Registry**: Officially record LYDO-approved financial transactions into the municipal ledger, capturing barangay name, transaction date, nature of expenditure, amount in Philippine Pesos, unique reference number, and compliance remarks for permanent archival.
+  - **Auto-Certification Generation**: Generate and issue digital *Certifications of Recording* with unique reference numbers and timestamps to confirm official municipal ledger entry for archival purposes.
+  - **Report Consolidation Module**: Aggregate and merge barangay-level MAR submissions into a municipal-wide compliance dataset; consolidate spending patterns and fund utilization rates.
+  - **Quarterly Monitoring Report**: Auto-generate downloadable Quarterly Compliance Monitoring Reports summarizing aggregate compliance rates, total expenditures, common deficiency patterns, and project completion percentages for submission to the Sangguniang Bayan and Office of the Mayor.
+  - **Municipal Archive Management**: Maintain searchable, tamper-proof digital records of all SK transactions, certifications, and compliance documents with audit-trail timestamps.
 
 ### 4. 🔍 Municipal Verification & Oversight Dashboard (`verification`)
-* **Target Users**: Municipal Accountant and Office of the Mayor Representatives.
-* **Detailed Functionalities**:
-  - **Financial Ledger Verification**: Read-only access to view recorded transactions, disbursement details, liquidations, and procurement docs across all barangays.
-  - **Executive Analytics**: Real-time aggregate metrics displaying total registered projects, total allocated budget, recorded expenditures, and funds currently in the review pipeline.
-  - **Audit Trail & Compliance Transparency**: Inspect verified certifications and MAR compliance records for municipal supervisory oversight without modifying barangay-level operational data.
+* **Target Users**: Municipal Accountant, Office of the Mayor Representatives, and Sangguniang Bayan Members (Read-Only Access).
+* **Dashboard Displays**:
+  - **Total Registered Projects**: System-wide count of all SK projects across all barangays
+  - **Total Allocated Budget**: Aggregate sum of all approved project budgets
+  - **Recorded Expenditures**: Total amount of transactions officially recorded in the municipal registry (✓ recorded status)
+  - **Reviewed Pending Amount**: Total amount of transactions that have passed LYDO review but not yet recorded
+  - **Pending Amount**: Total amount of transactions still in review pipeline awaiting LYDO clearance
+  - **Complete Transaction Ledger**: Full list of all recorded transactions with barangay names, project titles, amounts, submission dates, and submitter information
+* **Core Functionalities**:
+  - **Financial Ledger Verification**: Read-only access to inspect recorded transactions, disbursement details, liquidation amounts, and procurement documentation across all barangays without modification rights.
+  - **Executive Analytics**: Real-time executive-level aggregate metrics and charts showing total fund allocation vs. utilization, compliance rates, transaction pipeline status, and monthly trends.
+  - **Audit Trail Inspection**: Inspect digital certifications, MAR compliance records, and transaction review chains to verify municipal supervisory oversight and regulatory adherence.
+  - **Transparency Reporting**: Generate on-demand audit reports, compliance summaries, and fund utilization dashboards for Sangguniang Bayan oversight and public accountability.
+  - **No Modification Authority**: Read-only dashboard prevents accidental or unauthorized changes to barangay-level operational data; ensures verification role remains independent.
 
 ### 5. 🌐 Public Transparency Portal (`public` / Citizen View)
-* **Target Users**: Community Members, Youth Beneficiaries, and the General Public.
-* **Detailed Functionalities**:
-  - **Barangay Project Explorer**: Search, filter, and view active/completed SK projects across all barangays in Ramon Magsaysay.
-  - **Public Fund Ledger**: Inspect transparent summaries of project budgets, fund utilization statuses, and official digital certifications.
-  - **Citizen Feedback Channel**: Submit feedback, inquiries, or concerns regarding specific SK-funded projects directly to municipal authorities.
+* **Target Users**: Community Members, Youth Beneficiaries, Non-Registered Citizens, and the General Public.
+* **Portal Displays**:
+  - **Barangay Project Explorer**: Searchable, filterable grid of active and completed SK projects across all barangays with project titles, descriptions, budgets, and status badges.
+  - **Official Registry Ledger**: Structured table of recorded SK financial transactions organized by barangay, transaction type, amount, status, and submission date with search and filter capabilities.
+  - **Key Metrics Cards**: Public-facing statistics showing total tracked projects, recorded transactions, and barangays covered.
+* **Core Functionalities**:
+  - **Barangay Project Explorer**: Search and filter active/completed SK projects by barangay, project type, or keyword; view project descriptions, approved budgets, and current status without requiring login.
+  - **Public Fund Ledger Inspection**: Browse transparent summaries of all recorded SK financial transactions, including project association, fund amounts, transaction types, and official recording dates to enable citizen oversight.
+  - **Citizen Inquiry & Feedback Channel**: Submit feedback, questions, or concerns regarding specific SK-funded projects directly to municipal authorities through integrated feedback forms (future enhancement).
+  - **Accessibility & Openness**: No login required; information is formatted for public accessibility; promotes citizens' right to information under the Freedom of Information Executive Order.
 
 ---
 
