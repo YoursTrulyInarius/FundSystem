@@ -14,7 +14,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Watch SK Fund</title>
+    <title>Admin Login - SK FUND System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
@@ -67,7 +67,7 @@ if (isset($_SESSION['user_id'])) {
                 </a>
 
                 <h1 class="text-4xl xl:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
-                    Watch SK Fund<br>Management System
+                    SK FUND System
                 </h1>
 
                 <p class="text-lg text-slate-300 font-medium mb-12 leading-relaxed">

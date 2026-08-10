@@ -117,7 +117,7 @@ switch ($route) {
         break;
 
     case 'dashboard':
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -145,7 +145,7 @@ switch ($route) {
         break;
 
     case 'projects':
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sk_admin') {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -153,7 +153,7 @@ switch ($route) {
         break;
 
     case 'project-view':
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sk_admin') {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -183,7 +183,7 @@ switch ($route) {
         break;
 
     case 'reports':
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -199,7 +199,7 @@ switch ($route) {
         break;
 
     case 'feedback':
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sk_admin') {
             header("Location: " . $base_path . "dashboard");
             exit;
         }

@@ -138,12 +138,12 @@ class AuthController {
 
             // Content
             $mail->isHTML(true);
-            $mail->Subject = 'Your Password Reset Code - Watch SK Fund';
+            $mail->Subject = 'Your Password Reset Code - SK FUND System';
             $mail->Body    = "
                 <div style='font-family: sans-serif; max-width: 500px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;'>
                     <h2 style='color: #0f172a;'>Password Reset Code</h2>
                     <p style='color: #475569;'>Hello " . htmlspecialchars($user['full_name']) . ",</p>
-                    <p style='color: #475569;'>We received a request to reset your password for the Watch SK Fund portal. Use the verification code below to proceed. This code is valid for <strong>10 minutes</strong>.</p>
+                    <p style='color: #475569;'>We received a request to reset your password for the SK FUND System portal. Use the verification code below to proceed. This code is valid for <strong>10 minutes</strong>.</p>
                     <div style='margin: 30px 0; text-align: center;'>
                         <div style='background-color: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; display: inline-block;'>
                             <span style='font-family: monospace; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #0f172a;'>" . $otp . "</span>
@@ -283,10 +283,9 @@ class AuthController {
             return;
         }
 
-        // Allow registration from the login page for new SK accounts,
-        // while also allowing SK Admins to create accounts when already signed in.
-        if (isset($_SESSION['user_id']) && $_SESSION['role'] !== 'sk_admin') {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users from the dashboard.']);
+        // Only SK Admin can register users
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
             return;
         }
 
@@ -305,7 +304,7 @@ class AuthController {
         }
 
         // Validate role
-        $valid_roles = ['sk_admin', 'lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office'];
+        $valid_roles = ['sk_admin', 'lydo', 'sk_fed', 'verification'];
         if (!in_array($role, $valid_roles)) {
             echo json_encode(['success' => false, 'message' => 'Invalid role selected.']);
             return;

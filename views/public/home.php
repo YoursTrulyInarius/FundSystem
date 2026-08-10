@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch SK Fund | Public Transparency Portal</title>
+    <title>SK FUND System | Public Transparency Portal</title>
     <meta name="description" content="Track SK-funded projects, inspect public transactions, and stay informed with a transparent view of how youth development programs are managed in Ramon Magsaysay.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -940,7 +940,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
                 </div>
-                Watch SK Fund
+                SK FUND System
             </a>
 
             <ul class="nav-links">
@@ -1253,7 +1253,7 @@
                                 <span class="section-pill-dot"></span>
                                 Public Registry
                             </div>
-                            <h2 class="section-title">Watch SK Fund Registry</h2>
+                            <h2 class="section-title">SK FUND System Registry</h2>
                             <p class="section-sub">A structured public ledger of financial transactions, organized by barangay and reference number.</p>
                         </div>
                         <div class="flex items-center gap-3 shrink-0 mt-4 lg:mt-0">
@@ -1375,7 +1375,7 @@
                             <p>© 2026 Municipality of Ramon Magsaysay</p>
                         </div>
                         <div class="site-footer-meta">
-                            <p class="site-footer-title">Watch SK Fund System</p>
+                            <p class="site-footer-title">SK FUND System</p>
                             <p>All data is publicly available for citizen accountability.</p>
                         </div>
                     </div>

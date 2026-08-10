@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title ?? 'Dashboard' ?> - Watch SK Fund</title>
+    <title><?= $page_title ?? 'Dashboard' ?> - SK FUND System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -55,7 +55,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full">
         <div class="p-6 border-b border-slate-200">
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Watch SK Fund</h1>
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">SK FUND System</h1>
             <p class="text-xs text-slate-500 mt-1"><?= htmlspecialchars($_SESSION['role'] ?? 'Public') ?> Portal</p>
         </div>
         

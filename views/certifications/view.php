@@ -49,7 +49,7 @@
                     <div class="text-left">
                         <p class="sans text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Republic of the Philippines</p>
                         <p class="text-lg font-semibold text-slate-700">Municipality of Ramon Magsaysay, Zamboanga del Sur</p>
-                        <p class="sans text-sm text-slate-500">Watch SK Fund Monitoring System</p>
+                        <p class="sans text-sm text-slate-500">SK FUND System</p>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
                     <strong><?= htmlspecialchars($cert['sk_name']) ?></strong> of
                     <strong><?= htmlspecialchars($cert['barangay_name']) ?></strong>
                     under the Sangguniang Kabataan Fund has been duly
-                    <strong><?= $cert['type'] === 'review' ? 'reviewed and found complete' : 'officially recorded in the Watch SK Fund System' ?></strong>.
+                    <strong><?= $cert['type'] === 'review' ? 'reviewed and found complete' : 'officially recorded in the SK FUND System' ?></strong>.
                 </p>
 
                 <!-- Transaction Details Box -->
@@ -113,7 +113,7 @@
 
                 <p>
                     This certification is issued in compliance with the provisions of the 
-                    <em>Watch SK Fund Monitoring Program</em> of the Municipality of Ramon Magsaysay, 
+                    <em>SK FUND System Monitoring Program</em> of the Municipality of Ramon Magsaysay, 
                     Zamboanga del Sur, as institutionalized under the existing local ordinance 
                     in consonance with Republic Act No. 10742.
                 </p>

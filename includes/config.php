@@ -29,5 +29,5 @@ define('SMTP_USER', '');
 define('SMTP_PASS', '');
 define('SMTP_SECURE', ''); // 'tls', 'ssl', or ''
 define('MAIL_FROM', 'noreply@watchskfund.gov.ph');
-define('MAIL_FROM_NAME', 'Watch SK Fund Portal');
+define('MAIL_FROM_NAME', 'SK FUND System Portal');
 ?>
