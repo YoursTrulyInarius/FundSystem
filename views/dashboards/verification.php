@@ -3,7 +3,7 @@ require_once 'includes/config.php';
 require_once 'core/Database.php';
 
 // Access control check
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['verification', 'accountant', 'mayor_office', 'lydo', 'sk_fed'])) {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['verification', 'mayor_office', 'lydo', 'sk_fed'])) {
     header("Location: " . $base_path . "login");
     exit;
 }

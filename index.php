@@ -129,7 +129,7 @@ switch ($route) {
             require 'views/dashboards/lydo.php';
         } elseif ($role === 'sk_fed') {
             require 'views/dashboards/fed.php';
-        } elseif (in_array($role, ['verification', 'accountant', 'mayor_office'])) {
+        } elseif (in_array($role, ['verification', 'mayor_office'])) {
             require 'views/dashboards/verification.php';
         } else {
             require 'views/dashboards/public.php';
@@ -190,7 +190,7 @@ switch ($route) {
         // SK Admin sees submission form, oversight roles see consolidation view
         if ($_SESSION['role'] === 'sk_admin') {
             require 'views/reports/sk_reports.php';
-        } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed', 'verification', 'accountant', 'mayor_office'])) {
+        } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed', 'verification', 'mayor_office'])) {
             require 'views/reports/consolidation.php';
         } else {
             header("Location: " . $base_path . "dashboard");
