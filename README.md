@@ -34,128 +34,24 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 ---
 
-## ✅ Functional Requirements (13/13 Completed)
+## ✅ Major Functionalities
 
-### 1. **User Authentication & Session Management**
-- ✅ Role-based login system with bcrypt password verification
-- ✅ Session-based authorization enforced on all protected routes
-- ✅ Automatic redirect to login for unauthenticated access
-- ✅ Secure logout with session destruction
-- ✅ **Files**: `controllers/AuthController.php`, `models/User.php`, `views/login.php`
-
-### 2. **SK Project Registration with ABYIP Linkage**
-- ✅ SK Barangay Councils register projects with title, description, budget
-- ✅ Projects linked to approved ABYIP codes and budget categories (7 categories: Education, Environment, Climate, Youth Employment, Health, Sports, Capability)
-- ✅ Projects track status lifecycle: planned → ongoing → completed
-- ✅ Milestone tracking across 4 sequential stages (Planning, Authorization, Implementation, Monitoring)
-- ✅ **Files**: `controllers/ProjectController.php`, `models/Project.php`, `views/projects/`
-
-### 3. **Milestone & Progress Tracking**
-- ✅ Record physical project execution stages with dates achieved
-- ✅ Track progress from planning through completion
-- ✅ Support for milestone descriptions and evidence attachment
-- ✅ Date-based milestone status updates
-- ✅ **Database**: `project_milestones` table with stage ENUM and date_achieved tracking
-- ✅ **Files**: `controllers/MilestoneController.php`, `core/MilestoneHelper.php`
-
-### 4. **Financial Transaction Encoding**
-- ✅ SK admins encode 4 transaction types: Disbursement, Liquidation, ROA, Procurement
-- ✅ Capture amount, reference number, status, and optional deficiency reasons
-- ✅ Document attachment support for audit trails
-- ✅ Track reviewed_by and recorded_by user IDs for accountability
-- ✅ **Database**: `transactions` table with type ENUM, status tracking, foreign keys to users
-- ✅ **Files**: `controllers/TransactionController.php`, `views/transactions.php`
-
-### 5. **Monthly Accomplishment Report (MAR) Submission**
-- ✅ SK admins compile MARs with supporting documents
-- ✅ Required attachments: Session Minutes, Attendance Records, Post-Activity Reports, Financial Reports
-- ✅ Submit to LYDO before monthly deadlines
-- ✅ Track submission status: pending → reviewed → returned
-- ✅ **Database**: `reports` table with month/year, status, 4 document paths
-- ✅ **Files**: `controllers/ReportController.php`, `views/reports/sk_reports.php`
-
-### 6. **LYDO Compliance Review & Approval**
-- ✅ LYDO reviews MARs and transactions for completeness
-- ✅ Validate against ABYIP budgets, COA rules, municipal ordinances
-- ✅ Mark submissions as "reviewed" status
-- ✅ Issue digital Certifications of Review Completeness
-- ✅ Track reviewer user ID for audit trail
-- ✅ **Files**: `controllers/ReportController.php`, `controllers/CertificationController.php`, `views/dashboards/lydo.php`
-
-### 7. **Deficiency Flagging & Return for Correction**
-- ✅ LYDO identifies incomplete/non-compliant submissions
-- ✅ Attach detailed deficiency remarks (budget overages, missing documents, wrong codes)
-- ✅ Return marked as "returned" status with deficiency_reason stored
-- ✅ SK admins notified to correct and resubmit
-- ✅ **Database**: `transactions.deficiency_reason` TEXT field; `reports.status` = 'returned'
-- ✅ **Files**: `controllers/LYDOController.php`, `views/projects/view.php`
-
-### 8. **SK Federation Registry Recording**
-- ✅ SK Federation records LYDO-approved transactions into official digital ledger
-- ✅ Capture: barangay name, transaction date, nature (type), amount (PHP), reference number, remarks
-- ✅ Update transaction status to "recorded"
-- ✅ Maintain audit trail with recorded_by user ID and timestamp
-- ✅ **Database**: `transactions.recorded_by`, `recorded_at` timestamp, status 'recorded'
-- ✅ **Files**: `controllers/FedController.php`, `views/dashboards/fed.php`
-
-### 9. **Quarterly Compliance Monitoring Report**
-- ✅ SK Federation consolidates barangay submissions into municipal dataset
-- ✅ Auto-generate quarterly reports (Q1, Q2, Q3, Q4)
-- ✅ Aggregate compliance rates, total expenditures, common deficiencies, project completion %
-- ✅ Downloadable report format for Sangguniang Bayan and Office of Mayor
-- ✅ **Files**: `controllers/ReportController.php`, `views/reports/consolidation.php`
-
-### 10. **Municipal Verification & Oversight**
-- ✅ Office of the Mayor access read-only transaction ledger
-- ✅ View all recorded transactions with barangay, project, amount, date, status
-- ✅ Executive-level analytics and fund utilization dashboards
-- ✅ Inspect audit trails and digital certifications
-- ✅ No modification authority (prevents unauthorized changes)
-- ✅ **Access Control**: Role 'verification' & 'mayor_office' in `controllers/`
-- ✅ **Files**: `views/dashboards/verification.php`, `views/reports/consolidation.php`
-
-### 11. **Public Transparency Portal**
-- ✅ No login required; public-facing portal at `http://localhost/FundSystem/`
-- ✅ Browse active/completed SK projects by barangay with descriptions and budgets
-- ✅ Searchable, filterable grid with project status badges
-- ✅ Official recorded transaction ledger visible to public
-- ✅ Key metrics: Total projects, recorded transactions, barangays covered
-- ✅ Peso formatting (₱) on all budget displays
-- ✅ **Files**: `controllers/PublicController.php`, `views/public/home.php`, `views/public/project_view.php`
-
-### 12. **Community Feedback & Concerns Channel** ⭐ **(New Feature)**
-- ✅ Citizens submit anonymous feedback on SK projects through public portal
-- ✅ Feedback form integrated into project details modal
-- ✅ Capture: Project ID, message, optional name/contact info
-- ✅ Default to "Anonymous" if no name provided
-- ✅ Store in `feedback` table with project_id foreign key
-- ✅ **Database**: `feedback` table (id, project_id, user_name, contact_info, message, created_at, read_at)
-- ✅ **How It Works**: 
-  - Public user clicks "View details" on a project card
-  - Modal opens with project info and feedback form at the bottom
-  - Anonymous form submission via Fetch API to `api/feedback` endpoint
-  - SweetAlert notification confirms submission
-  - Feedback stored in database with timestamp
-- ✅ **Files**: `controllers/PublicController.php::submitFeedback()`, `views/public/home.php` (feedback form modal)
-
-### 13. **SK Admin Feedback Management Dashboard** ⭐ **(New Feature)**
-- ✅ SK admins access dedicated feedback management page at `/feedback` (SK admin only)
-- ✅ View all feedback submitted for their projects
-- ✅ Display: Feedback card with submitter, message, project context (owner, barangay, budget)
-- ✅ Feedback timestamps and contact info (if provided)
-- ✅ Delete capability with SweetAlert confirmation
-- ✅ Unread notification badge (red badge on sidebar link with count)
-- ✅ Automatic mark-as-read when visiting feedback page
-- ✅ **Database**: `read_at` timestamp tracks when SK admin reviewed feedback
-- ✅ **How It Works**:
-  - SK admin logs in and sees red badge on sidebar "Community Feedback" link
-  - Badge shows count of unread feedback (WHERE read_at IS NULL)
-  - Click link navigates to `/feedback` route
-  - Page displays all feedback with project context
-  - Automatically marks all unread feedback as read (UPDATE read_at = NOW())
-  - SK admin can delete inappropriate feedback with confirmation
-  - Badge disappears after all feedback is read
-- ✅ **Files**: `controllers/FeedbackController.php`, `views/dashboards/feedback.php`, route in `index.php`, sidebar link in `views/layout.php`
+- **User Management** – Allows the system administrator to create and manage user accounts for SK Barangay Councils, LYDO personnel, SK Federation officers, and the Office of the Mayor.
+- **User Authentication** – Allows authorized users to securely access the system using their assigned user accounts and role-based credentials.
+- **Project Registry and Profiling** – Allows SK Barangay Councils to register and manage SK-funded projects based on the approved Annual Barangay Youth Investment Program (ABYIP) and budget.
+- **Milestone and Progress Tracking** – Allows SK Barangay Councils to record and monitor the progress of projects from planning to completion.
+- **Financial Transaction Management** – Allows SK Barangay Councils to record financial transactions and upload supporting documents related to SK-funded projects.
+- **Monthly Accomplishment Report (MAR) Submission** – Allows SK Barangay Councils to prepare and submit Monthly Accomplishment Reports (MAR) and supporting documents to the Local Youth Development Office (LYDO) within the prescribed deadline.
+- **Compliance and Completeness Review** – Allows LYDO personnel to review submitted reports and supporting documents to ensure compliance with the approved requirements.
+- **Deficiency Notification** – Allows LYDO personnel to notify SK Barangay Councils of incomplete or non-compliant submissions and request corrections before resubmission.
+- **Digital SK Fund Registry Management** – Allows the SK Federation to record approved financial transactions in the official digital SK Fund Registry.
+- **Report Consolidation** – Allows the SK Federation to consolidate barangay reports into a municipal-wide compliance report.
+- **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
+- **Transaction Verification** – Allows the Office of the Mayor to view recorded transactions and consolidated reports for verification and monitoring purposes.
+- **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
+- **Citizen Feedback Management** – Allows community members and youth beneficiaries to submit feedback, questions, or concerns regarding SK-funded projects.
+- **Responsive Web Interface** – Allows users to access the system using desktop computers, laptops, tablets, and smartphones with an internet connection.
+- **Logout** – Securely ends the active session of an authorized user.
 
 ---
 
