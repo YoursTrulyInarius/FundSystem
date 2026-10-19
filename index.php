@@ -34,6 +34,12 @@ switch ($route) {
         $publicCtrl->project();
         break;
 
+    case 'public/barangay':
+        require 'controllers/PublicController.php';
+        $publicCtrl = new PublicController();
+        $publicCtrl->barangay();
+        break;
+
     case 'login':
         if (isset($_SESSION['user_id'])) {
             header("Location: " . $base_path . "dashboard");
@@ -129,8 +135,6 @@ switch ($route) {
             require 'views/dashboards/lydo.php';
         } elseif ($role === 'sk_fed') {
             require 'views/dashboards/fed.php';
-        } elseif (in_array($role, ['verification', 'mayor_office'])) {
-            require 'views/dashboards/verification.php';
         } else {
             require 'views/dashboards/public.php';
         }
@@ -187,10 +191,10 @@ switch ($route) {
             header("Location: " . $base_path . "login");
             exit;
         }
-        // SK Admin sees submission form, oversight roles see consolidation view
+        // SK Admin sees submission form, LYDO and SK Federation see consolidation view
         if ($_SESSION['role'] === 'sk_admin') {
             require 'views/reports/sk_reports.php';
-        } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed', 'verification', 'mayor_office'])) {
+        } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed'])) {
             require 'views/reports/consolidation.php';
         } else {
             header("Location: " . $base_path . "dashboard");
@@ -256,6 +260,12 @@ switch ($route) {
         require 'controllers/ProjectController.php';
         $proj = new ProjectController();
         $proj->update_status();
+        break;
+
+    case 'api/barangay/update_profile':
+        require 'controllers/PublicController.php';
+        $publicCtrl = new PublicController();
+        $publicCtrl->updateProfile();
         break;
 
     default:

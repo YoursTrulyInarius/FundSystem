@@ -35,5 +35,6 @@ ALTER TABLE certifications ADD INDEX idx_type (type);
 
 -- Feedback table indexes
 ALTER TABLE feedback ADD INDEX idx_project_id (project_id);
+ALTER TABLE feedback ADD INDEX idx_barangay_name (barangay_name);
 ALTER TABLE feedback ADD INDEX idx_read_at (read_at);
 ALTER TABLE feedback ADD INDEX idx_created_at (created_at);

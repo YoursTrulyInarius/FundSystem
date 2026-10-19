@@ -43,9 +43,54 @@ $stmt = $db->prepare($recent_proj_query);
 $stmt->execute([':user_id' => $user_id]);
 $recent_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch Barangay Profile
+$admin_bname = str_replace('Barangay ', '', $_SESSION['barangay_name'] ?? '');
+$bpStmt = $db->prepare("SELECT * FROM barangay_profiles WHERE barangay_name = :bname LIMIT 1");
+$bpStmt->execute([':bname' => $admin_bname]);
+$barangay_profile = $bpStmt->fetch(PDO::FETCH_ASSOC);
+
 $page_title = 'SK Administrator Dashboard';
 ob_start();
 ?>
+
+<!-- Barangay Cover & Public Profile Showcase Card -->
+<div class="card overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200 mb-8 relative z-10">
+    <div class="relative h-48 sm:h-56 w-full overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900">
+        <?php if (!empty($barangay_profile['image_path'])): ?>
+            <img id="dashboardCoverPreview" src="<?= htmlspecialchars($barangay_profile['image_path']) ?>" alt="<?= htmlspecialchars($admin_bname) ?>" class="w-full h-full object-cover opacity-85">
+        <?php else: ?>
+            <div id="dashboardCoverPreviewFallback" class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white">
+                <div class="text-center p-6">
+                    <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <p class="text-sm font-semibold opacity-90">No Cover Photo Uploaded Yet</p>
+                    <p class="text-xs text-blue-200 mt-0.5">Upload a photo to showcase your barangay on the public portal carousel!</p>
+                </div>
+            </div>
+        <?php endif; ?>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+        <div class="absolute bottom-4 left-6 right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-md border border-white/30 mb-1.5">
+                    🏛️ Barangay Showcase Profile
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Barangay <?= htmlspecialchars($admin_bname ?: 'Poblacion') ?></h2>
+                <p id="dashboardTaglineDisplay" class="text-sm text-slate-200 mt-0.5 max-w-xl truncate"><?= htmlspecialchars($barangay_profile['tagline'] ?? 'Dedicated to youth development & transparent community service.') ?></p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="document.getElementById('editProfileModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-slate-100 shadow-lg transition">
+                    <svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Upload Photo & Info
+                </button>
+                <a href="public/barangay?name=<?= urlencode($admin_bname) ?>" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900/80 backdrop-blur-md text-white border border-white/20 text-xs font-bold hover:bg-slate-900 transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    View Public Page
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
@@ -171,6 +216,128 @@ ob_start();
         </table>
     </div>
 </div>
+
+<!-- Upload Cover Photo & Info Modal -->
+<div id="editProfileModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="document.getElementById('editProfileModal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-200">
+            <form id="uploadBarangayProfileForm" enctype="multipart/form-data">
+                <div class="bg-white px-6 pt-6 pb-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h3 class="text-lg font-bold text-slate-900">Upload Barangay Photo & Info</h3>
+                        <button type="button" onclick="document.getElementById('editProfileModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Barangay Cover Photo</label>
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('photoInput').click()">
+                                <input type="file" id="photoInput" name="photo" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewSelectedPhoto(this)">
+                                <div id="uploadPrompt">
+                                    <svg class="mx-auto h-8 w-8 text-slate-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <p class="text-xs font-semibold text-slate-700">Click to select an image from your device</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">JPG, PNG, or WebP up to 5MB</p>
+                                </div>
+                                <div id="previewContainer" class="hidden mt-2">
+                                    <img id="photoPreviewImg" src="#" alt="Preview" class="h-32 w-full object-cover rounded-lg mx-auto">
+                                    <p class="text-[11px] text-emerald-600 font-semibold mt-1">Photo ready to upload</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="taglineInput" class="block text-xs font-bold uppercase text-slate-500 mb-1">Tagline or Mission</label>
+                            <input type="text" id="taglineInput" name="tagline" value="<?= htmlspecialchars($barangay_profile['tagline'] ?? '') ?>" placeholder="e.g. Empowering Youth for a Brighter Future" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="descInput" class="block text-xs font-bold uppercase text-slate-500 mb-1">About the Barangay (Optional)</label>
+                            <textarea id="descInput" name="description" rows="3" placeholder="Share a short introduction or background about youth initiatives in your barangay..." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"><?= htmlspecialchars($barangay_profile['description'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="document.getElementById('editProfileModal').classList.add('hidden')" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-100 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveProfileBtn" class="px-5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition flex items-center gap-1.5">
+                        <span id="saveProfileText">Save & Publish</span>
+                        <svg id="saveProfileSpinner" class="hidden animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewSelectedPhoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('photoPreviewImg').src = e.target.result;
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('uploadPrompt').classList.add('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+document.getElementById('uploadBarangayProfileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveProfileBtn');
+    const txt = document.getElementById('saveProfileText');
+    const spin = document.getElementById('saveProfileSpinner');
+
+    btn.disabled = true;
+    txt.textContent = 'Saving...';
+    spin.classList.remove('hidden');
+
+    const formData = new FormData(this);
+
+    try {
+        const res = await fetch('api/barangay/update_profile', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Profile Updated!',
+                text: data.message,
+                confirmButtonColor: '#0f172a'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Unable to update profile.',
+                confirmButtonColor: '#0f172a'
+            });
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Network Error',
+            text: 'Could not connect to the server. Please try again.',
+            confirmButtonColor: '#0f172a'
+        });
+    } finally {
+        btn.disabled = false;
+        txt.textContent = 'Save & Publish';
+        spin.classList.add('hidden');
+    }
+});
+</script>
 
 <?php
 $content = ob_get_clean();

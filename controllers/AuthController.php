@@ -304,7 +304,7 @@ class AuthController {
         }
 
         // Validate role
-        $valid_roles = ['sk_admin', 'lydo', 'sk_fed', 'verification'];
+        $valid_roles = ['sk_admin', 'lydo', 'sk_fed'];
         if (!in_array($role, $valid_roles)) {
             echo json_encode(['success' => false, 'message' => 'Invalid role selected.']);
             return;

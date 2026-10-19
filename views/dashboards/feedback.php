@@ -36,7 +36,7 @@
                                 <!-- Header with project and date -->
                                 <div class="flex items-center gap-3 mb-2">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <?= htmlspecialchars($fb['project_title'] ?? 'Unknown Project') ?>
+                                        <?= htmlspecialchars($fb['project_title'] ?? ($fb['feedback_barangay'] ? 'Barangay ' . $fb['feedback_barangay'] . ' Feedback' : 'General Community Feedback')) ?>
                                     </span>
                                     <span class="text-xs text-slate-500">
                                         <?= date('M d, Y \a\t H:i', strtotime($fb['created_at'])) ?>

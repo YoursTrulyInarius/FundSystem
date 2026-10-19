@@ -14,13 +14,12 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 **Key Innovation**: An integrated **Community Feedback System** allows citizens to submit anonymous feedback and concerns about SK-funded projects directly through the public transparency portal, creating a channel for grassroots accountability that SK administrators can review, manage, and act upon.
 
 ## 🧾 Latest Version Update
-- **Version:** `2.0.0`
-- **Date:** 2026-08-11
-- **Summary:** Updated branding and role access for the latest system rollout.
-- **Changed:** Renamed visible brand references from **Watch SK Fund** to **SK FUND System** across UI, emails, and certification text.
-- **Changed:** Removed the deprecated `accountant` role from application authorization, seed data, and documentation.
-- **Kept:** `mayor_office` remains the authorized oversight role for verification and executive dashboard access.
-- **Updated files:** `index.php`, `views/layout.php`, `views/dashboards/verification.php`, `database.sql`, `README.md`, `controllers/AuthController.php`, `views/public/home.php`, `views/login.php`, `views/register.php`, `views/forgot-password.php`, `views/reset-password.php`, `views/verify-otp.php`, `views/certifications/view.php`
+- **Version:** `2.1.0`
+- **Date:** 2026-10-20
+- **Summary:** Removed the Mayor and Accountant roles and the Municipal Verification dashboard to streamline system access for SK Barangay Councils, LYDO, SK Federation, and the Public.
+- **Changed:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
+- **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
+- **Updated files:** `index.php`, `views/layout.php`, `database.sql`, `controllers/AuthController.php`, `README.md`, removed `views/dashboards/verification.php`
 
 ---
 
@@ -36,7 +35,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 ## ✅ Major Functionalities
 
-- **User Management** – Allows the system administrator to create and manage user accounts for SK Barangay Councils, LYDO personnel, SK Federation officers, and the Office of the Mayor.
+- **User Management** – Allows the system administrator to create and manage user accounts for SK Barangay Councils, LYDO personnel, and SK Federation officers.
 - **User Authentication** – Allows authorized users to securely access the system using their assigned user accounts and role-based credentials.
 - **Project Registry and Profiling** – Allows SK Barangay Councils to register and manage SK-funded projects based on the approved Annual Barangay Youth Investment Program (ABYIP) and budget.
 - **Milestone and Progress Tracking** – Allows SK Barangay Councils to record and monitor the progress of projects from planning to completion.
@@ -47,7 +46,6 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Digital SK Fund Registry Management** – Allows the SK Federation to record approved financial transactions in the official digital SK Fund Registry.
 - **Report Consolidation** – Allows the SK Federation to consolidate barangay reports into a municipal-wide compliance report.
 - **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
-- **Transaction Verification** – Allows the Office of the Mayor to view recorded transactions and consolidated reports for verification and monitoring purposes.
 - **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
 - **Citizen Feedback Management** – Allows community members and youth beneficiaries to submit feedback, questions, or concerns regarding SK-funded projects.
 - **Responsive Web Interface** – Allows users to access the system using desktop computers, laptops, tablets, and smartphones with an internet connection.
@@ -64,7 +62,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - ✅ Tested across desktop, tablet, mobile viewports
 
 ### 2. **Role-Based Access Control (RBAC)**
-- ✅ 6 distinct roles: sk_admin, lydo, sk_fed, verification, mayor_office, public
+- ✅ 4 distinct roles: sk_admin, lydo, sk_fed, public
 - ✅ Every protected route checks `$_SESSION['role']` and redirects unauthorized users
 - ✅ Each role sees only relevant data (e.g., SK admin sees only own projects/MARs)
 - ✅ Database queries filtered by user_id or role for data isolation
@@ -257,26 +255,10 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
   - **Digital SK Fund Registry**: Officially record LYDO-approved financial transactions into the municipal ledger, capturing barangay name, transaction date, nature of expenditure, amount in Philippine Pesos, unique reference number, and compliance remarks for permanent archival.
   - **Auto-Certification Generation**: Generate and issue digital *Certifications of Recording* with unique reference numbers and timestamps to confirm official municipal ledger entry for archival purposes.
   - **Report Consolidation Module**: Aggregate and merge barangay-level MAR submissions into a municipal-wide compliance dataset; consolidate spending patterns and fund utilization rates.
-  - **Quarterly Monitoring Report**: Auto-generate downloadable Quarterly Compliance Monitoring Reports summarizing aggregate compliance rates, total expenditures, common deficiency patterns, and project completion percentages for submission to the Sangguniang Bayan and Office of the Mayor.
+  - **Quarterly Monitoring Report**: Auto-generate downloadable Quarterly Compliance Monitoring Reports summarizing aggregate compliance rates, total expenditures, common deficiency patterns, and project completion percentages for submission to the Sangguniang Bayan.
   - **Municipal Archive Management**: Maintain searchable, tamper-proof digital records of all SK transactions, certifications, and compliance documents with audit-trail timestamps.
 
-### 4. 🔍 Municipal Verification & Oversight Dashboard (`verification`)
-* **Target Users**: Office of the Mayor Representatives and Sangguniang Bayan Members (Read-Only Access).
-* **Dashboard Displays**:
-  - **Total Registered Projects**: System-wide count of all SK projects across all barangays
-  - **Total Allocated Budget**: Aggregate sum of all approved project budgets
-  - **Recorded Expenditures**: Total amount of transactions officially recorded in the municipal registry (✓ recorded status)
-  - **Reviewed Pending Amount**: Total amount of transactions that have passed LYDO review but not yet recorded
-  - **Pending Amount**: Total amount of transactions still in review pipeline awaiting LYDO clearance
-  - **Complete Transaction Ledger**: Full list of all recorded transactions with barangay names, project titles, amounts, submission dates, and submitter information
-* **Core Functionalities**:
-  - **Financial Ledger Verification**: Read-only access to inspect recorded transactions, disbursement details, liquidation amounts, and procurement documentation across all barangays without modification rights.
-  - **Executive Analytics**: Real-time executive-level aggregate metrics and charts showing total fund allocation vs. utilization, compliance rates, transaction pipeline status, and monthly trends.
-  - **Audit Trail Inspection**: Inspect digital certifications, MAR compliance records, and transaction review chains to verify municipal supervisory oversight and regulatory adherence.
-  - **Transparency Reporting**: Generate on-demand audit reports, compliance summaries, and fund utilization dashboards for Sangguniang Bayan oversight and public accountability.
-  - **No Modification Authority**: Read-only dashboard prevents accidental or unauthorized changes to barangay-level operational data; ensures verification role remains independent.
-
-### 5. 🌐 Public Transparency Portal (`public` / Citizen View)
+### 4. 🌐 Public Transparency Portal (`public` / Citizen View)
 * **Target Users**: Community Members, Youth Beneficiaries, Non-Registered Citizens, and the General Public.
 * **Portal Displays**:
   - **Barangay Project Explorer**: Searchable, filterable grid of active and completed SK projects across all barangays with project titles, descriptions, budgets, and status badges.
@@ -299,7 +281,7 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
     9. Feedback stored in database with timestamp and project association
     10. SK admin later reviews in feedback management dashboard
 
-### 6. 🔴 SK Admin Community Feedback Management Dashboard (`sk_admin` only) ⭐ **(New Feature)**
+### 5. 🔴 SK Admin Community Feedback Management Dashboard (`sk_admin` only) ⭐ **(New Feature)**
 * **Target Users**: SK Chairpersons and SK Treasurers (project owners).
 * **Access**: Click "Community Feedback" link in sidebar (red badge shows unread count) → Navigate to `/feedback` route
 * **Dashboard Displays**:
@@ -341,10 +323,8 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
 [ Municipal SK Federation ]
        │ 3. Records into Official Digital SK Fund Registry & Consolidates MARs
        ▼
- ┌───────────────────────────────┴───────────────────────────────┐
- ▼                                                               ▼
-[ Municipal Verification Dashboard ]             [ Public Transparency Portal ]
-(Office of Mayor)         (Citizens & Youth Beneficiaries)
+ [ Public Transparency Portal ]
+ (Citizens & Youth Beneficiaries)
 ```
 
 ---
@@ -384,17 +364,17 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
     │ Step 10: Consolidate Barangay-Level Data
     │ Step 11: Auto-Generate Quarterly Compliance Reports
     ▼
-    ┌──────────────────────────────┬─────────────────────┬──────────────────────┐
-    ▼                              ▼                     ▼                      ▼
-[ MUNICIPAL ACCOUNTANT ]    [ OFFICE OF MAYOR ]   [ PUBLIC PORTAL ]    [ COMMUNITY FEEDBACK ]
-(Read-Only Verification)    (Executive Dashboard) (Citizens Browse)    (Submit Anonymous)
-    │                              │                     │                      │
-    │ Step 12: Inspect Audit Trail │ Step 12: Dashboard  │ Step 12: View       │ Step 12: Submit Feedback
-    │ Step 13: Verify Compliance   │ Performance Data    │ Projects/Ledger      │ on Projects
-    │ Step 14: Generate Reports    │                     │ Step 13: Submit      │
-    ▼                              ▼                     │ Concerns/Feedback    ▼
-[ QUARTERLY COMPLIANCE ]                                └────────────────────► [ SK ADMIN FEEDBACK ]
-(SK Fed Q1/Q2/Q3/Q4 Reports)                                              [ DASHBOARD ]
+    ┌──────────────────────────────┬───────────────────────────────────┐
+    ▼                              ▼                                   ▼
+[ QUARTERLY COMPLIANCE ]    [ PUBLIC PORTAL ]                   [ COMMUNITY FEEDBACK ]
+(SK Fed Q1/Q2/Q3/Q4 Reports)(Citizens Browse)                   (Submit Anonymous)
+    │                              │                                   │
+    │ Step 12: Generate Reports    │ Step 12: View Projects/Ledger     │ Step 12: Submit Feedback
+    ▼                              │                                   │ on Projects
+[ MUNICIPAL ARCHIVE ]              └─────────────────────────────────► │
+                                                                       ▼
+                                                                  [ SK ADMIN FEEDBACK ]
+                                                                  [ DASHBOARD ]
                                                                            │
                                                                            │ Step 13: Review Feedback
                                                                            │ Step 14: Delete Inappropriate
@@ -436,7 +416,7 @@ git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
 - ✅ 7 tables (users, projects, transactions, reports, certifications, feedback, milestones)
 - ✅ All 23 performance indexes pre-defined
 - ✅ Foreign key relationships for referential integrity
-- ✅ 5 default test user accounts
+- ✅ 3 default test user accounts
 - ✅ `feedback` table with `read_at` column for tracking unread feedback
 
 ### Step 3: Verify Database Connection
@@ -499,10 +479,9 @@ Setup Indexes Script:         http://localhost/FundSystem/setup_indexes.php
 1. **Login as `sk_admin1`**: Create test project, add transaction, submit MAR
 2. **Login as `lydo_admin`**: Review the MAR, approve or return with deficiency
 3. **Login as `sk_fed`**: Record the approved transaction
-4. **Login as `mayor_office`**: View recorded transactions in verification dashboard
-5. **Visit public portal** (`http://localhost/FundSystem/`): Browse projects, submit feedback
-6. **Login as `sk_admin1` again**: Check "Community Feedback" dashboard for community feedback
-7. **Verify unread badge**: After viewing feedback, badge should disappear
+4. **Visit public portal** (`http://localhost/FundSystem/`): Browse projects, submit feedback
+5. **Login as `sk_admin1` again**: Check "Community Feedback" dashboard for community feedback
+6. **Verify unread badge**: After viewing feedback, badge should disappear
 
 ---
 
@@ -515,7 +494,6 @@ All pre-seeded accounts use password: **`password`**
 | `sk_admin1` | sk_admin | SK Chairperson Juan | Barangay Poblacion | Test SK barangay functions | Projects, Transactions, MAR, **Feedback Mgmt** |
 | `lydo_admin` | lydo | LYDO Officer Maria | — | Test LYDO review workflow | Review, Approve, Deficiency Flagging |
 | `sk_fed` | sk_fed | SK Fed President Jose | — | Test SK Federation recording | Record, Consolidate, Reports |
-| `mayor_office` | mayor_office | Office of Mayor Rep | — | Test executive dashboard | Read-only verification, Executive Dashboard |
 | *Public User* | public | — | — | No login; access public portal | Browse, **Submit Feedback** |
 
 ---
@@ -565,7 +543,6 @@ FundSystem/
 │   │   ├── sk.php                      # SK barangay dashboard
 │   │   ├── lydo.php                    # LYDO review dashboard
 │   │   ├── fed.php                     # SK Federation dashboard
-│   │   ├── verification.php            # Municipal verification dashboard
 │   │   └── feedback.php                # SK admin feedback management ⭐ NEW
 │   │
 │   ├── projects/
@@ -632,8 +609,7 @@ FundSystem/
 
 ### Access Control
 - ✅ Role-based authorization checked on every protected route
-- ✅ User-scoped queries (WHERE user_id = :id) prevent cross-barangay data leaks
-- ✅ Read-only views for verification roles prevent unauthorized modifications
+- ✅ Role-based access ensures separation of concerns across barangay, LYDO, and Federation levels
 - ✅ Feedback access: SK admins see only feedback for their own projects
 - ✅ No direct database access from templates
 
@@ -706,8 +682,8 @@ ON DELETE CASCADE: Deletes feedback when project is deleted
 
 ## 🎯 Key Features Completed
 
-### ✅ Functional Features (13/13)
-- [x] Role-based access with 6 user types
+### ✅ Functional Features (12/12)
+- [x] Role-based access with 4 user types
 - [x] Project registration with ABYIP linkage
 - [x] 4-stage milestone tracking
 - [x] Financial transaction encoding (4 types: Disbursement, Liquidation, ROA, Procurement)
@@ -715,7 +691,6 @@ ON DELETE CASCADE: Deletes feedback when project is deleted
 - [x] LYDO compliance review & deficiency flagging
 - [x] SK Federation official recording
 - [x] Quarterly consolidation reporting
-- [x] Municipal verification dashboards
 - [x] Public transparency portal
 - [x] **Anonymous community feedback submission** (Citizens → Projects)
 - [x] **SK admin feedback management dashboard** (Projects → SK Admin)

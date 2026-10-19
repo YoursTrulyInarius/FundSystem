@@ -22,10 +22,11 @@ class FeedbackController {
         $database = new Database();
         $db = $database->connect();
 
-        // Fetch all feedback with project and user info
+        // Fetch all feedback with project and user info (both project-specific and barangay-wide)
         $query = "SELECT 
                 f.id,
                 f.project_id,
+                f.barangay_name as feedback_barangay,
                 f.user_name,
                 f.contact_info,
                 f.message,
@@ -33,12 +34,14 @@ class FeedbackController {
                 p.title as project_title,
                 p.budget,
                 p.status,
-                u.barangay_name,
+                COALESCE(u.barangay_name, f.barangay_name) as barangay_name,
                 u.full_name as project_owner
             FROM feedback f
             LEFT JOIN projects p ON f.project_id = p.id
             LEFT JOIN users u ON p.user_id = u.id
-            WHERE p.user_id = :user_id OR :user_id = (SELECT id FROM users WHERE role = 'sk_admin' AND user_id = :user_id LIMIT 1)
+            WHERE p.user_id = :user_id 
+               OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
+               OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :user_id LIMIT 1)
             ORDER BY f.created_at DESC";
         
         $stmt = $db->prepare($query);
@@ -50,8 +53,10 @@ class FeedbackController {
         $markReadQuery = "UPDATE feedback f
                          SET f.read_at = NOW()
                          WHERE f.read_at IS NULL
-                         AND f.project_id IN (
-                             SELECT id FROM projects WHERE user_id = :user_id
+                         AND (
+                             f.project_id IN (SELECT id FROM projects WHERE user_id = :user_id)
+                             OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
+                             OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :user_id LIMIT 1)
                          )";
         $markReadStmt = $db->prepare($markReadQuery);
         $markReadStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
@@ -60,7 +65,11 @@ class FeedbackController {
         // Count unread feedback (feedback with read_at = NULL)
         $countQuery = "SELECT COUNT(*) as unread_count FROM feedback f
                       LEFT JOIN projects p ON f.project_id = p.id
-                      WHERE p.user_id = :user_id
+                      WHERE (
+                          p.user_id = :user_id
+                          OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
+                          OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :user_id LIMIT 1)
+                      )
                       AND f.read_at IS NULL";
         $countStmt = $db->prepare($countQuery);
         $countStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
@@ -98,7 +107,12 @@ class FeedbackController {
         // Verify ownership before deleting
         $query = "SELECT f.id FROM feedback f
                  LEFT JOIN projects p ON f.project_id = p.id
-                 WHERE f.id = :feedback_id AND p.user_id = :user_id";
+                 WHERE f.id = :feedback_id 
+                 AND (
+                     p.user_id = :user_id
+                     OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
+                     OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :user_id LIMIT 1)
+                 )";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':feedback_id', $feedback_id, PDO::PARAM_INT);
         $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);

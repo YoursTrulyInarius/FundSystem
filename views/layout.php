@@ -79,7 +79,7 @@
                 Projects & ABYIP
             </a>
             <?php endif; ?>
-            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed', 'verification', 'mayor_office'])): ?>
+            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed'])): ?>
             <a href="transactions" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'transactions') ? $active_class : $inactive_class ?> mt-1">
                 <svg class="mr-3 h-5 w-5 <?= ($current_route === 'transactions') ? 'text-slate-500' : 'text-slate-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
