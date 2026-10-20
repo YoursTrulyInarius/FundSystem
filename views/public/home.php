@@ -6,6 +6,7 @@
     <title>SK FUND System | Public Transparency Portal</title>
     <meta name="description" content="Track SK-funded projects, inspect public transactions, and stay informed with a transparent view of how youth development programs are managed in Ramon Magsaysay.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,6 +143,52 @@
             box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
             color: #ffffff;
         }
+        .nav-links a.btn-login { color: #ffffff; }
+        .nav-toggle {
+            display: none;
+            width: 2.75rem;
+            height: 2.75rem;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--c-border);
+            border-radius: 0.75rem;
+            background: #ffffff;
+            color: var(--c-text-dark);
+            cursor: pointer;
+        }
+        @media (max-width: 720px) {
+            .navbar { height: 64px; }
+            .navbar-inner { padding: 0 1rem; }
+            .nav-toggle { display: inline-flex; flex-shrink: 0; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: calc(100% + 0.5rem);
+                right: 1rem;
+                width: min(18rem, calc(100vw - 2rem));
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                padding: 0.5rem;
+                border: 1px solid var(--c-border);
+                border-radius: 1rem;
+                background: #ffffff;
+                box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+            }
+            .nav-links.is-open { display: flex; }
+            .nav-links li a:not(.btn-login) {
+                display: flex;
+                min-height: 2.75rem;
+                align-items: center;
+                padding: 0.65rem 0.85rem;
+            }
+            .nav-links .btn-login {
+                display: flex;
+                min-height: 2.75rem;
+                justify-content: center;
+                margin-top: 0.25rem;
+            }
+        }
 
         /* ─── Hero (Modern Linear / Stripe Civic Architecture) ─── */
         .hero-section {
@@ -233,26 +280,6 @@
             gap: 0.85rem;
             margin-bottom: 1.75rem;
             flex-wrap: wrap;
-        }
-        .hero-cta-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.65rem 1.4rem;
-            border-radius: 12px;
-            background: #2563eb;
-            color: #ffffff;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-decoration: none;
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.28);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hero-cta-primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.38);
-            color: #ffffff;
         }
         .hero-cta-secondary {
             display: inline-flex;
@@ -381,65 +408,153 @@
             box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
         }
 
-        /* ─── Hero Quick Search / Direct Jump ─── */
-        .hero-search-wrap {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 1.6rem;
+        #hero.hero-section {
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 5.5rem 0 2rem;
         }
-        .hero-search-bar {
-            display: flex;
-            align-items: center;
-            background: #ffffff;
-            border: 1.5px solid #dbeafe;
-            border-radius: 999px;
-            padding: 0.32rem 0.45rem 0.32rem 1rem;
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.06);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            gap: 0.65rem;
+        #hero .hero-inner {
+            padding: 0.5rem 1.5rem 0.75rem;
         }
-        .hero-search-bar:focus-within {
-            border-color: #2563eb;
-            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.14);
+        #hero .hero-title {
+            font-size: clamp(2rem, 3.6vw, 3.4rem);
+            line-height: 1.08;
+            margin: 0.7rem 0 0.6rem;
         }
-        .hero-search-icon {
-            display: flex;
-            align-items: center;
-            color: #2563eb;
-            flex-shrink: 0;
+        #hero .hero-sub {
+            font-size: clamp(0.88rem, 1.1vw, 1rem);
+            line-height: 1.5;
+            margin-bottom: 0.9rem;
         }
-        .hero-search-select {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.84rem;
-            font-weight: 600;
-            color: #0f172a;
-            outline: none;
-            cursor: pointer;
+        #hero .hero-trust-chips {
+            gap: 0.55rem;
+            margin-bottom: 0.9rem;
         }
-        .hero-search-select option {
-            font-size: 0.84rem;
-            color: #0f172a;
-            background: #ffffff;
-            padding: 0.3rem;
+        #hero .trust-chip {
+            padding: 0.24rem 0.65rem;
+            font-size: 0.7rem;
         }
-        .hero-search-btn {
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            padding: 0.45rem 1.15rem;
-            border-radius: 999px;
+        #hero .hero-actions {
+            margin-bottom: 1rem;
+        }
+        #hero .hero-cta-secondary {
+            padding: 0.55rem 1.1rem;
+        }
+        #hero .dashboard-card-top {
+            padding: 0.55rem 1rem;
+        }
+        #hero .metric-block {
+            padding: 0.8rem 1rem;
+        }
+        #hero .metric-icon-wrap {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 0.4rem;
+        }
+        #hero .metric-val {
+            font-size: 1.7rem;
+        }
+        #hero .metric-lbl {
             font-size: 0.78rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.15s, transform 0.15s;
-            white-space: nowrap;
+            margin-top: 0.25rem;
         }
-        .hero-search-btn:hover {
-            background: #1d4ed8;
-            transform: scale(1.02);
+        #hero .metric-sub {
+            font-size: 0.68rem;
+        }
+        #hero .dashboard-card-footer {
+            padding: 0.55rem 0.9rem;
+            gap: 0.5rem;
+        }
+        #hero .card-footer-item {
+            font-size: 0.68rem;
+        }
+
+        @media (max-width: 720px) {
+            #hero.hero-section {
+                padding: 5rem 0 1.5rem;
+            }
+            #hero .hero-inner {
+                padding: 0.5rem 1rem 0.75rem;
+            }
+            #hero .hero-title {
+                font-size: clamp(1.9rem, 8vw, 2.7rem);
+                margin: 0.75rem 0 0.6rem;
+            }
+            #hero .hero-sub {
+                font-size: 0.9rem;
+                margin-bottom: 0.8rem;
+            }
+            #hero .hero-trust-chips {
+                gap: 0.4rem;
+                margin-bottom: 0.8rem;
+            }
+            #hero .hero-actions {
+                margin-bottom: 0.9rem;
+            }
+            #hero .dashboard-card-top {
+                align-items: flex-start;
+                gap: 0.4rem;
+                padding: 0.55rem 0.7rem;
+            }
+            #hero .dashboard-card-top > div {
+                min-width: 0;
+            }
+            #hero .dashboard-card-metrics {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            #hero .metric-block {
+                padding: 0.65rem 0.45rem;
+            }
+            #hero .metric-block:not(:last-child) {
+                border-right: 1px solid #f1f5f9;
+                border-bottom: none;
+            }
+            #hero .metric-icon-wrap {
+                width: 28px;
+                height: 28px;
+                margin-bottom: 0.35rem;
+            }
+            #hero .metric-val {
+                font-size: 1.5rem;
+            }
+            #hero .metric-lbl {
+                font-size: 0.68rem;
+                line-height: 1.25;
+            }
+            #hero .metric-sub {
+                display: none;
+            }
+            #hero .dashboard-card-footer {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.4rem;
+                padding: 0.5rem 0.6rem;
+            }
+            #hero .card-footer-item {
+                align-items: flex-start;
+                gap: 0.25rem;
+                font-size: 0.62rem;
+                line-height: 1.3;
+            }
+            #hero .card-footer-item svg {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            #hero .dashboard-card-footer {
+                display: none;
+            }
+            #hero .dashboard-card-top {
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 420px) and (max-height: 720px) {
+            #hero .hero-trust-chips {
+                display: none;
+            }
         }
 
         /* ─── Dashboard Card Verification Footer ─── */
@@ -1413,6 +1528,26 @@
                 padding: 1.15rem 1.4rem;
             }
         }
+        @media (max-width: 620px) {
+            .modal-backdrop {
+                align-items: flex-end;
+                padding: 0;
+            }
+            .project-modal {
+                width: 100%;
+                max-height: 92dvh;
+                border-radius: 1.25rem 1.25rem 0 0;
+            }
+            .project-modal-inner {
+                max-height: 92dvh;
+                padding: 1rem;
+                padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+            }
+            .project-modal-close {
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+        }
     </style>
 </head>
 
@@ -1433,7 +1568,10 @@
                 </div>
             </a>
 
-            <ul class="nav-links">
+            <button type="button" class="nav-toggle" id="publicMenuToggle" aria-label="Open navigation menu" aria-controls="publicNavLinks" aria-expanded="false">
+                <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <ul class="nav-links" id="publicNavLinks">
                 <li><a href="#hero"      class="nav-link opacity-0">Home</a></li>
                 <li><a href="#barangays" class="nav-link opacity-0">Barangays</a></li>
                 <li><a href="#about"     class="nav-link opacity-0">About Us</a></li>
@@ -1490,34 +1628,10 @@
                     </span>
                 </div>
 
-                <!-- Direct Barangay Quick Jump Selector -->
-                <div class="hero-search-wrap hero-search-el opacity-0">
-                    <div class="hero-search-bar">
-                        <div class="hero-search-icon">
-                            <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                        <select id="quickBarangaySelect" class="hero-search-select" onchange="if(this.value) window.location.href='public/barangay?name=' + encodeURIComponent(this.value)">
-                            <option value="">Quick Jump to a Barangay (27 Councils)...</option>
-                            <?php foreach (PublicController::$barangay_list as $bname): ?>
-                                <option value="Barangay <?= htmlspecialchars($bname) ?>">Barangay <?= htmlspecialchars($bname) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="button" class="hero-search-btn" onclick="const sel = document.getElementById('quickBarangaySelect'); if(sel.value) window.location.href='public/barangay?name=' + encodeURIComponent(sel.value);">
-                            Inspect Portal →
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
+                <!-- Hero Action -->
                 <div class="hero-actions hero-actions-el opacity-0">
-                    <a href="#barangays" class="hero-cta-primary">
-                        <span>Browse All 27 Barangays</span>
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                    </a>
                     <a href="#about" class="hero-cta-secondary">
-                        <span>Platform Governance & Mandate</span>
+                        <span>Learn About the Platform</span>
                         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
@@ -1607,8 +1721,8 @@
                                 <span class="section-pill-dot"></span>
                                 All Barangays
                             </div>
-                            <h2 class="section-title">Barangays of <span>Ramon Magsaysay</span></h2>
-                            <p class="section-sub">Explore each barangay's funded projects, community benefits, and fund utilization. Drag or use the arrows to browse all 27 barangays.</p>
+                            <h2 class="section-title">Municipality of <span>Ramon Magsaysay</span></h2>
+                            <p class="section-sub">Explore registered barangays' funded projects, community benefits, and fund utilization. Drag or use the arrows to browse.</p>
                         </div>
                         <div class="brgy-carousel-controls mt-4 lg:mt-0">
                             <button id="brgyPrev" class="brgy-nav-btn" aria-label="Previous barangay" disabled>
@@ -1821,6 +1935,21 @@
     <!-- ════════════════════ JAVASCRIPT ════════════════════ -->
     <script>
         // ── Anime.js animations ──────────────────────────
+        const publicMenuToggle = document.getElementById('publicMenuToggle');
+        const publicNavLinks = document.getElementById('publicNavLinks');
+        publicMenuToggle.addEventListener('click', () => {
+            const isOpen = publicNavLinks.classList.toggle('is-open');
+            publicMenuToggle.setAttribute('aria-expanded', String(isOpen));
+            publicMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        });
+        publicNavLinks.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                publicNavLinks.classList.remove('is-open');
+                publicMenuToggle.setAttribute('aria-expanded', 'false');
+                publicMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
 
             // Navbar entrance
@@ -1835,7 +1964,6 @@
                 .add({ targets: '.hero-title-el',    opacity:[0,1], translateY:[24,0], duration:650, delay:40  }, '-=300')
                 .add({ targets: '.hero-sub-el',      opacity:[0,1], translateY:[16,0], duration:600            }, '-=450')
                 .add({ targets: '.hero-trust-el',    opacity:[0,1], translateY:[12,0], duration:500            }, '-=400')
-                .add({ targets: '.hero-search-el',   opacity:[0,1], translateY:[12,0], duration:500            }, '-=400')
                 .add({ targets: '.hero-actions-el',  opacity:[0,1], translateY:[14,0], duration:550            }, '-=400')
                 .add({ targets: '.hero-stats',       opacity:[0,1], translateY:[16,0], duration:650            }, '-=400');
 

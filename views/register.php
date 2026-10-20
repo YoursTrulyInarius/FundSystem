@@ -13,6 +13,7 @@ $base_path = '/FundSystem/';
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,7 +54,7 @@ $base_path = '/FundSystem/';
     <div class="min-h-screen w-full flex flex-col lg:flex-row">
 
         <!-- Left Side: Branding / Text -->
-        <div class="hidden lg:flex w-full lg:w-1/2 relative overflow-hidden flex-col justify-center px-16 xl:px-24">
+        <div class="hidden lg:flex w-full lg:w-[60%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
             <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');"></div>
             <div class="absolute inset-0 bg-black/75 z-0"></div>
 
@@ -98,11 +99,11 @@ $base_path = '/FundSystem/';
         </div>
 
         <!-- Right Side: Register Form -->
-        <div class="w-full lg:w-1/2 bg-white flex items-center justify-center p-8 sm:p-16">
-            <div class="w-full max-w-md right-content">
+        <div class="w-full lg:w-[40%] bg-white flex items-center justify-center p-6 sm:p-8">
+            <div class="w-full max-w-sm right-content">
 
                 <a href="login"
-                    class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition mb-8 group">
+                    class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition mb-6 group">
                     <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -112,38 +113,38 @@ $base_path = '/FundSystem/';
                 </a>
 
                 <h2 class="text-3xl font-bold text-slate-900 tracking-tight mb-2">Create an Account</h2>
-                <p class="text-slate-500 mb-8">Register your SK account so you can access the portal.</p>
+                <p class="text-slate-500 mb-6">Register your SK account so you can access the portal.</p>
 
                 <div id="alert" class="hidden mb-6 p-4 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200">
                 </div>
 
-                <form id="registerForm" class="space-y-5">
+                <form id="registerForm" class="space-y-3">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="full_name" class="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+                            <label for="full_name" class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                             <input id="full_name" name="full_name" type="text" required
-                                class="input-field w-full px-4 py-3 rounded-lg font-medium"
+                                class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium"
                                 placeholder="e.g. Juan Dela Cruz">
                         </div>
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="username" class="block text-sm font-medium text-slate-700 mb-1.5">Username</label>
+                            <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Username</label>
                             <input id="username" name="username" type="text" required
-                                class="input-field w-full px-4 py-3 rounded-lg font-medium"
+                                class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium"
                                 placeholder="Enter your username">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
+                            <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
                             <input id="email" name="email" type="email" required
-                                class="input-field w-full px-4 py-3 rounded-lg font-medium"
+                                class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium"
                                 placeholder="name@example.com">
                         </div>
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="barangay_name" class="block text-sm font-medium text-slate-700 mb-1.5">Barangay</label>
-                            <select id="barangay_name" name="barangay_name" required class="input-field w-full px-4 py-3 rounded-lg font-medium">
+                            <label for="barangay_name" class="block text-sm font-medium text-slate-700 mb-1">Barangay</label>
+                            <select id="barangay_name" name="barangay_name" required class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium">
                                 <option value="" disabled selected>Select barangay</option>
                                 <option value="Bagong Opon">Bagong Opon</option>
                                 <option value="Bambong Daku">Bambong Daku</option>
@@ -177,19 +178,19 @@ $base_path = '/FundSystem/';
                     </div>
 
                     <div class="form-group opacity-0 transform translate-y-4">
-                        <label for="role" class="block text-sm font-medium text-slate-700 mb-1.5">Role / Position</label>
-                        <select id="role" name="role" required class="input-field w-full px-4 py-3 rounded-lg font-medium">
+                        <label for="role" class="block text-sm font-medium text-slate-700 mb-1">Role / Position</label>
+                        <select id="role" name="role" required class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium">
                             <option value="" disabled selected>Select a role</option>
                             <option value="sk_admin">SK Admin</option>
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                            <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
                             <div class="relative">
                                 <input id="password" name="password" type="password" required minlength="6"
-                                    class="input-field w-full px-4 py-3 rounded-lg font-medium pr-12"
+                                    class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium pr-12"
                                     placeholder="••••••••">
                                 <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 focus:outline-none">
                                     <svg id="passwordEyeIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -202,10 +203,10 @@ $base_path = '/FundSystem/';
                             </div>
                         </div>
                         <div class="form-group opacity-0 transform translate-y-4">
-                            <label for="confirm_password" class="block text-sm font-medium text-slate-700 mb-1.5">Confirm Password</label>
+                            <label for="confirm_password" class="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
                             <div class="relative">
                                 <input id="confirm_password" name="confirm_password" type="password" required minlength="6"
-                                    class="input-field w-full px-4 py-3 rounded-lg font-medium pr-12"
+                                    class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium pr-12"
                                     placeholder="••••••••">
                                 <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 focus:outline-none">
                                     <svg id="confirmPasswordEyeIcon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,7 +222,7 @@ $base_path = '/FundSystem/';
 
                     <div class="form-group opacity-0 transform translate-y-4 pt-2">
                         <button type="submit" id="submitBtn"
-                            class="w-full flex justify-center items-center py-3.5 px-4 rounded-lg text-sm font-bold text-white bg-black hover:bg-zinc-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            class="w-full flex justify-center items-center py-3 px-4 rounded-lg text-sm font-bold text-white bg-black hover:bg-zinc-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                             <span id="btnText">Create Account</span>
                             <svg id="btnLoader" class="hidden animate-spin ml-3 h-5 w-5 text-white"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

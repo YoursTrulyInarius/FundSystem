@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
     <style>
@@ -49,6 +50,7 @@
             background: var(--c-bg);
             color: var(--c-text);
             min-height: 100vh;
+            overflow-x: clip;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -64,7 +66,7 @@
         }
         .navbar-inner {
             max-width: 1280px; width: 100%; margin: 0 auto;
-            padding: 0 1.5rem;
+            padding: 0 clamp(1rem, 3vw, 1.5rem);
             display: flex; align-items: center; justify-content: space-between; gap: 1rem;
         }
         .back-link {
@@ -84,10 +86,16 @@
             background: #000000; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
+        @media (max-width: 480px) {
+            .navbar-inner { gap: 0.5rem; }
+            .back-link { gap: 0.3rem; font-size: 0.72rem; }
+            .brand { gap: 0.4rem; font-size: 0.85rem; }
+            .brand-icon { width: 29px; height: 29px; }
+        }
 
         /* ════════ Hero ════════ */
         .hero {
-            position: relative; width: 100%; height: 360px; overflow: hidden;
+            position: relative; width: 100%; height: clamp(280px, 32vw, 360px); overflow: hidden;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
         @media (max-width: 768px) { .hero { height: 260px; } }
@@ -115,7 +123,7 @@
         }
         .hero-content {
             position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 1.5rem 2rem 2.2rem;
+            padding: 1.5rem clamp(1.25rem, 4vw, 2rem) 2rem;
             max-width: 1280px; margin: 0 auto;
             z-index: 2;
         }
@@ -141,24 +149,33 @@
             margin-top: 0.5rem; max-width: 620px; line-height: 1.6;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
+        @media (max-width: 480px) {
+            .hero-content { padding: 1rem 1rem 1.5rem; }
+            .hero-chip { margin-bottom: 0.5rem; font-size: 0.62rem; }
+            .hero-name { font-size: clamp(1.8rem, 9vw, 2.5rem); }
+            .hero-tagline { font-size: 0.82rem; }
+            .hero-placeholder { justify-content: flex-start; padding-top: 1.25rem; }
+            .hero-placeholder svg { width: 36px; height: 36px; }
+            .hero-placeholder span { display: none; }
+        }
 
         /* ════════ Page layout ════════ */
         .page {
-            max-width: 1280px; margin: 0 auto;
-            padding: 2rem 1.5rem 5rem;
+            width: 100%; max-width: 1280px; margin: 0 auto;
+            padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 3vw, 1.5rem) 4rem;
             display: flex; flex-direction: column; gap: 2rem;
         }
 
         /* ════════ Stats row ════════ */
         .stats-row {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.75rem, 2vw, 1.25rem);
         }
         @media (max-width: 640px) { .stats-row { grid-template-columns: 1fr; } }
         .stat-card {
             background: #ffffff;
             border: 1px solid var(--c-border);
             border-radius: var(--radius-lg);
-            padding: 1.6rem 1.75rem;
+            min-width: 0; padding: clamp(1.15rem, 2.5vw, 1.6rem) clamp(1.15rem, 3vw, 1.75rem);
             position: relative; overflow: hidden;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -180,7 +197,7 @@
             letter-spacing: 0.1em; color: var(--c-text-muted); margin-bottom: 0.6rem;
         }
         .stat-card-value {
-            font-family: 'Outfit', sans-serif; font-size: 2.2rem;
+            font-family: 'Outfit', sans-serif; font-size: clamp(1.65rem, 3vw, 2.2rem);
             font-weight: 900; color: var(--c-text); line-height: 1;
             letter-spacing: -0.02em;
         }
@@ -191,11 +208,11 @@
 
         /* ════════ Two-column grid ════════ */
         .content-grid {
-            display: grid; gap: 1.5rem;
-            grid-template-columns: 1fr 360px;
+            display: grid; gap: 1.5rem; min-width: 0;
+            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
         }
-        @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
-        .col { display: flex; flex-direction: column; gap: 1.5rem; }
+        @media (max-width: 1024px) { .content-grid { grid-template-columns: minmax(0, 1fr); } }
+        .col { display: flex; min-width: 0; flex-direction: column; gap: 1.5rem; }
 
         /* ════════ Cards ════════ */
         .card {
@@ -211,48 +228,11 @@
             letter-spacing: -0.01em;
             display: flex; align-items: center; justify-content: space-between;
         }
-
-        /* ════════ Upload panel (SK Admin) ════════ */
-        .upload-card {
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
-            border: 1px solid rgba(37, 99, 235, 0.25);
-            border-radius: var(--radius-lg);
-            padding: 1.75rem;
-            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.06);
+        @media (max-width: 480px) {
+            .page { gap: 1.25rem; }
+            .card { padding: 1.2rem; }
+            .card-title { gap: 0.75rem; font-size: 1rem; }
         }
-        .upload-card h3 {
-            font-family: 'Outfit', sans-serif; color: var(--c-text);
-            font-size: 1.15rem; font-weight: 800; margin-bottom: 0.35rem;
-        }
-        .upload-card p { font-size: 0.84rem; color: var(--c-text-sub); margin-bottom: 1.25rem; }
-        .upload-field { display: grid; gap: 0.4rem; margin-bottom: 0.95rem; }
-        .upload-field label { font-size: 0.72rem; font-weight: 700; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
-        .upload-field input,
-        .upload-field textarea {
-            width: 100%; border-radius: var(--radius-sm);
-            border: 1px solid var(--c-border);
-            background: #ffffff; padding: 0.75rem 0.9rem;
-            font-size: 0.875rem; color: var(--c-text); outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
-        }
-        .upload-field input:focus,
-        .upload-field textarea:focus { border-color: var(--c-accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
-        .upload-field input::placeholder,
-        .upload-field textarea::placeholder { color: #94a3b8; }
-        .upload-field textarea { min-height: 80px; resize: vertical; }
-        #uploadPreview {
-            width: 100%; aspect-ratio: 16/7; object-fit: cover;
-            border-radius: var(--radius-md); display: none; margin-bottom: 0.95rem;
-            border: 1px solid var(--c-border);
-        }
-        .btn-upload {
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
-            width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm);
-            background: #ffffff; border: 1px solid var(--c-border);
-            color: var(--c-text); font-weight: 700; font-size: 0.85rem; cursor: pointer;
-            transition: all 0.2s; font-family: inherit;
-        }
-        .btn-upload:hover { background: #f8fafc; border-color: var(--c-accent); color: var(--c-accent); }
 
         /* ════════ Benefits grid ════════ */
         .benefit-grid {
@@ -439,7 +419,7 @@
     <!-- ════════ Hero ════════ -->
     <div class="hero">
         <?php if (!empty($profile['image_path']) && file_exists($profile['image_path'])): ?>
-            <img class="hero-img" src="<?= htmlspecialchars($profile['image_path']) ?>" alt="Barangay <?= htmlspecialchars($clean_name) ?> cover photo">
+            <img class="hero-img" src="/FundSystem/<?= htmlspecialchars(ltrim($profile['image_path'], '/'), ENT_QUOTES, 'UTF-8') ?>" alt="Barangay <?= htmlspecialchars($clean_name) ?> cover photo">
             <div class="hero-overlay"></div>
         <?php else: ?>
             <div class="hero-placeholder">
@@ -493,50 +473,6 @@
             </div>
         </div>
 
-        <?php
-        $isSkAdmin     = isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin';
-        $adminBarangay = str_replace('Barangay ', '', $_SESSION['barangay_name'] ?? '');
-        $canManage     = $isSkAdmin && (strcasecmp($adminBarangay, $clean_name) === 0);
-        ?>
-
-        <!-- SK Admin upload panel -->
-        <?php if ($canManage): ?>
-        <div class="upload-card">
-            <h3>&#128247; Update Barangay Profile</h3>
-            <p>Upload a cover photo, tagline, and description for your barangay's public transparency page.</p>
-
-            <img id="uploadPreview" src="" alt="Preview">
-
-            <form id="uploadForm" enctype="multipart/form-data">
-                <div class="upload-field">
-                    <label>Cover Photo (JPG, PNG or WebP &mdash; max 5MB)</label>
-                    <input type="file" name="photo" id="photoInput" style="display:none;" accept="image/jpeg,image/png,image/webp">
-                    <button type="button" class="btn-upload" onclick="document.getElementById('photoInput').click()">
-                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                        </svg>
-                        Choose Photo
-                    </button>
-                </div>
-                <div class="upload-field">
-                    <label>Tagline</label>
-                    <input type="text" name="tagline" placeholder="A short tagline for your barangay" value="<?= htmlspecialchars($profile['tagline'] ?? '') ?>">
-                </div>
-                <div class="upload-field">
-                    <label>Description</label>
-                    <textarea name="description" placeholder="Brief description of your barangay..."><?= htmlspecialchars($profile['description'] ?? '') ?></textarea>
-                </div>
-                <div id="uploadStatus" style="font-size:0.8rem;color:var(--c-text-muted);margin-bottom:0.75rem;min-height:1.2em;"></div>
-                <button type="submit" class="btn-submit">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Save & Publish Profile
-                </button>
-            </form>
-        </div>
-        <?php endif; ?>
-
         <!-- Two-column content -->
         <div class="content-grid">
 
@@ -552,11 +488,12 @@
                 <?php endif; ?>
 
                 <!-- Community Benefits -->
+                <?php if (!empty($benefits)): ?>
                 <div class="card">
                     <p class="card-title">Community Benefits</p>
                     <div class="benefit-grid">
                         <?php foreach ($benefits as $b): ?>
-                        <div class="benefit-item <?= $b['active'] ? 'active' : '' ?>">
+                        <div class="benefit-item active">
                             <div class="benefit-icon">
                                 <?php if ($b['icon'] === 'scholar'): ?>
                                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
@@ -576,6 +513,7 @@
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <!-- Projects -->
                 <div class="card">
@@ -778,45 +716,6 @@
             btn.disabled = false;
         });
 
-        <?php if ($canManage): ?>
-        // ── Photo preview ───────────────────────────────
-        document.getElementById('photoInput').addEventListener('change', function() {
-            const preview = document.getElementById('uploadPreview');
-            if (this.files && this.files[0]) {
-                preview.src = URL.createObjectURL(this.files[0]);
-                preview.style.display = 'block';
-            }
-        });
-
-        // ── Upload form ─────────────────────────────────
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const statusEl = document.getElementById('uploadStatus');
-            statusEl.textContent = 'Saving profile...';
-            statusEl.style.color = '#2563eb';
-
-            try {
-                const fd  = new FormData(this);
-                const res = await fetch('/FundSystem/api/barangay/update_profile', { method: 'POST', body: fd });
-                const data = await res.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success', title: 'Profile Updated!',
-                        text: 'Barangay profile has been updated.',
-                        background: '#ffffff', color: '#0f172a',
-                        confirmButtonColor: '#0f172a', confirmButtonText: 'Done'
-                    }).then(() => location.reload());
-                } else {
-                    statusEl.textContent = data.message || 'Unable to save.';
-                    statusEl.style.color = '#dc2626';
-                }
-            } catch {
-                statusEl.textContent = 'Connection error.';
-                statusEl.style.color = '#dc2626';
-            }
-        });
-        <?php endif; ?>
     </script>
 
 </body>

@@ -8,6 +8,7 @@ require_once 'includes/config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($project['title']) ?> | Public Project Details</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <style>
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; margin: 0; }
         .badge { display: inline-flex; align-items: center; gap: .4rem; padding: .4rem .75rem; border-radius: 999px; font-size: .8rem; font-weight: 700; }

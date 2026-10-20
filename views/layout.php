@@ -24,10 +24,64 @@
             }
         }
     </script>
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <style>
         body {
             background-color: #f8fafc;
             font-family: 'Inter', sans-serif;
+        }
+        @media (max-width: 1023px) {
+            body.dashboard-shell { min-width: 0; }
+            #appSidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 50;
+                width: min(18rem, 85vw);
+                height: 100dvh;
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+                box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+            }
+            #appSidebar.is-open { transform: translateX(0); }
+            #sidebarBackdrop {
+                position: fixed;
+                inset: 0;
+                z-index: 40;
+                border: 0;
+                background: rgba(15, 23, 42, 0.45);
+            }
+            #dashboardMain { width: 100%; min-width: 0; }
+            #dashboardHeader {
+                display: grid;
+                grid-template-columns: auto minmax(0, 1fr);
+                gap: 0.35rem 0.75rem;
+                height: auto;
+                min-height: 4rem;
+                padding: 0.75rem 1rem;
+            }
+            #dashboardMenuButton {
+                display: inline-flex;
+                grid-column: 1;
+                grid-row: 1 / span 2;
+            }
+            #dashboardHeader h2 {
+                grid-column: 2;
+                min-width: 0;
+                overflow-wrap: anywhere;
+                font-size: 1rem;
+                line-height: 1.25;
+            }
+            #dashboardHeader > span {
+                grid-column: 2;
+                justify-self: start;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+            }
+            #dashboardContent {
+                min-width: 0;
+                padding: 1rem;
+                overflow-x: hidden;
+            }
         }
         /* Bklit UI / Shadcn aesthetic: subtle borders, sharp aesthetics, no gradients */
         .card {
@@ -50,10 +104,10 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-slate-800">
+<body class="dashboard-shell flex h-screen overflow-hidden text-slate-800">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full">
+    <aside id="appSidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col h-full" aria-label="Dashboard navigation">
         <div class="p-6 border-b border-slate-200">
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">SK FUND System</h1>
             <p class="text-xs text-slate-500 mt-1"><?= htmlspecialchars($_SESSION['role'] ?? 'Public') ?> Portal</p>
@@ -135,10 +189,14 @@
             </a>
         </div>
     </aside>
+    <button id="sidebarBackdrop" class="hidden" type="button" aria-label="Close navigation menu"></button>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-slate-50">
-        <header class="bg-white border-b border-slate-200 h-16 flex items-center px-8 justify-between">
+    <main id="dashboardMain" class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+        <header id="dashboardHeader" class="bg-white border-b border-slate-200 h-16 flex items-center px-8 justify-between">
+            <button id="dashboardMenuButton" type="button" class="hidden items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-50" aria-label="Open navigation menu" aria-controls="appSidebar" aria-expanded="false">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
             <h2 class="text-lg font-semibold text-slate-800"><?= $page_title ?? 'Overview' ?></h2>
             <?php if(isset($_SESSION['barangay_name'])): ?>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
@@ -147,9 +205,33 @@
             <?php endif; ?>
         </header>
         
-        <div class="flex-1 overflow-y-auto p-8">
+        <div id="dashboardContent" class="flex-1 overflow-y-auto p-8">
             <?= $content ?? '' ?>
         </div>
     </main>
+    <script>
+        const appSidebar = document.getElementById('appSidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const dashboardMenuButton = document.getElementById('dashboardMenuButton');
+
+        function closeDashboardMenu() {
+            appSidebar.classList.remove('is-open');
+            sidebarBackdrop.classList.add('hidden');
+            dashboardMenuButton.setAttribute('aria-expanded', 'false');
+        }
+
+        dashboardMenuButton.addEventListener('click', () => {
+            const isOpen = appSidebar.classList.toggle('is-open');
+            sidebarBackdrop.classList.toggle('hidden', !isOpen);
+            dashboardMenuButton.setAttribute('aria-expanded', String(isOpen));
+        });
+        sidebarBackdrop.addEventListener('click', closeDashboardMenu);
+        appSidebar.querySelectorAll('nav a').forEach((link) => {
+            link.addEventListener('click', closeDashboardMenu);
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeDashboardMenu();
+        });
+    </script>
 </body>
 </html>

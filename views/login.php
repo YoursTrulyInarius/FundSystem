@@ -17,6 +17,7 @@ if (isset($_SESSION['user_id'])) {
     <title>Admin Login - SK FUND System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -28,10 +29,15 @@ if (isset($_SESSION['user_id'])) {
 
         /* Custom Input Styles */
         .input-field {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border: 1px solid #94a3b8;
             color: #0f172a;
             transition: all 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #475569;
+            opacity: 1;
         }
 
         .input-field:focus {
@@ -48,7 +54,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="min-h-screen w-full flex flex-col lg:flex-row">
 
         <!-- Left Side: Branding / Text -->
-        <div class="hidden lg:flex w-full lg:w-1/2 relative overflow-hidden flex-col justify-center px-16 xl:px-24">
+        <div class="hidden lg:flex w-full lg:w-[60%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
             <!-- New Background Image -->
             <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');">
             </div>
@@ -96,12 +102,12 @@ if (isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Right Side: Login Form -->
-        <div class="w-full lg:w-1/2 bg-white flex items-center justify-center p-8 sm:p-16">
-            <div class="w-full max-w-md right-content opacity-0 transform -translate-x-8">
+        <div class="w-full lg:w-[40%] bg-white flex items-center justify-center p-6 sm:p-8">
+            <div class="w-full max-w-sm right-content opacity-0 transform -translate-x-8">
 
                 <!-- Mobile Back Button (Only visible on small screens) -->
                 <a href="/FundSystem/"
-                    class="lg:hidden inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition mb-8 group">
+                    class="lg:hidden inline-flex items-center text-sm font-medium text-slate-500 hover:text-blue-600 transition mb-6 group">
                     <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -111,24 +117,24 @@ if (isset($_SESSION['user_id'])) {
                 </a>
 
                 <h2 class="text-3xl font-bold text-slate-900 tracking-tight mb-2">Welcome Back</h2>
-                <p class="text-slate-500 mb-8">Sign in to access your administrative dashboard.</p>
+                <p class="text-slate-500 mb-6">Sign in to access your administrative dashboard.</p>
 
                 <div id="alert" class="hidden mb-6 p-4 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200">
                 </div>
 
-                <form id="loginForm" class="space-y-5">
+                <form id="loginForm" class="space-y-3">
                     <div class="form-group opacity-0 transform translate-y-4">
-                        <label for="username" class="block text-sm font-medium text-slate-700 mb-1.5">Username</label>
+                        <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Username</label>
                         <input id="username" name="username" type="text" required
-                            class="input-field w-full px-4 py-3 rounded-lg font-medium"
+                            class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium"
                             placeholder="Enter your username">
                     </div>
 
                     <div class="form-group opacity-0 transform translate-y-4">
-                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
                         <div class="relative">
                             <input id="password" name="password" type="password" required
-                                class="input-field w-full px-4 py-3 rounded-lg font-medium pr-12"
+                                class="input-field w-full px-3 py-2.5 rounded-lg text-sm font-medium pr-12"
                                 placeholder="••••••••">
                             <button type="button" id="togglePassword"
                                 class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 focus:outline-none transition">
@@ -140,14 +146,14 @@ if (isset($_SESSION['user_id'])) {
                                 </svg>
                             </button>
                         </div>
-                        <div class="mt-3 text-right">
+                        <div class="mt-2 text-right">
                             <a href="forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
                         </div>
                     </div>
 
                     <div class="form-group opacity-0 transform translate-y-4 pt-2">
                         <button type="submit" id="loginBtn"
-                            class="w-full flex justify-center items-center py-3.5 px-4 rounded-lg text-sm font-bold text-white bg-black hover:bg-zinc-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            class="w-full flex justify-center items-center py-3 px-4 rounded-lg text-sm font-bold text-white bg-black hover:bg-zinc-800 transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
                             <span id="btnText">Sign In</span>
                             <svg id="btnLoader" class="hidden animate-spin ml-3 h-5 w-5 text-white"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

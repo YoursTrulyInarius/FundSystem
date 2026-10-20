@@ -15,9 +15,11 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 ## 🧾 Latest Version Update
 - **Version:** `2.1.0`
-- **Date:** 2026-10-20
-- **Summary:** Removed the Mayor and Accountant roles and the Municipal Verification dashboard to streamline system access for SK Barangay Councils, LYDO, SK Federation, and the Public.
+- **Date:** 2026-10-21
+- **Summary:** Improved the system’s mobile/tablet layouts and fixed uploaded barangay cover photos not rendering on public detail pages. The update also retains the role simplification described below.
 - **Changed:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
+- **Responsive UI:** Added a shared responsive stylesheet, mobile navigation, scrollable tables, touch-friendly form controls, and mobile modal layouts. Responsive behavior is applied through 768px tablet widths while preserving the desktop layout at 1024px and above.
+- **Barangay profiles:** Public barangay detail pages now resolve uploaded cover photo URLs from the application root so the image displays when opened from a nested public route.
 - **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
 - **Updated files:** `index.php`, `views/layout.php`, `database.sql`, `controllers/AuthController.php`, `README.md`, removed `views/dashboards/verification.php`
 
@@ -47,8 +49,9 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Report Consolidation** – Allows the SK Federation to consolidate barangay reports into a municipal-wide compliance report.
 - **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
 - **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
+- **Barangay Public Profiles** – Displays registered barangays’ uploaded cover photos, profile information, community benefits, projects, and transactions.
 - **Citizen Feedback Management** – Allows community members and youth beneficiaries to submit feedback, questions, or concerns regarding SK-funded projects.
-- **Responsive Web Interface** – Allows users to access the system using desktop computers, laptops, tablets, and smartphones with an internet connection.
+- **Responsive Web Interface** – Supports phones, tablets, and desktop browsers with mobile navigation, internally scrollable tables, touch-friendly forms, and mobile-friendly dialogs.
 - **Logout** – Securely ends the active session of an authorized user.
 
 ---
@@ -440,6 +443,7 @@ mkdir c:\xampp\htdocs\FundSystem\uploads
 mkdir c:\xampp\htdocs\FundSystem\uploads\transactions
 mkdir c:\xampp\htdocs\FundSystem\uploads\reports
 mkdir c:\xampp\htdocs\FundSystem\uploads\documents
+mkdir c:\xampp\htdocs\FundSystem\uploads\barangays
 
 # Set permissions (Windows: Right-click → Properties → Security → Full Control for Apache user)
 ```
@@ -558,17 +562,22 @@ FundSystem/
 │   │
 │   ├── public/
 │   │   ├── home.php                    # Public transparency portal (with feedback form)
+│   │   ├── barangay_view.php           # Public barangay profile and cover photo
 │   │   └── project_view.php            # Public project details view
 │   │
 │   ├── forgot-password.php             # Password reset request
-│   └── /assets/
-│       ├── css/                        # Custom stylesheets
-│       ├── img/                        # Images and icons
-│       └── js/                         # Frontend JavaScript (login.js, etc.)
+│   └── reset-password.php              # Password reset
+│
+├── assets/
+│   ├── css/
+│   │   └── mobile-responsive.css       # Shared mobile/tablet layout rules
+│   ├── img/                            # Images and icons
+│   └── js/                             # Frontend JavaScript (login.js, etc.)
 │
 ├── uploads/
 │   ├── transactions/                   # Transaction document uploads
-│   └── reports/                        # MAR attachment uploads
+│   ├── reports/                        # MAR attachment uploads
+│   └── barangays/                      # Barangay cover photo uploads
 │
 ├── PHPMailer/                          # Email library (for future email notifications)
 ├── vendor/                             # Composer dependencies
@@ -758,6 +767,5 @@ This system was developed for the Municipality of Ramon Magsaysay, Zamboanga del
 - SweetAlert2 (modals)
 - PHPMailer (email support)
 
-**Last Updated**: August 2026  
-**Version**: 1.0.0 (Production Ready)
-
+**Last Updated**: October 21, 2026
+**Version**: 2.1.0

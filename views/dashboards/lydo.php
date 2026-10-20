@@ -1,16 +1,26 @@
 <?php
+require_once 'controllers/PublicController.php';
 require_once 'core/Database.php';
 
 $database = new Database();
 $db = $database->connect();
 
+$barangays = PublicController::$barangay_list;
+$selected_barangay = trim($_GET['barangay'] ?? '');
+if ($selected_barangay !== '' && !in_array($selected_barangay, $barangays, true)) {
+    $selected_barangay = '';
+}
+$barangay_filter = $selected_barangay !== '' ? " AND TRIM(REPLACE(u.barangay_name, 'Barangay ', '')) = :barangay" : '';
+$filter_params = $selected_barangay !== '' ? [':barangay' => $selected_barangay] : [];
+
 // Fetch Pending Reports (MARs) with Barangay Names
 $mars_query = "SELECT r.*, u.barangay_name 
                FROM reports r 
                JOIN users u ON r.user_id = u.id 
-               WHERE r.status = 'pending' 
+               WHERE r.status = 'pending'{$barangay_filter}
                ORDER BY r.submitted_at ASC";
-$mars_stmt = $db->query($mars_query);
+$mars_stmt = $db->prepare($mars_query);
+$mars_stmt->execute($filter_params);
 $pending_mars = $mars_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch Pending Transactions with Barangay Names & Project Titles
@@ -18,14 +28,22 @@ $tx_query = "SELECT t.*, p.title as project_title, u.barangay_name
              FROM transactions t 
              JOIN projects p ON t.project_id = p.id 
              JOIN users u ON p.user_id = u.id 
-             WHERE t.status = 'pending' 
+             WHERE t.status = 'pending'{$barangay_filter}
              ORDER BY t.created_at ASC";
-$tx_stmt = $db->query($tx_query);
+$tx_stmt = $db->prepare($tx_query);
+$tx_stmt->execute($filter_params);
 $pending_txs = $tx_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Stats
-$reviewed_tx_count = $db->query("SELECT COUNT(*) FROM transactions WHERE status != 'pending'")->fetchColumn();
-$reviewed_mars_count = $db->query("SELECT COUNT(*) FROM reports WHERE status != 'pending'")->fetchColumn();
+$reviewed_tx_query = "SELECT COUNT(*) FROM transactions t JOIN projects p ON t.project_id = p.id JOIN users u ON p.user_id = u.id WHERE t.status != 'pending'{$barangay_filter}";
+$reviewed_tx_stmt = $db->prepare($reviewed_tx_query);
+$reviewed_tx_stmt->execute($filter_params);
+$reviewed_tx_count = $reviewed_tx_stmt->fetchColumn();
+
+$reviewed_mars_query = "SELECT COUNT(*) FROM reports r JOIN users u ON r.user_id = u.id WHERE r.status != 'pending'{$barangay_filter}";
+$reviewed_mars_stmt = $db->prepare($reviewed_mars_query);
+$reviewed_mars_stmt->execute($filter_params);
+$reviewed_mars_count = $reviewed_mars_stmt->fetchColumn();
 $total_pending = count($pending_mars) + count($pending_txs);
 
 $page_title = 'LYDO Dashboard';
@@ -33,6 +51,18 @@ ob_start();
 ?>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+    <form method="get" action="dashboard" class="md:col-span-3 flex flex-wrap items-center gap-3">
+        <label for="barangayFilter" class="text-sm font-semibold text-slate-700">Filter by barangay</label>
+        <select id="barangayFilter" name="barangay" onchange="this.form.submit()"
+            class="min-w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+            <option value="">All Barangays</option>
+            <?php foreach ($barangays as $barangay): ?>
+                <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>>
+                    Barangay <?= htmlspecialchars($barangay) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </form>
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
         <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Pending Reviews</h3>
         <p class="text-4xl font-black text-slate-900"><?= $total_pending ?></p>

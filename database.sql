@@ -128,6 +128,7 @@ CREATE TABLE barangay_profiles (
     image_path VARCHAR(255) NULL,
     tagline VARCHAR(255) NULL,
     description TEXT NULL,
+    community_benefits TEXT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_barangay_name (barangay_name)
 );

@@ -52,25 +52,14 @@ class PublicController {
         // 3. Fetch live summary statistics for the hero section
         $countQuery = "SELECT
                 (SELECT COUNT(*) FROM projects WHERE status IN ('ongoing', 'completed')) AS total_projects,
-                (SELECT COUNT(*) FROM transactions WHERE status = 'recorded') AS recorded_transactions,
-                (SELECT COUNT(DISTINCT barangay_name) FROM (
-                    SELECT u.barangay_name
-                    FROM projects p
-                    LEFT JOIN users u ON p.user_id = u.id
-                    WHERE p.status IN ('ongoing', 'completed') AND u.barangay_name IS NOT NULL
-                    UNION
-                    SELECT u.barangay_name
-                    FROM transactions t
-                    LEFT JOIN projects p ON t.project_id = p.id
-                    LEFT JOIN users u ON p.user_id = u.id
-                    WHERE u.barangay_name IS NOT NULL
-                ) AS unioned) AS barangay_count";
+                (SELECT COUNT(*) FROM transactions WHERE status = 'recorded') AS recorded_transactions";
         $countStmt = $db->prepare($countQuery);
         $countStmt->execute();
         $liveStats = $countStmt->fetch(PDO::FETCH_ASSOC);
         $total_projects = (int) ($liveStats['total_projects'] ?? 0);
         $recorded_transactions = (int) ($liveStats['recorded_transactions'] ?? 0);
-        $barangay_count = (int) ($liveStats['barangay_count'] ?? 0);
+        $registeredBarangayStmt = $db->query("SELECT COUNT(DISTINCT TRIM(REPLACE(barangay_name, 'Barangay ', ''))) FROM users WHERE role = 'sk_admin' AND barangay_name IS NOT NULL AND barangay_name != ''");
+        $barangay_count = (int) $registeredBarangayStmt->fetchColumn();
 
         // 4. Fetch barangay profiles (uploaded cover images, taglines)
         $bpStmt = $db->query("SELECT * FROM barangay_profiles");
@@ -128,17 +117,21 @@ class PublicController {
         // 8. Build comprehensive dataset for all 27 barangays
         $barangayCards = [];
         foreach (self::$barangay_list as $bname) {
+            $bOfficial = $officials_by_bname[$bname] ?? null;
+            if (!$bOfficial) {
+                continue;
+            }
+
             $bProjects = $projects_by_bname[$bname] ?? [];
             $bProfile  = $profiles_by_bname[$bname] ?? null;
-            $bOfficial = $officials_by_bname[$bname] ?? null;
             $bFeedback = $feedback_by_bname[$bname] ?? [];
 
             $totBudget = $budget_by_bname[$bname] ?? 0;
             $recAmount = $recorded_by_bname[$bname] ?? 0;
             $utilRate  = $totBudget > 0 ? round(($recAmount / $totBudget) * 100, 1) : 0;
 
-            // Generate representative community benefits based on projects or standard SK mandate
-            $benefits = $this->generateBenefits($bProjects);
+            $customBenefits = json_decode($bProfile['community_benefits'] ?? '', true);
+            $benefits = $this->generateBenefits(is_array($customBenefits) ? $customBenefits : []);
 
             $barangayCards[] = [
                 'name' => $bname,
@@ -243,7 +236,8 @@ class PublicController {
             }
         }
         $utilization_rate = $total_budget > 0 ? round(($recorded_amount / $total_budget) * 100, 1) : 0;
-        $benefits = $this->generateBenefits($projects);
+        $customBenefits = json_decode($profile['community_benefits'] ?? '', true);
+        $benefits = $this->generateBenefits(is_array($customBenefits) ? $customBenefits : []);
 
         require 'views/public/barangay_view.php';
     }
@@ -340,6 +334,28 @@ class PublicController {
         $clean_barangay = str_replace('Barangay ', '', $user['barangay_name']);
         $tagline = trim($_POST['tagline'] ?? '');
         $description = trim($_POST['description'] ?? '');
+        $hasCommunityBenefits = array_key_exists('community_benefits', $_POST);
+        $communityBenefits = $hasCommunityBenefits ? $_POST['community_benefits'] : [];
+        if ($hasCommunityBenefits && !is_array($communityBenefits)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid community benefits data.']);
+            return;
+        }
+        $benefitKeys = ['education', 'sports', 'environment', 'livelihood'];
+        $communityBenefits = $hasCommunityBenefits
+            ? array_intersect_key($communityBenefits, array_flip($benefitKeys))
+            : [];
+        foreach ($communityBenefits as $key => $benefit) {
+            if (!is_string($benefit)) {
+                echo json_encode(['success' => false, 'message' => 'Each community benefit must be plain text.']);
+                return;
+            }
+            $communityBenefits[$key] = trim($benefit);
+            if (strlen($communityBenefits[$key]) > 500) {
+                echo json_encode(['success' => false, 'message' => 'Each community benefit must be 500 characters or fewer.']);
+                return;
+            }
+        }
+        $communityBenefitsJson = $hasCommunityBenefits ? json_encode($communityBenefits) : null;
 
         $image_path = null;
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
@@ -374,7 +390,7 @@ class PublicController {
         }
 
         // Upsert into barangay_profiles
-        $checkStmt = $db->prepare("SELECT id, image_path, tagline, description FROM barangay_profiles WHERE barangay_name = :bname");
+        $checkStmt = $db->prepare("SELECT id, image_path, tagline, description, community_benefits FROM barangay_profiles WHERE barangay_name = :bname");
         $checkStmt->execute([':bname' => $clean_barangay]);
         $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -382,21 +398,26 @@ class PublicController {
             $finalImage = $image_path ?? $existing['image_path'];
             $finalTagline = !empty($tagline) ? $tagline : ($existing['tagline'] ?? null);
             $finalDesc = !empty($description) ? $description : ($existing['description'] ?? null);
+            $finalCommunityBenefits = $hasCommunityBenefits
+                ? $communityBenefitsJson
+                : ($existing['community_benefits'] ?? null);
 
-            $upStmt = $db->prepare("UPDATE barangay_profiles SET image_path = :img, tagline = :tag, description = :desc WHERE id = :id");
+            $upStmt = $db->prepare("UPDATE barangay_profiles SET image_path = :img, tagline = :tag, description = :desc, community_benefits = :benefits WHERE id = :id");
             $upStmt->execute([
                 ':img' => $finalImage,
                 ':tag' => $finalTagline,
                 ':desc' => $finalDesc,
+                ':benefits' => $finalCommunityBenefits,
                 ':id' => $existing['id']
             ]);
         } else {
-            $insStmt = $db->prepare("INSERT INTO barangay_profiles (barangay_name, image_path, tagline, description) VALUES (:bname, :img, :tag, :desc)");
+            $insStmt = $db->prepare("INSERT INTO barangay_profiles (barangay_name, image_path, tagline, description, community_benefits) VALUES (:bname, :img, :tag, :desc, :benefits)");
             $insStmt->execute([
                 ':bname' => $clean_barangay,
                 ':img' => $image_path,
                 ':tag' => $tagline,
-                ':desc' => $description
+                ':desc' => $description,
+                ':benefits' => $communityBenefitsJson
             ]);
         }
 
@@ -449,46 +470,44 @@ class PublicController {
         require 'views/public/project_view.php';
     }
 
-    private function generateBenefits($projects) {
-        $hasSports = false;
-        $hasEducation = false;
-        $hasEnvironment = false;
-        $hasLivelihood = false;
-
-        foreach ($projects as $p) {
-            $cat = strtolower($p['budget_category'] ?? '');
-            $title = strtolower($p['title'] ?? '');
-            if (str_contains($cat, 'sport') || str_contains($title, 'sport') || str_contains($title, 'league') || str_contains($title, 'tournament')) $hasSports = true;
-            if (str_contains($cat, 'educ') || str_contains($title, 'school') || str_contains($title, 'scholar') || str_contains($title, 'student')) $hasEducation = true;
-            if (str_contains($cat, 'env') || str_contains($title, 'clean') || str_contains($title, 'tree') || str_contains($title, 'green')) $hasEnvironment = true;
-            if (str_contains($cat, 'live') || str_contains($title, 'train') || str_contains($title, 'workshop') || str_contains($title, 'leader')) $hasLivelihood = true;
-        }
-
-        return [
+    private function generateBenefits($customBenefits = []) {
+        $benefitDefinitions = [
             [
+                'key' => 'education',
                 'icon' => 'scholar',
                 'title' => 'Education & Youth Capability',
-                'description' => $hasEducation ? 'Direct support for student educational supplies, youth leadership seminars, and learning facilities.' : 'Capacity building workshops, student learning assistance, and youth educational development programs.',
-                'active' => $hasEducation
             ],
             [
+                'key' => 'sports',
                 'icon' => 'sports',
                 'title' => 'Sports & Physical Wellness',
-                'description' => $hasSports ? 'Inter-purok sports tournaments, health awareness, and anti-drug advocacy campaigns for active youth.' : 'Youth sports leagues, fitness drives, and healthy lifestyle promotion across all puroks.',
-                'active' => $hasSports
             ],
             [
+                'key' => 'environment',
                 'icon' => 'eco',
                 'title' => 'Environmental Protection',
-                'description' => $hasEnvironment ? 'Barangay tree planting initiatives, river cleanups, and solid waste management education.' : 'Youth-led ecological preservation, cleanup drives, and community greening projects.',
-                'active' => $hasEnvironment
             ],
             [
+                'key' => 'livelihood',
                 'icon' => 'livelihood',
                 'title' => 'Livelihood & Empowerment',
-                'description' => $hasLivelihood ? 'Vocational training, youth entrepreneurship grants, and disaster preparedness training.' : 'Skills development, career guidance sessions, and community resilience programs.',
-                'active' => $hasLivelihood
             ]
         ];
+
+        $benefits = [];
+        foreach ($benefitDefinitions as $definition) {
+            $value = $customBenefits[$definition['key']] ?? '';
+            $description = is_string($value) ? trim($value) : '';
+            if ($description !== '') {
+                $benefits[] = [
+                    'icon' => $definition['icon'],
+                    'title' => $definition['title'],
+                    'description' => $description,
+                    'active' => true
+                ];
+            }
+        }
+
+        return $benefits;
     }
 }
