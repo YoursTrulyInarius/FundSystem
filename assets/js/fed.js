@@ -1,16 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Function to handle SK Fed record actions
-    window.recordItem = function(type, id) {
-        let endpoint = type === 'tx' ? 'api/fed/record_tx' : 'api/fed/record_mar';
+    window.approveItem = function(type, id) {
+        const isTransaction = type === 'tx';
+        const endpoint = isTransaction ? 'api/fed/record_tx' : 'api/fed/record_mar';
+        const actionLabel = isTransaction ? 'Approve & certify' : 'Approve';
 
         Swal.fire({
-            title: 'Record & Certify?',
-            text: "This will officially record the document and generate the final Certification of Recording.",
+            title: actionLabel + '?',
+            text: isTransaction
+                ? 'This LYDO-reviewed transaction will be approved and certified. Submitted details and documents cannot be edited here.'
+                : 'This LYDO-reviewed MAR will be approved. Submitted details and documents cannot be edited here.',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#6366f1', // indigo-500
             cancelButtonColor: '#64748b',
-            confirmButtonText: 'Yes, record it'
+            confirmButtonText: actionLabel
         }).then((result) => {
             if (result.isConfirmed) {
                 
@@ -37,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.location.reload();
                         });
                     } else {
-                        Swal.fire('Error', data.message || 'Failed to record document.', 'error');
+                        Swal.fire('Error', data.message || 'Failed to approve submission.', 'error');
                     }
                 })
                 .catch(error => {

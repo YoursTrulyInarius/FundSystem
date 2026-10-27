@@ -63,8 +63,7 @@ All default test passwords in database seeds are `password123` (bcrypt hashed).
 ### 2. Database Indexes & Query Performance Optimization
 - **Goal:** Ensure sub-second query performance across large datasets.
 - **Actions Taken:**
-  - Created `add_indexes.sql` and migration script `setup_indexes.php`.
-  - Added indexes on `transactions (project_id, transaction_date)`, `projects (barangay_id, status)`, `reports (barangay_id, status)`, and `comments (project_id, status)`.
+  - Added all schema indexes to `database.sql`; use `setup_indexes.php` for existing databases that need indexes.
 
 ### 3. Public Transparency Portal — Barangay Carousel Showcase
 - **Goal:** Replace static hero listings with an interactive, visual carousel showcase of all constituent barangays in Ramon Magsaysay.
@@ -154,8 +153,7 @@ All default test passwords in database seeds are `password123` (bcrypt hashed).
 | `views/dashboards/lydo.php` | LYDO compliance review and deficiency notice interface. |
 | `views/dashboards/fed.php` | SK Federation consolidation and official digital registry. |
 | `views/layout.php` | Shared dashboard wrapper and navigation bar for authenticated users. |
-| `database.sql` | Base database schema and seed data. |
-| `add_indexes.sql` | Query optimization index definitions. |
+| `database.sql` | Complete database schema, seed data, and indexes. |
 | `setup_indexes.php` | CLI / Web script to automatically apply performance indexes. |
 
 ---
@@ -205,7 +203,7 @@ Here is the prioritized checklist of what has been finished and the concrete tas
 
 ### ✅ Completed Milestones
 - [x] **Mayor & Accountant Dashboards Removal:** Stripped all mayor and accountant verification routes, database tables/roles, layout menus, and auth checks.
-- [x] **Database Performance Indexing:** Added composite indexes on transactions, projects, reports, and comments via `add_indexes.sql` and `setup_indexes.php`.
+- [x] **Database Performance Indexing:** Schema indexes are included in `database.sql`; `setup_indexes.php` can apply them to existing databases.
 - [x] **Barangay Showcase Carousel on Public Portal (`views/public/home.php`):** Responsive dark-mode slider with autoplay, arrow navigation, project counts, budget metrics, and direct links to barangay pages.
 - [x] **Barangay Photo Upload for SK Admins (`views/dashboards/sk.php`):** SK Admins can upload real photos and update their barangay's tagline and mission without AI placeholders.
 - [x] **Barangay Public Transparency Page Redesign (`views/public/barangay_view.php`):** Dark glassmorphic styling matching `home.php`, including hero banner, financial KPI cards, project cards, and citizen feedback form.

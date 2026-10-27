@@ -4,7 +4,7 @@ require_once 'core/Database.php';
 $database = new Database();
 $db = $database->connect();
 
-// Fetch Reviewed Reports (MARs) waiting to be recorded
+// Fetch LYDO-reviewed reports (MARs) waiting for SK Federation approval
 $mars_query = "SELECT r.*, u.barangay_name 
                FROM reports r 
                JOIN users u ON r.user_id = u.id 
@@ -13,7 +13,7 @@ $mars_query = "SELECT r.*, u.barangay_name
 $mars_stmt = $db->query($mars_query);
 $pending_mars = $mars_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch Reviewed Transactions waiting to be recorded
+// Fetch LYDO-reviewed transactions waiting for SK Federation approval
 $tx_query = "SELECT t.*, p.title as project_title, u.barangay_name 
              FROM transactions t 
              JOIN projects p ON t.project_id = p.id 
@@ -34,24 +34,26 @@ ob_start();
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Pending Recording</h3>
+        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Pending Approvals</h3>
         <p class="text-4xl font-black text-slate-900"><?= $total_pending ?></p>
     </div>
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Recorded MARs</h3>
+        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Approved MARs</h3>
         <p class="text-4xl font-black text-slate-900"><?= $recorded_mars_count ?></p>
     </div>
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
-        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Recorded Transactions</h3>
+        <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Approved Transactions</h3>
         <p class="text-4xl font-black text-slate-900"><?= $recorded_tx_count ?></p>
     </div>
 </div>
+
+<p class="mb-6 text-sm text-slate-600">Only items approved by the LYDO appear here. SK Federation can approve and certify them, but cannot edit submitted details or documents.</p>
 
 <div class="grid grid-cols-1 gap-8">
     <!-- Pending Transactions Table -->
     <div class="card overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-900">Transactions Pending Recording (<?= count($pending_txs) ?>)</h3>
+            <h3 class="text-lg font-bold text-slate-900">Transactions Awaiting Final Approval (<?= count($pending_txs) ?>)</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
@@ -89,9 +91,9 @@ ob_start();
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <button onclick="recordItem('tx', <?= $tx['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
+                                    <button onclick="approveItem('tx', <?= $tx['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Record & Certify
+                                        Approve & Certify
                                     </button>
                                 </td>
                             </tr>
@@ -99,7 +101,7 @@ ob_start();
                     <?php else: ?>
                         <tr>
                             <td colspan="3" class="px-6 py-12 text-center text-slate-500">
-                                No transactions pending recording.
+                                No LYDO-approved transactions are awaiting final approval.
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -111,7 +113,7 @@ ob_start();
     <!-- Pending MARs Table -->
     <div class="card overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-900">MARs Pending Recording (<?= count($pending_mars) ?>)</h3>
+            <h3 class="text-lg font-bold text-slate-900">MARs Awaiting Final Approval (<?= count($pending_mars) ?>)</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
@@ -148,9 +150,9 @@ ob_start();
                                     </a>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <button onclick="recordItem('mar', <?= $mar['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
+                                    <button onclick="approveItem('mar', <?= $mar['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Record & Certify
+                                        Approve
                                     </button>
                                 </td>
                             </tr>
@@ -158,7 +160,7 @@ ob_start();
                     <?php else: ?>
                         <tr>
                             <td colspan="4" class="px-6 py-12 text-center text-slate-500">
-                                No Monthly Accomplishment Reports pending recording.
+                                No LYDO-approved MARs are awaiting final approval.
                             </td>
                         </tr>
                     <?php endif; ?>

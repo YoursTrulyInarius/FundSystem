@@ -57,7 +57,7 @@ class FedController {
                     MilestoneHelper::mark($db, $proj_row['project_id'], 'monitoring', 'Transaction officially recorded by SK Federation.');
                 }
 
-                echo json_encode(['success' => true, 'message' => 'Transaction recorded and certified successfully.']);
+                echo json_encode(['success' => true, 'message' => 'Transaction approved, recorded, and certified successfully.']);
             } catch (Exception $e) {
                 $db->rollBack();
                 echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
@@ -90,18 +90,13 @@ class FedController {
             $database = new Database();
             $db = $database->connect();
 
-            // Update report status to 'recorded' (assuming we add 'recorded' to enum if needed, wait, enum is pending, reviewed... Let's check reports schema)
-            // Ah, reports enum is ('pending', 'reviewed'). We might need to alter it if we want 'recorded'.
-            // For now, let's just assume we alter it or we just add 'recorded' to it.
-            $db->exec("ALTER TABLE reports MODIFY COLUMN status ENUM('pending', 'reviewed', 'returned', 'recorded') DEFAULT 'pending'");
-
             $query = "UPDATE reports SET status = 'recorded' WHERE id = :id AND status = 'reviewed'";
             $stmt = $db->prepare($query);
             
             if ($stmt->execute([':id' => $report_id]) && $stmt->rowCount() > 0) {
-                echo json_encode(['success' => true, 'message' => 'MAR recorded successfully.']);
+                echo json_encode(['success' => true, 'message' => 'MAR approved successfully.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to record MAR or it is not in reviewed status.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to approve MAR or it is not in reviewed status.']);
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Invalid request method.']);

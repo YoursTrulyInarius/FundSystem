@@ -46,7 +46,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Monthly Accomplishment Report (MAR) Submission** – Allows SK Barangay Councils to prepare and submit Monthly Accomplishment Reports (MAR) and supporting documents to the Local Youth Development Office (LYDO) within the prescribed deadline.
 - **Compliance and Completeness Review** – Allows LYDO personnel to review submitted reports and supporting documents to ensure compliance with the approved requirements.
 - **Deficiency Notification** – Allows LYDO personnel to notify SK Barangay Councils of incomplete or non-compliant submissions and request corrections before resubmission.
-- **Digital SK Fund Registry Management** – Allows the SK Federation to record approved financial transactions in the official digital SK Fund Registry.
+- **SK Federation Approval** – Allows the SK Federation to approve and certify only submissions already reviewed by the LYDO; submitted transaction and report details remain read-only.
 - **Report Consolidation** – Allows the SK Federation to consolidate barangay reports into a municipal-wide compliance report.
 - **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
 - **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
@@ -187,31 +187,8 @@ The `watch_sk_fund` database includes **23 strategic indexes** designed to optim
 
 ### Setup Instructions
 
-#### ✅ Option 1: Automatic Setup (Recommended)
-```bash
-Navigate to: http://localhost/FundSystem/setup_indexes.php
-```
-The PHP script will automatically create all 23 indexes on your existing tables and display success confirmation.
-
-#### ✅ Option 2: phpMyAdmin (Manual)
-1. Open `http://localhost/phpmyadmin`
-2. Select database `watch_sk_fund`
-3. Go to **SQL** tab
-4. Copy entire content from `add_indexes.sql` file
-5. Click **Execute**
-
-#### ✅ Option 3: Command Line
-```bash
-mysql -u root watch_sk_fund < c:\xampp\htdocs\FundSystem\add_indexes.sql
-```
-
-#### ✅ Option 4: Fresh Database
-If creating a new database, the `database.sql` file already includes all indexes in the table definitions, so no additional setup needed.
-
-### New Files Added for Database Optimization
-- **`add_indexes.sql`**: SQL script containing all 23 CREATE INDEX statements (can be imported via phpMyAdmin)
-- **`setup_indexes.php`**: PHP auto-setup script that creates indexes with progress feedback
-- **`database.sql`**: Updated with inline index definitions for fresh deployments
+- For a fresh installation, import `database.sql`; it includes all 23 indexes and the `barangay_profiles.community_benefits` column.
+- For an existing installation that needs indexes, use `http://localhost/FundSystem/setup_indexes.php`.
 
 ---
 
@@ -251,7 +228,7 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
 ### 3. 🏛️ Municipal SK Federation Dashboard (`sk_fed`)
 * **Target Users**: SK Federation Officers, Municipal Archivists, and Central Records Administrators.
 * **Dashboard Displays**:
-  - **Pending Recording**: Count of LYDO-approved transactions and MARs awaiting official ledger entry
+  - **Pending Approvals**: Count of LYDO-reviewed transactions and MARs awaiting final SK Federation approval
   - **Recorded MARs**: Count of successfully recorded Monthly Accomplishment Reports in the municipal archive
   - **Recorded Transactions**: Count of financial transactions officially inscribed in the SK Fund registry
   - **Queue of Reviewed Items**: List of approved transactions and MARs ready to be recorded, organized by submission date
@@ -314,78 +291,43 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
 
 ---
 
-## ⚙️ How the System Runs (Workflow Pipeline)
-
-```
-[ SK Barangay Council ] 
-       │ 1. Registers Project (ABYIP) & Encodes Financial Transaction / MAR
-       ▼
-[ Local Youth Development Office (LYDO) ]
-       │ 2. Conducts Compliance & Completeness Review
-       ├───► (Deficient) ──► Returned to SK Barangay Council for Correction
-       ▼ (Compliant)
-[ Municipal SK Federation ]
-       │ 3. Records into Official Digital SK Fund Registry & Consolidates MARs
-       ▼
- [ Public Transparency Portal ]
- (Citizens & Youth Beneficiaries)
-```
-
 ---
 
-## 🚀 Installation & Setup Guide
+## ⚙️ How the System Works
 
-### Requirements
-- **XAMPP / WAMP / LAMP** stack (PHP >= 8.0, Apache, MySQL / MariaDB)
-- Web browser (Chrome, Firefox, Edge, Safari)
+The system has three authenticated roles with separate responsibilities. SK Barangay Admins create and submit records, LYDO reviews or returns them, and SK Federation performs the final approval. Federation users can approve only LYDO-reviewed submissions; they cannot edit submitted details or documents.
 
-## ⚙️ How the System Runs (Workflow Pipeline)
+```mermaid
+flowchart TD
+    SK["SK Barangay Admin<br/>Create projects, transactions, and MARs"]
+    SUBMIT["Submit transaction / MAR<br/>Status: Pending"]
+    LYDO["LYDO<br/>Review completeness and compliance"]
+    DECISION{"LYDO decision"}
+    RETURN["Return with remarks<br/>SK Admin corrects and resubmits"]
+    REVIEWED["Approve review<br/>Status: Reviewed"]
+    FED["SK Federation<br/>Final approval of reviewed submissions"]
+    RECORDED["Approved / Recorded<br/>Transaction certification issued"]
+    REPORTS["Consolidate reports<br/>Generate quarterly compliance reports"]
+    PUBLIC["Public transparency portal<br/>Browse barangays, projects, and fund use"]
+    FEEDBACK["Community submits feedback"]
+    ADMIN["SK Admin reviews community feedback"]
 
+    SK --> SUBMIT --> LYDO --> DECISION
+    DECISION -- Return --> RETURN --> SK
+    DECISION -- Approve --> REVIEWED --> FED --> RECORDED
+    RECORDED --> REPORTS
+    RECORDED --> PUBLIC
+    PUBLIC --> FEEDBACK --> ADMIN
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│ WORKFLOW: SK FUND MONITORING & COMMUNITY ENGAGEMENT LIFECYCLE       │
-└─────────────────────────────────────────────────────────────────────┘
 
-[ SK BARANGAY COUNCIL ]
-    │ Step 1: Register Project (ABYIP Code, Budget)
-    │ Step 2: Record Milestones (Planning → Implementation → Monitoring)
-    │ Step 3: Encode Financial Transactions (DV, ROA, Liquidation, Procurement)
-    │ Step 4: Submit Monthly Accomplishment Report (with 4 attachments)
-    ▼
-[ LOCAL YOUTH DEVELOPMENT OFFICE (LYDO) ]
-    │ Step 5: Review for Compliance (ABYIP alignment, COA rules)
-    │ Step 6: Validate Document Completeness
-    ├─────────────────────────────────────────────────┐
-    │ (DEFICIENT) ─► Flag with Deficiency Remarks ─► Route Back to SK Council
-    │                                                  (Restart at Step 3)
-    │
-    ▼ (COMPLIANT)
-    │ Step 7: Mark as "Reviewed" & Issue Certification
-    ▼
-[ MUNICIPAL SK FEDERATION ]
-    │ Step 8: Record into Official Digital SK Fund Registry
-    │ Step 9: Issue Certification of Recording (with Reference #)
-    │ Step 10: Consolidate Barangay-Level Data
-    │ Step 11: Auto-Generate Quarterly Compliance Reports
-    ▼
-    ┌──────────────────────────────┬───────────────────────────────────┐
-    ▼                              ▼                                   ▼
-[ QUARTERLY COMPLIANCE ]    [ PUBLIC PORTAL ]                   [ COMMUNITY FEEDBACK ]
-(SK Fed Q1/Q2/Q3/Q4 Reports)(Citizens Browse)                   (Submit Anonymous)
-    │                              │                                   │
-    │ Step 12: Generate Reports    │ Step 12: View Projects/Ledger     │ Step 12: Submit Feedback
-    ▼                              │                                   │ on Projects
-[ MUNICIPAL ARCHIVE ]              └─────────────────────────────────► │
-                                                                       ▼
-                                                                  [ SK ADMIN FEEDBACK ]
-                                                                  [ DASHBOARD ]
-                                                                           │
-                                                                           │ Step 13: Review Feedback
-                                                                           │ Step 14: Delete Inappropriate
-                                                                           │ Step 15: Respond to Community
-                                                                           ▼
-                                                                      [ COMMUNITY ENGAGEMENT ]
-```
+### Role responsibilities
+
+| Role | Main responsibilities |
+| --- | --- |
+| `sk_admin` | Manage barangay projects, submit transactions and MARs, update project milestones, and manage community feedback. |
+| `lydo` | Review pending transactions and MARs; approve compliant submissions or return them with remarks for correction. |
+| `sk_fed` | Give final approval to LYDO-reviewed transactions and MARs, issue transaction recording certification, and view consolidated reports. Editing submissions is not permitted. |
+| Public | Browse public barangay and project information and submit community feedback without signing in. |
 
 ---
 
@@ -397,13 +339,36 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
 - 500MB disk space for database and uploaded documents
 
 ### Step 1: Download & Extract Repository
-```bash
-# Clone or download into XAMPP htdocs directory
-cd c:/xampp/htdocs
-git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
 
-# Alternatively, download ZIP and extract to FundSystem folder
+Install Git, then clone the repository into the web server's document root (the folder Apache serves). Choose the commands for your operating system:
+
+**Windows with XAMPP (PowerShell):**
+```powershell
+Set-Location C:\xampp\htdocs
+git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
 ```
+
+**macOS with XAMPP:**
+```bash
+cd /Applications/XAMPP/htdocs
+git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
+```
+
+**Linux with XAMPP:**
+```bash
+cd /opt/lampp/htdocs
+git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
+```
+
+**Linux with Apache installed from system packages:**
+```bash
+cd /var/www/html
+sudo git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
+```
+
+For a native macOS Apache setup, clone into the configured `DocumentRoot` (commonly `/Library/WebServer/Documents`). If your web root is elsewhere, replace the example path with that directory. Alternatively, download the repository ZIP and extract it into a folder named `FundSystem` inside the web root.
+
+The application URL is `http://localhost/FundSystem/` when the cloned folder is directly inside the web root. If you use another folder name or virtual host, use its corresponding local URL.
 
 ### Step 2: Create Database & Import Schema
 1. Open **phpMyAdmin** (`http://localhost/phpmyadmin`).
@@ -413,18 +378,24 @@ git clone https://github.com/YoursTrulyInarius/FundSystem.git FundSystem
 5. Click **Create**
 6. Select the `watch_sk_fund` database
 7. Click **Import** tab
-8. Choose file: `c:/xampp/htdocs/FundSystem/database.sql`
+8. Choose `database.sql` from the cloned `FundSystem` directory (for example, `C:\xampp\htdocs\FundSystem\database.sql` on Windows with XAMPP)
 9. Click **Go** to import tables, indexes, and default users
+
+For an existing database created before this workflow update, run this once in the phpMyAdmin **SQL** tab so MARs can transition to the final SK Federation-approved status. Fresh installs already have this status in `database.sql`.
+```sql
+ALTER TABLE reports
+MODIFY COLUMN status ENUM('pending', 'reviewed', 'returned', 'recorded') DEFAULT 'pending';
+```
 
 **Database is now created with**:
 - ✅ 7 tables (users, projects, transactions, reports, certifications, feedback, milestones)
 - ✅ All 23 performance indexes pre-defined
 - ✅ Foreign key relationships for referential integrity
-- ✅ 3 default test user accounts
+- ✅ 2 default test user accounts (LYDO and SK Federation)
 - ✅ `feedback` table with `read_at` column for tracking unread feedback
 
 ### Step 3: Verify Database Connection
-Check that `core/Database.php` matches your local MySQL credentials:
+Check that `core/Database.php` matches your local MySQL credentials. The example below uses the common default XAMPP credentials; WAMP/LAMP and secured installations may use different values:
 ```php
 class Database {
     private $host = 'localhost';         // MySQL host
@@ -436,57 +407,27 @@ class Database {
 }
 ```
 
-### Step 4: Create Required Directories
-Ensure upload directory exists for document attachments:
-```bash
-# Create uploads directory for transaction documents, MAR attachments
-mkdir c:\xampp\htdocs\FundSystem\uploads
-mkdir c:\xampp\htdocs\FundSystem\uploads\transactions
-mkdir c:\xampp\htdocs\FundSystem\uploads\reports
-mkdir c:\xampp\htdocs\FundSystem\uploads\documents
-mkdir c:\xampp\htdocs\FundSystem\uploads\barangays
+### Step 4: Check Upload Directory Permissions
+The repository includes upload directories for transactions, MAR attachments, and barangay images. Ensure the Apache/PHP process can write to the `uploads` directory and its subdirectories. On Linux/macOS, configure ownership or permissions for the web-server user; on Windows, grant write permission to the Apache service account through folder properties.
 
-# Set permissions (Windows: Right-click → Properties → Security → Full Control for Apache user)
-```
-
-### Step 5: Apply Database Indexes (if using fresh database without them)
-If indexes weren't created during import:
-
-**Option A: Run PHP Setup Script** (Recommended - Auto-creates all 23 indexes)
-```
-http://localhost/FundSystem/setup_indexes.php
-```
-You'll see output showing each index being created successfully.
-
-**Option B: phpMyAdmin SQL Tab**
-1. Go to `watch_sk_fund` database → **SQL** tab
-2. Copy-paste entire content from `add_indexes.sql` file
-3. Click **Execute**
-
-**Option C: Command Line**
-```bash
-mysql -u root watch_sk_fund < c:\xampp\htdocs\FundSystem\add_indexes.sql
-```
+### Step 5: Verify Database Schema
+The `database.sql` import creates all tables, indexes, and the barangay community benefits field. No additional SQL files are needed. For an existing database missing indexes, use `http://localhost/FundSystem/setup_indexes.php`.
 
 ### Step 6: Start Apache & MySQL
-1. Open XAMPP Control Panel
-2. Click **Start** for Apache and MySQL services
-3. Wait for status to show "Running"
+- **XAMPP / Windows:** Open the XAMPP Control Panel and start **Apache** and **MySQL**.
+- **XAMPP / macOS or Linux:** Start Apache and MySQL using the XAMPP manager for your installation.
+- **Native Apache / MySQL:** Start the services using your operating system's service manager.
+
+Confirm both services are running before opening the application.
 
 ### Step 7: Test System Access
-```
-Public Transparency Portal:   http://localhost/FundSystem/
-Administrator Login:          http://localhost/FundSystem/login
-Setup Indexes Script:         http://localhost/FundSystem/setup_indexes.php
-```
+Open the application URL for your local web server (for the example paths above, `http://localhost/FundSystem/`). Authenticated users can sign in at `/login`; their role-specific dashboard is at `/dashboard`.
 
 ### Step 8: Recommended Initial Workflow (Testing)
-1. **Login as `sk_admin1`**: Create test project, add transaction, submit MAR
-2. **Login as `lydo_admin`**: Review the MAR, approve or return with deficiency
-3. **Login as `sk_fed`**: Record the approved transaction
-4. **Visit public portal** (`http://localhost/FundSystem/`): Browse projects, submit feedback
-5. **Login as `sk_admin1` again**: Check "Community Feedback" dashboard for community feedback
-6. **Verify unread badge**: After viewing feedback, badge should disappear
+1. Use an existing SK Admin account to create a test project, add a transaction, and submit a MAR. The database import seeds LYDO and SK Federation test users only.
+2. **Log in as `lydo_admin`**: Review the pending transaction and MAR; approve compliant submissions or return them with deficiency remarks.
+3. **Log in as `sk_fed`**: Approve LYDO-reviewed submissions. Transaction approval also issues its recording certification.
+4. **Visit the public portal**: Browse public project information and submit community feedback.
 
 ---
 
@@ -496,7 +437,6 @@ All pre-seeded accounts use password: **`password`**
 
 | Username | Role | Full Name | Barangay | Purpose | Features |
 | --- | --- | --- | --- | --- | --- |
-| `sk_admin1` | sk_admin | SK Chairperson Juan | Barangay Poblacion | Test SK barangay functions | Projects, Transactions, MAR, **Feedback Mgmt** |
 | `lydo_admin` | lydo | LYDO Officer Maria | — | Test LYDO review workflow | Review, Approve, Deficiency Flagging |
 | `sk_fed` | sk_fed | SK Fed President Jose | — | Test SK Federation recording | Record, Consolidate, Reports |
 | *Public User* | public | — | — | No login; access public portal | Browse, **Submit Feedback** |
@@ -509,9 +449,8 @@ All pre-seeded accounts use password: **`password`**
 FundSystem/
 ├── index.php                           # Main router dispatcher
 ├── README.md                           # This documentation file
-├── database.sql                        # Database schema with 23 indexes
-├── add_indexes.sql                     # SQL commands to add 23 indexes ⭐ NEW
-├── setup_indexes.php                   # PHP script to auto-add indexes ⭐ NEW
+├── database.sql                        # Complete database schema, seed users, and indexes
+├── setup_indexes.php                   # PHP script to apply indexes to existing databases
 │
 ├── core/
 │   ├── Database.php                    # PDO database connection class
@@ -590,9 +529,8 @@ FundSystem/
 
 | File | Status | Changes |
 | --- | --- | --- |
-| `database.sql` | ✏️ Modified | Added 23 INDEX definitions to all table definitions |
-| `add_indexes.sql` | ⭐ NEW | SQL script with all 23 CREATE INDEX statements |
-| `setup_indexes.php` | ⭐ NEW | PHP auto-setup script that creates indexes with feedback |
+| `database.sql` | ✏️ Modified | Complete schema with 23 indexes and barangay community benefits |
+| `setup_indexes.php` | ⭐ NEW | PHP helper to apply indexes to existing databases |
 | `controllers/FeedbackController.php` | ⭐ NEW | Handles feedback management dashboard & API delete |
 | `controllers/PublicController.php` | ✏️ Modified | Added `submitFeedback()` method for feedback submission |
 | `views/dashboards/feedback.php` | ⭐ NEW | SK admin feedback management UI (card-based layout) |
@@ -743,7 +681,7 @@ ON DELETE CASCADE: Deletes feedback when project is deleted
 - **Solution**: Verify `views/login.php` exists. Check browser console for JavaScript errors.
 
 **Issue**: Slow page loads (>3 seconds)
-- **Solution**: Ensure all 23 indexes are created. Run `setup_indexes.php` or import `add_indexes.sql`.
+- **Solution**: Ensure all 23 indexes are created. Run `setup_indexes.php` for an existing database.
 
 **Issue**: Uploaded files not appearing
 - **Solution**: Verify `uploads/` directory permissions. Ensure Apache has write access.
@@ -752,7 +690,7 @@ ON DELETE CASCADE: Deletes feedback when project is deleted
 - **Solution**: Ensure you're logged in as `sk_admin` role. Badge only shows for SK admins with unread feedback.
 
 **Issue**: Feedback page shows "Undefined variable"
-- **Solution**: Ensure `read_at` column exists in `feedback` table. Run `setup_indexes.php` or manually execute: `ALTER TABLE feedback ADD COLUMN read_at TIMESTAMP NULL;`
+- **Solution**: Ensure the `read_at` column exists in `feedback` table. It is included in `database.sql` for fresh installations.
 
 ---
 
@@ -770,4 +708,3 @@ This system was developed for the Municipality of Ramon Magsaysay, Zamboanga del
 
 **Last Updated**: October 21, 2026
 **Version**: 2.1.0
-
