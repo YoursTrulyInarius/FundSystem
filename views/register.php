@@ -54,7 +54,7 @@ $base_path = '/FundSystem/';
     <div class="min-h-screen w-full flex flex-col lg:flex-row">
 
         <!-- Left Side: Branding / Text -->
-        <div class="hidden lg:flex w-full lg:w-[60%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
+        <div class="hidden lg:flex w-full lg:w-[62%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
             <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');"></div>
             <div class="absolute inset-0 bg-black/75 z-0"></div>
 
@@ -99,7 +99,7 @@ $base_path = '/FundSystem/';
         </div>
 
         <!-- Right Side: Register Form -->
-        <div class="w-full lg:w-[40%] bg-white flex items-center justify-center p-6 sm:p-8">
+        <div class="w-full lg:w-[38%] bg-white flex items-center justify-center p-6 sm:p-8">
             <div class="w-full max-w-sm right-content">
 
                 <a href="login"

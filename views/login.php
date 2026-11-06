@@ -54,7 +54,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="min-h-screen w-full flex flex-col lg:flex-row">
 
         <!-- Left Side: Branding / Text -->
-        <div class="hidden lg:flex w-full lg:w-[60%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
+        <div class="hidden lg:flex w-full lg:w-[62%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
             <!-- New Background Image -->
             <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');">
             </div>
@@ -102,7 +102,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Right Side: Login Form -->
-        <div class="w-full lg:w-[40%] bg-white flex items-center justify-center p-6 sm:p-8">
+        <div class="w-full lg:w-[38%] bg-white flex items-center justify-center p-6 sm:p-8">
             <div class="w-full max-w-sm right-content opacity-0 transform -translate-x-8">
 
                 <!-- Mobile Back Button (Only visible on small screens) -->

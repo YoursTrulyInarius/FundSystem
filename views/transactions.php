@@ -4,29 +4,78 @@ require_once 'core/Database.php';
 $database = new Database();
 $db = $database->connect();
 
-// Fetch all transactions across all barangays (history)
-// We might want to filter out 'pending' to only show history, or show everything.
-// The user asked for "transaction history across all barangay", so we can show all non-pending, or all of them.
-// Let's show all non-pending for a "history" view.
-$history_tx_query = "SELECT t.*, p.title as project_title, u.barangay_name 
-             FROM transactions t 
-             JOIN projects p ON t.project_id = p.id 
-             JOIN users u ON p.user_id = u.id 
-             WHERE t.status != 'pending' 
-             ORDER BY t.created_at DESC";
-$history_tx_stmt = $db->query($history_tx_query);
+$status_options = [
+    'reviewed' => 'Reviewed',
+    'recorded' => 'Recorded',
+    'returned' => 'Returned'
+];
+$selected_status = $_GET['status'] ?? '';
+if (!array_key_exists($selected_status, $status_options)) {
+    $selected_status = '';
+}
+
+$barangayStmt = $db->query("SELECT DISTINCT u.barangay_name
+    FROM transactions t
+    JOIN projects p ON t.project_id = p.id
+    JOIN users u ON p.user_id = u.id
+    WHERE t.status != 'pending' AND u.barangay_name IS NOT NULL AND u.barangay_name != ''
+    ORDER BY u.barangay_name");
+$barangays = $barangayStmt->fetchAll(PDO::FETCH_COLUMN);
+$selected_barangay = $_GET['barangay'] ?? '';
+if (!in_array($selected_barangay, $barangays, true)) {
+    $selected_barangay = '';
+}
+
+$history_tx_query = "SELECT t.*, p.title as project_title, u.barangay_name
+    FROM transactions t
+    JOIN projects p ON t.project_id = p.id
+    JOIN users u ON p.user_id = u.id
+    WHERE t.status != 'pending'";
+$query_params = [];
+if ($selected_status !== '') {
+    $history_tx_query .= " AND t.status = :status";
+    $query_params[':status'] = $selected_status;
+}
+if ($selected_barangay !== '') {
+    $history_tx_query .= " AND u.barangay_name = :barangay";
+    $query_params[':barangay'] = $selected_barangay;
+}
+$history_tx_query .= " ORDER BY t.created_at DESC";
+$history_tx_stmt = $db->prepare($history_tx_query);
+$history_tx_stmt->execute($query_params);
 $history_txs = $history_tx_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $page_title = 'Transaction History';
 ob_start();
 ?>
 
-<!-- Header Actions -->
-<div class="flex justify-between items-end mb-8 relative z-10">
-    <div>
-        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Transaction History</h2>
-        <p class="text-slate-500 mt-2 font-medium">View all historical transactions across all barangays.</p>
-    </div>
+<!-- Transaction filters -->
+<div class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between relative z-10">
+    <p class="text-sm font-medium text-slate-500">View historical transactions across all barangays.</p>
+    <form method="get" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div>
+            <label for="statusFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Status</label>
+            <select id="statusFilter" name="status" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+                <option value="">All statuses</option>
+                <?php foreach ($status_options as $value => $label): ?>
+                    <option value="<?= htmlspecialchars($value) ?>" <?= $selected_status === $value ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div>
+            <label for="barangayFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Barangay</label>
+            <select id="barangayFilter" name="barangay" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+                <option value="">All barangays</option>
+                <?php foreach ($barangays as $barangay): ?>
+                    <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>><?= htmlspecialchars($barangay) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <button type="submit" class="min-h-10 rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-700">Filter</button>
+        <?php if ($selected_status !== '' || $selected_barangay !== ''): ?>
+            <a href="transactions" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Clear</a>
+        <?php endif; ?>
+    </form>
 </div>
 
 <!-- Transaction History Table -->

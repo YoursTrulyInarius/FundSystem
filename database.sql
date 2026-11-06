@@ -135,6 +135,6 @@ CREATE TABLE barangay_profiles (
 
 -- Insert default LYDO and SK Federation users
 INSERT INTO users (username, password, role, full_name, barangay_name, email) VALUES
-('lydo_admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lydo', 'LYDO Officer Maria', NULL, 'lydo_admin@example.com'),
-('sk_fed', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_fed', 'SK Fed President Jose', NULL, 'sk_fed@example.com');
+('lydo_admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lydo', 'LYDO OFFICE', NULL, 'lydo_admin@example.com'),
+('sk_fed', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'sk_fed', 'SK FEDERATION', NULL, 'sk_fed@example.com');
 -- Note: Default password is 'password' for both accounts.

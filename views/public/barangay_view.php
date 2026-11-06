@@ -2,7 +2,7 @@
 // views/public/barangay_view.php
 // Rendered by PublicController::barangayView()
 // Expected variables: $clean_name, $profile, $projects, $transactions,
-//                     $benefits, $sk_official, $comments,
+//                     $benefits, $sk_official, $isPublicVisitor,
 //                     $total_budget, $utilization_rate
 ?>
 <!DOCTYPE html>
@@ -627,6 +627,7 @@
                     <?php endif; ?>
                 </div>
 
+                <?php if ($isPublicVisitor): ?>
                 <!-- Feedback form -->
                 <div class="card">
                     <p class="card-title">Citizen Feedback</p>
@@ -650,29 +651,6 @@
                         </button>
                     </form>
                 </div>
-
-                <!-- Existing comments -->
-                <?php if (!empty($comments)): ?>
-                <div class="card">
-                    <p class="card-title">
-                        <span>Community Voice</span>
-                        <span style="font-size:0.8rem;font-weight:700;color:var(--c-text-muted);">(<?= count($comments) ?>)</span>
-                    </p>
-                    <?php foreach (array_slice($comments, 0, 6) as $c): ?>
-                    <div class="comment-item">
-                        <div>
-                            <span class="comment-author"><?= htmlspecialchars($c['user_name'] ?? 'Anonymous Citizen') ?></span>
-                            <span class="comment-date"><?= date('M d, Y', strtotime($c['created_at'])) ?></span>
-                        </div>
-                        <p class="comment-msg"><?= nl2br(htmlspecialchars($c['message'])) ?></p>
-                    </div>
-                    <?php endforeach; ?>
-                    <?php if (count($comments) > 6): ?>
-                        <p style="font-size:0.78rem;color:var(--c-text-muted);margin-top:0.75rem;text-align:center;">
-                            +<?= count($comments) - 6 ?> more feedback messages
-                        </p>
-                    <?php endif; ?>
-                </div>
                 <?php endif; ?>
 
             </div><!-- /right col -->
@@ -683,7 +661,8 @@
 
     <script>
         // ── Feedback submit ─────────────────────────────
-        document.getElementById('brgyFeedbackForm').addEventListener('submit', async function(e) {
+        const feedbackForm = document.getElementById('brgyFeedbackForm');
+        feedbackForm?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const statusEl = document.getElementById('brgyFbStatus');
             const btn      = document.getElementById('brgyFbBtn');

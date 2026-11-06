@@ -161,13 +161,23 @@
                             require_once 'core/Database.php';
                             $db_inst = new Database();
                             $conn = $db_inst->connect();
-                            $countStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM feedback f LEFT JOIN projects p ON f.project_id = p.id WHERE p.user_id = :uid AND f.read_at IS NULL");
+                            $countStmt = $conn->prepare("SELECT COUNT(*) as cnt
+                                FROM feedback f
+                                LEFT JOIN projects p ON f.project_id = p.id
+                                WHERE f.read_at IS NULL
+                                AND (
+                                    p.user_id = :uid
+                                    OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
+                                    OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :normalized_user_id LIMIT 1)
+                                )");
                             $countStmt->bindParam(':uid', $_SESSION['user_id'], PDO::PARAM_INT);
+                            $countStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+                            $countStmt->bindParam(':normalized_user_id', $_SESSION['user_id'], PDO::PARAM_INT);
                             $countStmt->execute();
                             $unread = $countStmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
                             if ($unread > 0):
                     ?>
-                    <span class="absolute -top-1 -right-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"><?= $unread ?></span>
+                    <span class="absolute top-0 right-3 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white" aria-label="Unread community feedback"></span>
                     <?php endif; } ?>
                 </div>
                 Community Feedback

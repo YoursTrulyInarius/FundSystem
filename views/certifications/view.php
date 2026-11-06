@@ -35,7 +35,7 @@
     <!-- Certificate Document -->
     <div class="certificate-wrapper max-w-4xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden">
 
-        <!-- Top Color Bar -->
+        <!-- Top Color Bar --
         <div class="h-3 bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500"></div>
 
         <div class="px-16 py-12">

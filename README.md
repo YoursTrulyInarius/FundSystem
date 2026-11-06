@@ -437,8 +437,8 @@ All pre-seeded accounts use password: **`password`**
 
 | Username | Role | Full Name | Barangay | Purpose | Features |
 | --- | --- | --- | --- | --- | --- |
-| `lydo_admin` | lydo | LYDO Officer Maria | — | Test LYDO review workflow | Review, Approve, Deficiency Flagging |
-| `sk_fed` | sk_fed | SK Fed President Jose | — | Test SK Federation recording | Record, Consolidate, Reports |
+| `lydo_admin` | lydo | LYDO OFFICE | — | Test LYDO review workflow | Review, Approve, Deficiency Flagging |
+| `sk_fed` | sk_fed | SK FEDERATION | — | Test SK Federation recording | Record, Consolidate, Reports |
 | *Public User* | public | — | — | No login; access public portal | Browse, **Submit Feedback** |
 
 ---

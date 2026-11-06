@@ -283,11 +283,7 @@ class AuthController {
             return;
         }
 
-        // Only SK Admin can register users
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
-            return;
-        }
+        $isSkAdmin = isset($_SESSION['user_id'], $_SESSION['role']) && $_SESSION['role'] === 'sk_admin';
 
         $full_name = trim($_POST['full_name'] ?? '');
         $username = trim($_POST['username'] ?? '');
@@ -296,6 +292,12 @@ class AuthController {
         $barangay_name = trim($_POST['barangay_name'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
+
+        // Public registration is limited to creating the first SK Admin account.
+        if (!$isSkAdmin && $role !== 'sk_admin') {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
+            return;
+        }
 
         // Validate required fields
         if (empty($full_name) || empty($username) || empty($email) || empty($role) || empty($barangay_name) || empty($password) || empty($confirm_password)) {
@@ -339,40 +341,62 @@ class AuthController {
         $database = new Database();
         $db = $database->connect();
 
-        // Check if username already exists
-        $stmt = $db->prepare("SELECT id FROM users WHERE username = :username LIMIT 1");
-        $stmt->execute([':username' => $username]);
-        if ($stmt->fetch()) {
-            echo json_encode(['success' => false, 'message' => 'Username already taken. Please choose a different one.']);
-            return;
-        }
+        $registrationLockAcquired = false;
+        try {
+            if (!$isSkAdmin) {
+                $lockStmt = $db->query("SELECT GET_LOCK('fundsystem_initial_sk_admin', 10)");
+                $registrationLockAcquired = (int) $lockStmt->fetchColumn() === 1;
+                if (!$registrationLockAcquired) {
+                    echo json_encode(['success' => false, 'message' => 'Initial SK Admin setup is busy. Please try again.']);
+                    return;
+                }
 
-        // Check if email already exists
-        $stmt = $db->prepare("SELECT id FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $email]);
-        if ($stmt->fetch()) {
-            echo json_encode(['success' => false, 'message' => 'Email address is already registered.']);
-            return;
-        }
+                $adminStmt = $db->query("SELECT id FROM users WHERE role = 'sk_admin' LIMIT 1");
+                if ($adminStmt->fetch()) {
+                    echo json_encode(['success' => false, 'message' => 'An SK Admin account already exists. Please sign in with that account.']);
+                    return;
+                }
+            }
 
-        // Hash password and insert
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            // Check if username already exists
+            $stmt = $db->prepare("SELECT id FROM users WHERE username = :username LIMIT 1");
+            $stmt->execute([':username' => $username]);
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Username already taken. Please choose a different one.']);
+                return;
+            }
 
-        $insertQuery = "INSERT INTO users (username, password, role, full_name, barangay_name, email) VALUES (:username, :password, :role, :full_name, :barangay_name, :email)";
-        $insertStmt = $db->prepare($insertQuery);
-        $success = $insertStmt->execute([
-            ':username' => $username,
-            ':password' => $hashedPassword,
-            ':role' => $role,
-            ':full_name' => $full_name,
-            ':barangay_name' => $barangay_name,
-            ':email' => $email
-        ]);
+            // Check if email already exists
+            $stmt = $db->prepare("SELECT id FROM users WHERE email = :email LIMIT 1");
+            $stmt->execute([':email' => $email]);
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Email address is already registered.']);
+                return;
+            }
 
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Account for "' . htmlspecialchars($full_name) . '" created successfully!']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to create account. Please try again.']);
+            // Hash password and insert
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            $insertQuery = "INSERT INTO users (username, password, role, full_name, barangay_name, email) VALUES (:username, :password, :role, :full_name, :barangay_name, :email)";
+            $insertStmt = $db->prepare($insertQuery);
+            $success = $insertStmt->execute([
+                ':username' => $username,
+                ':password' => $hashedPassword,
+                ':role' => $role,
+                ':full_name' => $full_name,
+                ':barangay_name' => $barangay_name,
+                ':email' => $email
+            ]);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Account for "' . htmlspecialchars($full_name) . '" created successfully!']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to create account. Please try again.']);
+            }
+        } finally {
+            if ($registrationLockAcquired) {
+                $db->query("SELECT RELEASE_LOCK('fundsystem_initial_sk_admin')");
+            }
         }
     }
 }

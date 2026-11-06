@@ -214,20 +214,9 @@ class PublicController {
             $transactions = $tStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // 5. Fetch feedback / comments
-        $fSql = "SELECT * FROM feedback WHERE (barangay_name = :name OR barangay_name = :prefixed";
-        if (!empty($project_ids)) {
-            $fSql .= " OR project_id IN (" . implode(',', array_map('intval', $project_ids)) . ")";
-        }
-        $fSql .= ") ORDER BY created_at DESC";
-        $fStmt = $db->prepare($fSql);
-        $fStmt->execute([
-            ':name' => $clean_name,
-            ':prefixed' => 'Barangay ' . $clean_name
-        ]);
-        $comments = $fStmt->fetchAll(PDO::FETCH_ASSOC);
+        $isPublicVisitor = !isset($_SESSION['user_id']);
 
-        // 6. Aggregate stats
+        // 5. Aggregate stats
         $total_budget = array_sum(array_column($projects, 'budget'));
         $recorded_amount = 0;
         foreach ($transactions as $t) {
