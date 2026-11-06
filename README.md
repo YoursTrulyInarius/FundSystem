@@ -15,14 +15,22 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 **Key Innovation**: An integrated **Community Feedback System** allows citizens to submit anonymous feedback and concerns about SK-funded projects directly through the public transparency portal, creating a channel for grassroots accountability that SK administrators can review, manage, and act upon.
 
 ## 🧾 Latest Version Update
-- **Version:** `2.1.0`
-- **Date:** 2026-10-21
-- **Summary:** Improved the system’s mobile/tablet layouts and fixed uploaded barangay cover photos not rendering on public detail pages. The update also retains the role simplification described below.
+- **Version:** `2.2.0`
+- **Date:** 2026-11-06
+- **Summary:** Improved authentication and public-page behavior, added community-feedback and transaction-history usability updates, and clarified office account display names.
+- **Registration:** The first SK Admin account can be created through public registration only while no SK Admin exists. After one is created, only an authenticated SK Admin can register additional accounts.
+- **Public barangay pages:** Citizen Feedback submission is available to signed-out public visitors only. SK Admin previews do not show the feedback form, and submitted messages are not listed publicly.
+- **Community feedback notifications:** The SK Admin navigation shows a red dot when unread feedback exists for that barangay.
+- **Transaction history:** Removed the repeated page heading and added status and barangay filters that apply immediately when selected. Pending transactions are not included in the history.
+- **Office account names:** Default LYDO and SK Federation accounts display as `LYDO OFFICE` and `SK FEDERATION`.
+- **Previous update:** Improved mobile/tablet layouts and fixed uploaded barangay cover photos not rendering on public detail pages.
+- **Role simplification:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
 - **Changed:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
 - **Responsive UI:** Added a shared responsive stylesheet, mobile navigation, scrollable tables, touch-friendly form controls, and mobile modal layouts. Responsive behavior is applied through 768px tablet widths while preserving the desktop layout at 1024px and above.
 - **Barangay profiles:** Public barangay detail pages now resolve uploaded cover photo URLs from the application root so the image displays when opened from a nested public route.
 - **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
-- **Updated files:** `index.php`, `views/layout.php`, `database.sql`, `controllers/AuthController.php`, `README.md`, removed `views/dashboards/verification.php`
+- **Authentication page layout:** Reduced the desktop white form panel width on login and registration pages without changing their content.
+- **Updated files:** `views/login.php`, `views/register.php`, `controllers/AuthController.php`, `controllers/PublicController.php`, `views/public/barangay_view.php`, `views/layout.php`, `views/transactions.php`, `database.sql`, `README.md`
 
 ---
 
@@ -38,11 +46,11 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 ## ✅ Major Functionalities
 
-- **User Management** – Allows the system administrator to create and manage user accounts for SK Barangay Councils, LYDO personnel, and SK Federation officers.
+- **User Management** – Allows the first SK Admin to be registered during initial setup and authenticated SK Admins to create and manage accounts for SK Barangay Councils, LYDO personnel, and SK Federation officers.
 - **User Authentication** – Allows authorized users to securely access the system using their assigned user accounts and role-based credentials.
 - **Project Registry and Profiling** – Allows SK Barangay Councils to register and manage SK-funded projects based on the approved Annual Barangay Youth Investment Program (ABYIP) and budget.
 - **Milestone and Progress Tracking** – Allows SK Barangay Councils to record and monitor the progress of projects from planning to completion.
-- **Financial Transaction Management** – Allows SK Barangay Councils to record financial transactions and upload supporting documents related to SK-funded projects.
+- **Financial Transaction Management** – Allows SK Barangay Councils to record financial transactions and upload supporting documents related to SK-funded projects. The transaction history can be filtered by status or barangay, with selections applied immediately.
 - **Monthly Accomplishment Report (MAR) Submission** – Allows SK Barangay Councils to prepare and submit Monthly Accomplishment Reports (MAR) and supporting documents to the Local Youth Development Office (LYDO) within the prescribed deadline.
 - **Compliance and Completeness Review** – Allows LYDO personnel to review submitted reports and supporting documents to ensure compliance with the approved requirements.
 - **Deficiency Notification** – Allows LYDO personnel to notify SK Barangay Councils of incomplete or non-compliant submissions and request corrections before resubmission.
@@ -51,7 +59,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
 - **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
 - **Barangay Public Profiles** – Displays registered barangays’ uploaded cover photos, profile information, community benefits, projects, and transactions.
-- **Citizen Feedback Management** – Allows community members and youth beneficiaries to submit feedback, questions, or concerns regarding SK-funded projects.
+- **Citizen Feedback Management** – Allows signed-out public visitors to submit feedback, questions, or concerns regarding SK-funded projects. SK Admins can review feedback and see an unread-feedback indicator in the dashboard navigation.
 - **Responsive Web Interface** – Supports phones, tablets, and desktop browsers with mobile navigation, internally scrollable tables, touch-friendly forms, and mobile-friendly dialogs.
 - **Logout** – Securely ends the active session of an authorized user.
 
