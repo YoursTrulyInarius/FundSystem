@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/FundSystem/assets/js/sweetalert-defaults.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -1572,8 +1573,8 @@
                 <svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <ul class="nav-links" id="publicNavLinks">
-                <li><a href="#hero"      class="nav-link opacity-0">Home</a></li>
                 <li><a href="#barangays" class="nav-link opacity-0">Barangays</a></li>
+                <li><a href="#hero"      class="nav-link opacity-0">Home</a></li>
                 <li><a href="#about"     class="nav-link opacity-0">About Us</a></li>
                 <li>
                     <a href="login" class="btn-login nav-btn opacity-0">
@@ -1589,6 +1590,8 @@
 
     <!-- ════════════════════ SNAP CONTAINER ════════════════════ -->
     <main class="snap-container" id="main-scroll">
+
+        <?php require __DIR__ . '/barangays.php'; ?>
 
         <!-- ─── HERO (Civic Transparency Hub Architecture) ─── -->
         <section id="hero" class="hero-section flex flex-col justify-center items-center relative pt-24 pb-16 min-h-[calc(100vh-68px)]">
@@ -1708,92 +1711,6 @@
             </div>
         </section>
 
-
-        <!-- ─── Barangay Carousel ─── -->
-        <section id="barangays" class="pt-24 pb-16 brgy-section min-h-[calc(100vh-68px)]">
-            <div class="section-wrap" style="overflow: hidden;">
-
-                <!-- Header row -->
-                <div class="section-header mb-5 shrink-0 brgy-hdr opacity-0">
-                    <div class="section-header-row">
-                        <div>
-                            <div class="section-pill">
-                                <span class="section-pill-dot"></span>
-                                All Barangays
-                            </div>
-                            <h2 class="section-title">Municipality of <span>Ramon Magsaysay</span></h2>
-                            <p class="section-sub">Explore registered barangays' funded projects, community benefits, and fund utilization. Drag or use the arrows to browse.</p>
-                        </div>
-                        <div class="brgy-carousel-controls mt-4 lg:mt-0">
-                            <button id="brgyPrev" class="brgy-nav-btn" aria-label="Previous barangay" disabled>
-                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                            </button>
-                            <div class="brgy-dots" id="brgyDots"></div>
-                            <span class="brgy-counter" id="brgyCounter">1 / <?= count($barangayCards) ?></span>
-                            <button id="brgyNext" class="brgy-nav-btn" aria-label="Next barangay">
-                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Carousel viewport -->
-                <div class="brgy-carousel-viewport flex-1 min-h-0 brgy-viewport-el opacity-0" id="brgyViewport">
-                    <div class="brgy-carousel-track" id="brgyTrack">
-                        <?php foreach ($barangayCards as $bc):
-                            $bname = $bc['name'];
-                            $burl  = urlencode($bname);
-                            $imgPath = $bc['image_path'] ?? null;
-                        ?>
-                        <div class="brgy-card" data-brgy-name="<?= htmlspecialchars($bname) ?>"
-                             onclick="window.location.href='public/barangay?name=<?= $burl ?>'">
-
-                            <?php if ($imgPath && file_exists($imgPath)): ?>
-                                <img class="brgy-card-img"
-                                     src="<?= htmlspecialchars($imgPath) ?>"
-                                     alt="<?= htmlspecialchars($bc['display_name']) ?>"
-                                     draggable="false">
-                            <?php else: ?>
-                                <div class="brgy-card-img-placeholder">
-                                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="1.4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    <span class="brgy-placeholder-label">No photo yet</span>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="brgy-card-body">
-                                <p class="brgy-card-name"><?= htmlspecialchars($bc['display_name']) ?></p>
-                                <p class="brgy-card-tagline"><?= htmlspecialchars($bc['tagline']) ?></p>
-
-                                <div class="brgy-card-stats">
-                                    <span class="brgy-card-stat">
-                                        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                                        <strong><?= (int)$bc['project_count'] ?></strong> projects
-                                    </span>
-                                    <?php if ($bc['utilization_rate'] > 0): ?>
-                                    <span class="brgy-card-stat">
-                                        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                                        <strong><?= $bc['utilization_rate'] ?>%</strong> utilized
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
-
-                                <a href="public/barangay?name=<?= $burl ?>"
-                                   class="brgy-card-btn"
-                                   onclick="event.stopPropagation()">
-                                    See Details
-                                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                                </a>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
-            </div>
-        </section>
 
         <!-- ─── ABOUT US ─── -->
         <section id="about" class="pt-24 pb-12 about-section flex flex-col justify-between min-h-[calc(100vh-68px)]">
@@ -2004,6 +1921,8 @@
                 const cards = Array.from(track.querySelectorAll('.brgy-card'));
                 const total = cards.length;
                 let current = 0;
+                let autoplayTimer = null;
+                let isDragging = false;
 
                 // Compute how many cards are visible at once
                 function visibleCount() {
@@ -2017,6 +1936,19 @@
                 // Build dots (one per page, not per card)
                 function pageCount() { return Math.ceil(total / visibleCount()); }
 
+                function updateAutoplay() {
+                    clearInterval(autoplayTimer);
+                    autoplayTimer = null;
+
+                    if (document.hidden || isDragging || total <= visibleCount()) {
+                        return;
+                    }
+
+                    autoplayTimer = setInterval(() => {
+                        goToPage((currentPage() + 1) % pageCount());
+                    }, 5000);
+                }
+
                 function buildDots() {
                     dotsEl.innerHTML = '';
                     const pages = pageCount();
@@ -2024,7 +1956,10 @@
                         const d = document.createElement('button');
                         d.className = 'brgy-dot' + (i === 0 ? ' active' : '');
                         d.setAttribute('aria-label', 'Go to page ' + (i + 1));
-                        d.addEventListener('click', () => goToPage(i));
+                        d.addEventListener('click', () => {
+                            goToPage(i);
+                            updateAutoplay();
+                        });
                         dotsEl.appendChild(d);
                     }
                 }
@@ -2060,20 +1995,35 @@
                 }
                 function goToPage(pg) { goToCard(pg * visibleCount()); }
 
-                prevBtn.addEventListener('click', () => goToCard(current - visibleCount()));
-                nextBtn.addEventListener('click', () => goToCard(current + visibleCount()));
+                prevBtn.addEventListener('click', () => {
+                    goToCard(current - visibleCount());
+                    updateAutoplay();
+                });
+                nextBtn.addEventListener('click', () => {
+                    goToCard(current + visibleCount());
+                    updateAutoplay();
+                });
+
+                document.addEventListener('visibilitychange', updateAutoplay);
 
                 // Keyboard navigation when section is in view
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowLeft')  goToCard(current - 1);
-                    if (e.key === 'ArrowRight') goToCard(current + 1);
+                    if (e.key === 'ArrowLeft') {
+                        goToCard(current - 1);
+                        updateAutoplay();
+                    }
+                    if (e.key === 'ArrowRight') {
+                        goToCard(current + 1);
+                        updateAutoplay();
+                    }
                 });
 
                 // Drag / touch support
-                let isDragging = false, startX = 0, scrollStart = 0, movedPx = 0;
+                let startX = 0, scrollStart = 0, movedPx = 0;
 
                 function onDragStart(clientX) {
                     isDragging = true;
+                    updateAutoplay();
                     startX = clientX;
                     scrollStart = current;
                     movedPx = 0;
@@ -2101,6 +2051,7 @@
                     if (movedPx < -threshold) goToCard(scrollStart + 1);
                     else if (movedPx > threshold) goToCard(scrollStart - 1);
                     else goToCard(scrollStart);
+                    updateAutoplay();
                 }
 
                 // Mouse
@@ -2122,11 +2073,16 @@
                 let resizeTimer;
                 window.addEventListener('resize', () => {
                     clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(() => { buildDots(); goToCard(current); }, 120);
+                    resizeTimer = setTimeout(() => {
+                        buildDots();
+                        goToCard(current);
+                        updateAutoplay();
+                    }, 120);
                 });
 
                 buildDots();
                 updateUI();
+                updateAutoplay();
             })();
 
             // ── Project details modal ─────────────────────

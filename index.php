@@ -149,7 +149,7 @@ switch ($route) {
         break;
 
     case 'projects':
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'sk_admin') {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed'], true)) {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -224,6 +224,18 @@ switch ($route) {
         $reportCtrl->submit_mar();
         break;
 
+    case 'api/reports/update_document':
+        require 'controllers/ReportController.php';
+        $reportCtrl = new ReportController();
+        $reportCtrl->update_document();
+        break;
+
+    case 'api/reports/delete_document':
+        require 'controllers/ReportController.php';
+        $reportCtrl = new ReportController();
+        $reportCtrl->delete_document();
+        break;
+
     case 'api/lydo/approve_tx':
     case 'api/lydo/return_tx':
         require 'controllers/LYDOController.php';
@@ -248,12 +260,6 @@ switch ($route) {
         require 'controllers/FedController.php';
         $fed = new FedController();
         $fed->record_mar();
-        break;
-
-    case 'api/milestone/mark':
-        require 'controllers/MilestoneController.php';
-        $ms = new MilestoneController();
-        $ms->mark();
         break;
 
     case 'api/project/update_status':

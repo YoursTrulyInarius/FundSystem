@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="/FundSystem/assets/js/sweetalert-defaults.js"></script>
 
     <style>
         /* ════════ Design Tokens (White, Black, Blue 3-Color Palette) ════════ */

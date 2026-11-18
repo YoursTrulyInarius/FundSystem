@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         title: 'Success!',
                         text: 'Transaction document uploaded successfully.',
                         icon: 'success',
-                        confirmButtonText: 'Great!',
+                        confirmButtonText: 'Okay',
                         confirmButtonColor: '#0f172a'
                     }).then(() => {
                         window.location.reload();

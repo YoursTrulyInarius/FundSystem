@@ -45,17 +45,28 @@ ob_start();
                             <td class="px-6 py-4 font-medium text-slate-900"><?= date("F", mktime(0, 0, 0, $row['month'], 10)) ?> <?= htmlspecialchars($row['year']) ?></td>
                             <td class="px-6 py-4">
                                 <?php if ($row['status'] === 'reviewed'): ?>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">Reviewed & Approved</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">LYDO Approved — Awaiting SK Federation</span>
                                 <?php elseif ($row['status'] === 'returned'): ?>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">Returned for Correction</span>
+                                <?php elseif ($row['status'] === 'recorded'): ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">Approved by SK Federation</span>
+                                <?php elseif ($row['status'] === 'pending'): ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">Pending LYDO Review</span>
                                 <?php else: ?>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">Pending Review</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">Status unavailable</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-slate-500"><?= htmlspecialchars($row['remarks'] ?: 'No remarks available.') ?></td>
                             <td class="px-6 py-4 text-slate-500"><?= date('M d, Y', strtotime($row['submitted_at'])) ?></td>
                             <td class="px-6 py-4 text-right">
-                                <button onclick="viewFiles('<?= htmlspecialchars($row['session_minutes_path']) ?>', '<?= htmlspecialchars($row['attendance_records_path']) ?>', '<?= htmlspecialchars($row['post_activity_reports_path']) ?>', '<?= htmlspecialchars($row['financial_reports_path']) ?>')" class="text-accent hover:text-blue-700 font-medium focus:outline-none">View Files</button>
+                                <button type="button" data-view-files data-report-id="<?= (int)$row['id'] ?>" data-can-manage="true"
+                                    data-files="<?= htmlspecialchars(json_encode([
+                                        'session_minutes' => $row['session_minutes_path'],
+                                        'attendance_records' => $row['attendance_records_path'],
+                                        'post_activity_reports' => $row['post_activity_reports_path'],
+                                        'financial_reports' => $row['financial_reports_path']
+                                    ]), ENT_QUOTES, 'UTF-8') ?>"
+                                    class="text-accent hover:text-blue-700 font-medium focus:outline-none">View Files</button>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -148,21 +159,49 @@ ob_start();
                 <h3 class="text-lg leading-6 font-medium text-slate-900 mb-4">Submitted Documents</h3>
                 
                 <div class="space-y-3">
-                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 border border-slate-100 rounded-lg bg-slate-50">
                         <span class="text-sm font-medium text-slate-700">1. Session Minutes</span>
-                        <a id="link_session_minutes" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a id="link_session_minutes" href="#" class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">View Document</a>
+                            <div id="document_controls_session_minutes" class="hidden flex-wrap items-center gap-2">
+                                <input type="file" data-replace-document="session_minutes" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden">
+                                <button type="button" data-trigger-replace="session_minutes" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Replace</button>
+                                <button type="button" data-delete-document="session_minutes" class="inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 border border-slate-100 rounded-lg bg-slate-50">
                         <span class="text-sm font-medium text-slate-700">2. Attendance Records</span>
-                        <a id="link_attendance_records" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a id="link_attendance_records" href="#" class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">View Document</a>
+                            <div id="document_controls_attendance_records" class="hidden flex-wrap items-center gap-2">
+                                <input type="file" data-replace-document="attendance_records" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden">
+                                <button type="button" data-trigger-replace="attendance_records" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Replace</button>
+                                <button type="button" data-delete-document="attendance_records" class="inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 border border-slate-100 rounded-lg bg-slate-50">
                         <span class="text-sm font-medium text-slate-700">3. Post-Activity Reports</span>
-                        <a id="link_post_activity" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a id="link_post_activity" href="#" class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">View Document</a>
+                            <div id="document_controls_post_activity_reports" class="hidden flex-wrap items-center gap-2">
+                                <input type="file" data-replace-document="post_activity_reports" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden">
+                                <button type="button" data-trigger-replace="post_activity_reports" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Replace</button>
+                                <button type="button" data-delete-document="post_activity_reports" class="inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center p-3 border border-slate-100 rounded-lg bg-slate-50">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-3 border border-slate-100 rounded-lg bg-slate-50">
                         <span class="text-sm font-medium text-slate-700">4. Financial Reports</span>
-                        <a id="link_financial_reports" href="#" target="_blank" class="text-accent hover:text-blue-700 text-sm font-medium">View Document</a>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a id="link_financial_reports" href="#" class="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">View Document</a>
+                            <div id="document_controls_financial_reports" class="hidden flex-wrap items-center gap-2">
+                                <input type="file" data-replace-document="financial_reports" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden">
+                                <button type="button" data-trigger-replace="financial_reports" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700">Replace</button>
+                                <button type="button" data-delete-document="financial_reports" class="inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100">Delete</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -175,6 +214,9 @@ ob_start();
     </div>
 </div>
 
+<?php require 'views/reports/document_preview_modal.php'; ?>
+
+<script src="assets/js/document-preview.js"></script>
 <script src="assets/js/reports.js"></script>
 
 <?php

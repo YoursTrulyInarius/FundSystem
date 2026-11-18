@@ -34,6 +34,7 @@ class CertificationController {
                     p.title as project_title,
                     p.budget as project_budget,
                     sk.full_name as sk_name,
+                    sk.id as sk_user_id,
                     sk.barangay_name,
                     issuer.full_name as issuer_name,
                     issuer.role as issuer_role
@@ -49,7 +50,17 @@ class CertificationController {
         $cert = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$cert) {
+            http_response_code(404);
             echo "Certificate not found.";
+            exit;
+        }
+
+        $viewerRole = $_SESSION['role'] ?? '';
+        $isProjectOwner = $viewerRole === 'sk_admin' && (int)$cert['sk_user_id'] === (int)$_SESSION['user_id'];
+        $isReviewOfficer = in_array($viewerRole, ['lydo', 'sk_fed'], true);
+        if (!$isProjectOwner && !$isReviewOfficer) {
+            http_response_code(403);
+            echo "You do not have permission to view this certificate.";
             exit;
         }
 

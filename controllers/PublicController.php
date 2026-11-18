@@ -33,7 +33,7 @@ class PublicController {
         $milestones_by_project = [];
         if (!empty($project_ids)) {
             $inIds = implode(',', array_map('intval', $project_ids));
-            $mStmt = $db->query("SELECT * FROM project_milestones WHERE project_id IN ($inIds) ORDER BY FIELD(stage, 'planning', 'authorization', 'implementation', 'monitoring')");
+            $mStmt = $db->query("SELECT * FROM project_milestones WHERE project_id IN ($inIds) ORDER BY FIELD(stage, 'planning', 'lydo_approved', 'sk_fed_approved', 'final')");
             while ($m = $mStmt->fetch(PDO::FETCH_ASSOC)) {
                 $milestones_by_project[$m['project_id']][] = $m;
             }
@@ -118,9 +118,6 @@ class PublicController {
         $barangayCards = [];
         foreach (self::$barangay_list as $bname) {
             $bOfficial = $officials_by_bname[$bname] ?? null;
-            if (!$bOfficial) {
-                continue;
-            }
 
             $bProjects = $projects_by_bname[$bname] ?? [];
             $bProfile  = $profiles_by_bname[$bname] ?? null;
@@ -196,7 +193,7 @@ class PublicController {
         $milestones_by_project = [];
         if (!empty($project_ids)) {
             $inIds = implode(',', array_map('intval', $project_ids));
-            $mStmt = $db->query("SELECT * FROM project_milestones WHERE project_id IN ($inIds) ORDER BY FIELD(stage, 'planning', 'authorization', 'implementation', 'monitoring')");
+            $mStmt = $db->query("SELECT * FROM project_milestones WHERE project_id IN ($inIds) ORDER BY FIELD(stage, 'planning', 'lydo_approved', 'sk_fed_approved', 'final')");
             while ($m = $mStmt->fetch(PDO::FETCH_ASSOC)) {
                 $milestones_by_project[$m['project_id']][] = $m;
             }
@@ -451,7 +448,7 @@ class PublicController {
         $txStmt->execute();
         $transactions = $txStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $milestoneQuery = $db->prepare("SELECT * FROM project_milestones WHERE project_id = :id ORDER BY FIELD(stage, 'planning', 'authorization', 'implementation', 'monitoring')");
+        $milestoneQuery = $db->prepare("SELECT * FROM project_milestones WHERE project_id = :id ORDER BY FIELD(stage, 'planning', 'lydo_approved', 'sk_fed_approved', 'final')");
         $milestoneQuery->bindParam(':id', $project_id, PDO::PARAM_INT);
         $milestoneQuery->execute();
         $milestones = $milestoneQuery->fetchAll(PDO::FETCH_ASSOC);

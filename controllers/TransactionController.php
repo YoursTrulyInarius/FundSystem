@@ -75,10 +75,6 @@ class TransactionController {
             $transaction->document_path = json_encode($document_paths);
 
             if ($transaction->create()) {
-                // Auto-mark Authorization milestone for this project
-                require_once 'core/MilestoneHelper.php';
-                MilestoneHelper::mark($db, $transaction->project_id, 'authorization', 'Transaction submitted — project authorized for disbursement.');
-
                 echo json_encode(['success' => true, 'message' => 'Transaction submitted successfully.']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to record transaction in database.']);

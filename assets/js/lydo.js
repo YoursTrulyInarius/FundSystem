@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Function to handle LYDO review actions
     window.reviewItem = function(type, id, action) {
+        const isMar = type === 'mar';
         let endpoint = type === 'tx' ? 'api/lydo/approve_tx' : 'api/lydo/approve_mar';
         if (action === 'return') {
             endpoint = type === 'tx' ? 'api/lydo/return_tx' : 'api/lydo/return_mar';
@@ -8,35 +9,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (action === 'approve') {
             Swal.fire({
-                title: 'Approve & Certify?',
-                text: "This will digitally generate a Certification of Review Completeness and forward it to the SK Federation.",
+                title: isMar ? 'Approve MAR?' : 'Approve & Certify?',
+                text: isMar
+                    ? 'This will approve the MAR and forward it to the SK Federation for final approval.'
+                    : 'This will digitally generate a Certification of Review Completeness and forward it to the SK Federation.',
                 icon: 'question',
+                input: isMar ? 'textarea' : undefined,
+                inputPlaceholder: isMar ? 'Optional remarks for the SK Admin...' : undefined,
+                inputAttributes: isMar ? { 'aria-label': 'Optional approval remarks' } : undefined,
                 showCancelButton: true,
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Yes, issue certification'
+                confirmButtonText: isMar ? 'Approve MAR' : 'Yes, issue certification'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    submitReview(endpoint, type, id, action, '');
+                    submitReview(endpoint, type, id, action, result.value || '');
                 }
             });
         } else {
-            // For Return, we want to ask for a reason using SweetAlert input
             Swal.fire({
-                title: 'Return for Correction',
-                text: "Please provide a note explaining what needs to be fixed:",
+                title: isMar ? 'Reject MAR and Request Corrections' : 'Return for Correction',
+                text: isMar
+                    ? 'The MAR will be sent back to the SK Admin. Explain what must be corrected.'
+                    : 'Please provide a note explaining what needs to be fixed:',
                 icon: 'warning',
                 input: 'textarea',
-                inputPlaceholder: 'e.g., Missing signatures on the attendance sheet...',
+                inputPlaceholder: isMar
+                    ? 'e.g., Add the missing signatures to the attendance sheet...'
+                    : 'e.g., Missing signatures on the attendance sheet...',
                 showCancelButton: true,
                 confirmButtonColor: '#f59e0b',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Return Document',
+                confirmButtonText: isMar ? 'Reject and Return MAR' : 'Return Document',
                 preConfirm: (remarks) => {
-                    if (!remarks) {
+                    if (!remarks || !remarks.trim()) {
                         Swal.showValidationMessage('You need to provide a reason for returning the document.');
+                        return false;
                     }
-                    return remarks;
+                    return remarks.trim();
                 }
             }).then((result) => {
                 if (result.isConfirmed) {

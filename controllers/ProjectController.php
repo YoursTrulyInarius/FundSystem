@@ -25,7 +25,14 @@ class ProjectController {
             $project->title = $_POST['title'] ?? '';
             $project->description = $_POST['description'] ?? '';
             $project->abyip_code = $_POST['abyip_code'] ?? '';
-            $project->budget_category = $_POST['budget_category'] ?? '';
+            $project->budget_category = trim($_POST['budget_category'] ?? '');
+            if ($project->budget_category === 'Other') {
+                $project->budget_category = trim($_POST['custom_budget_category'] ?? '');
+                if ($project->budget_category === '' || strlen($project->budget_category) > 100) {
+                    echo json_encode(['success' => false, 'message' => 'Please enter a budget category of 100 characters or fewer.']);
+                    return;
+                }
+            }
             $project->budget = $_POST['budget'] ?? 0;
 
             if (empty($project->title) || empty($project->budget)) {
@@ -73,7 +80,16 @@ class ProjectController {
             $database = new Database();
             $db = $database->connect();
 
-            // Verify project belongs to user
+            $projectStmt = $db->prepare("SELECT id FROM projects WHERE id = :id AND user_id = :user_id");
+            $projectStmt->execute([
+                ':id' => $project_id,
+                ':user_id' => $_SESSION['user_id']
+            ]);
+            if (!$projectStmt->fetch(PDO::FETCH_ASSOC)) {
+                echo json_encode(['success' => false, 'message' => 'Project not found.']);
+                return;
+            }
+
             $stmt = $db->prepare("UPDATE projects SET status = :status WHERE id = :id AND user_id = :user_id");
             if ($stmt->execute([
                 ':status' => $status,

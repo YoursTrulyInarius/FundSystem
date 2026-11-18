@@ -1,6 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     const projectForm = document.getElementById('projectForm');
     const submitProjectBtn = document.getElementById('submitProjectBtn');
+    const budgetCategory = projectForm && projectForm.elements.namedItem('budget_category');
+    const customBudgetCategory = document.getElementById('customBudgetCategory');
+
+    if (budgetCategory && customBudgetCategory) {
+        const updateCustomBudgetCategory = () => {
+            const isOther = budgetCategory.value === 'Other';
+            customBudgetCategory.classList.toggle('hidden', !isOther);
+            customBudgetCategory.required = isOther;
+            if (!isOther) {
+                customBudgetCategory.value = '';
+            }
+        };
+
+        budgetCategory.addEventListener('change', updateCustomBudgetCategory);
+        updateCustomBudgetCategory();
+    }
 
     if (projectForm) {
         projectForm.addEventListener('submit', async (e) => {
@@ -31,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         title: 'Success!',
                         text: 'Project registered successfully.',
                         icon: 'success',
-                        confirmButtonText: 'Great!',
+                        confirmButtonText: 'Okay',
                         confirmButtonColor: '#0f172a'
                     }).then(() => {
                         window.location.reload();

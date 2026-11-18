@@ -30,7 +30,7 @@ $txModel = new Transaction($db);
 $transactions = $txModel->readByProject($project_id);
 
 // Fetch Milestones
-$stages = ['planning', 'authorization', 'implementation', 'monitoring'];
+$stages = ['planning', 'lydo_approved', 'sk_fed_approved', 'final'];
 $milestone_query = $db->prepare("SELECT * FROM project_milestones WHERE project_id = :pid");
 $milestone_query->execute([':pid' => $project_id]);
 $milestones_raw = $milestone_query->fetchAll(PDO::FETCH_ASSOC);
@@ -93,9 +93,14 @@ ob_start();
                                 <?php while($row = $transactions->fetch(PDO::FETCH_ASSOC)): ?>
                                     <?php
                                         // Fetch certificate for this transaction if it exists
-                                        $cert_query = $db->prepare("SELECT id FROM certifications WHERE transaction_id = :tx_id ORDER BY created_at DESC LIMIT 1");
+                                        $cert_query = $db->prepare("SELECT id, type FROM certifications WHERE transaction_id = :tx_id ORDER BY created_at DESC");
                                         $cert_query->execute([':tx_id' => $row['id']]);
-                                        $cert_row = $cert_query->fetch(PDO::FETCH_ASSOC);
+                                        $certificates = [];
+                                        while ($certificate = $cert_query->fetch(PDO::FETCH_ASSOC)) {
+                                            if (!isset($certificates[$certificate['type']])) {
+                                                $certificates[$certificate['type']] = $certificate;
+                                            }
+                                        }
                                     ?>
                                     <tr class="hover:bg-slate-50 transition-colors">
                                         <td class="px-6 py-4 capitalize text-slate-900 font-semibold"><?= htmlspecialchars($row['type']) ?></td>
@@ -129,11 +134,17 @@ ob_start();
                                             <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <?php if($cert_row): ?>
-                                                <a href="certification?id=<?= $cert_row['id'] ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-md text-xs font-bold transition-all border border-emerald-200">
+                                            <?php if($certificates): ?>
+                                                <div class="flex flex-col items-start gap-2">
+                                                    <?php foreach (['review' => 'LYDO Approval', 'recording' => 'Official Recording', 'skcc' => 'Certification'] as $certificateType => $certificateLabel): ?>
+                                                        <?php if (isset($certificates[$certificateType])): ?>
+                                                            <a href="certification?id=<?= (int)$certificates[$certificateType]['id'] ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-md text-xs font-bold transition-all border border-emerald-200">
                                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                                                    View Certificate
-                                                </a>
+                                                                <?= htmlspecialchars($certificateLabel) ?>
+                                                            </a>
+                                                        <?php endif; ?>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             <?php else: ?>
                                                 <span class="text-slate-400 text-sm">Pending</span>
                                             <?php endif; ?>
@@ -173,12 +184,11 @@ ob_start();
                         <?php
                         $stage_labels = [
                             'planning'       => ['label' => 'Planning',        'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-                            'authorization'  => ['label' => 'Authorization',   'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'],
-                            'implementation' => ['label' => 'Implementation',  'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
-                            'monitoring'     => ['label' => 'Monitoring',      'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'],
+                            'lydo_approved'  => ['label' => 'Approved by LYDO', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'],
+                            'sk_fed_approved' => ['label' => 'Approved by SK Federation', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'],
+                            'final'          => ['label' => 'Final Approval', 'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 00-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'],
                         ];
-                        $is_last = count($stages) - 1;
-                        foreach ($stages as $i => $stage):
+                        foreach ($stages as $stage):
                             $achieved = isset($milestones[$stage]);
                             $info = $stage_labels[$stage];
                         ?>
@@ -196,9 +206,6 @@ ob_start();
                             <div class="flex-1 pb-2">
                                 <div class="flex items-center justify-between">
                                     <p class="text-sm font-bold <?= $achieved ? 'text-emerald-700' : 'text-slate-500' ?>"><?= $info['label'] ?></p>
-                                    <?php if (!$achieved): ?>
-                                        <button onclick="markMilestone('<?= $stage ?>', <?= $project_id ?>)" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors">Mark done</button>
-                                    <?php endif; ?>
                                 </div>
                                 <?php if ($achieved): ?>
                                     <p class="text-xs text-slate-500 mt-0.5"><?= date('M d, Y', strtotime($milestones[$stage]['date_achieved'] ?: $milestones[$stage]['created_at'])) ?></p>
@@ -322,42 +329,6 @@ ob_start();
 <script src="assets/js/transactions.js"></script>
 
 <script>
-function markMilestone(stage, projectId) {
-    Swal.fire({
-        title: 'Mark ' + stage.charAt(0).toUpperCase() + stage.slice(1) + ' as Done?',
-        html: '<textarea id="milestoneNote" class="swal2-textarea" placeholder="Optional: add a short note (e.g. Approved by MPDC on July 25)" style="margin-top:8px;font-size:14px;"></textarea>',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: '✓ Mark as Completed',
-        preConfirm: () => {
-            return document.getElementById('milestoneNote').value;
-        }
-    }).then(result => {
-        if (result.isConfirmed) {
-            const formData = new FormData();
-            formData.append('project_id', projectId);
-            formData.append('stage', stage);
-            formData.append('description', result.value || '');
-
-            fetch('api/milestone/mark', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Done!',
-                            text: data.message,
-                            icon: 'success',
-                            confirmButtonColor: '#0f172a'
-                        }).then(() => window.location.reload());
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
-                    }
-                });
-        }
-    });
-}
 function updateProjectStatus(projectId, newStatus) {
     const formData = new FormData();
     formData.append('project_id', projectId);

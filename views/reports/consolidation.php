@@ -3,6 +3,8 @@ require_once 'core/Database.php';
 
 $database = new Database();
 $db = $database->connect();
+$canReviewMars = ($_SESSION['role'] ?? '') === 'lydo';
+$canApproveMars = ($_SESSION['role'] ?? '') === 'sk_fed';
 
 $selected_year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 $selected_year = $selected_year > 2000 ? $selected_year : date('Y');
@@ -72,7 +74,15 @@ ob_start();
 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-2xl font-extrabold text-slate-900">MAR Consolidation & Compliance Monitoring</h2>
-        <p class="text-sm text-slate-500">Review, track compliance deadlines, and consolidate Monthly Accomplishment Reports across constituent barangays.</p>
+        <p class="text-sm text-slate-500">
+            <?php if ($canReviewMars): ?>
+                Review pending MARs and return reports with correction remarks.
+            <?php elseif ($canApproveMars): ?>
+                Approve MARs that have already passed LYDO review for final approval.
+            <?php else: ?>
+                Track compliance and consolidate Monthly Accomplishment Reports across constituent barangays.
+            <?php endif; ?>
+        </p>
     </div>
     <div class="flex flex-wrap gap-3 items-center">
         <label class="text-sm text-slate-500">Quarter</label>
@@ -134,6 +144,7 @@ ob_start();
                     <th class="px-6 py-4">Submitted By</th>
                     <th class="px-6 py-4">Reporting Period</th>
                     <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Remarks</th>
                     <th class="px-6 py-4">Submitted Date</th>
                     <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -149,24 +160,51 @@ ob_start();
                             </td>
                             <td class="px-6 py-4">
                                 <?php if ($report['status'] === 'reviewed'): ?>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Reviewed & Approved</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">LYDO Approved — Awaiting SK Federation</span>
                                 <?php elseif ($report['status'] === 'returned'): ?>
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">Returned for Correction</span>
-                                <?php else: ?>
+                                <?php elseif ($report['status'] === 'recorded'): ?>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">Approved by SK Federation</span>
+                                <?php elseif ($report['status'] === 'pending'): ?>
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">Pending Review</span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">Status unavailable</span>
                                 <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-slate-600 max-w-xs">
+                                <?= htmlspecialchars($report['remarks'] ?: '—') ?>
                             </td>
                             <td class="px-6 py-4 text-xs text-slate-400 font-medium"><?= date('M d, Y', strtotime($report['submitted_at'])) ?></td>
                             <td class="px-6 py-4 text-right">
-                                <button onclick="viewFiles('<?= htmlspecialchars($report['session_minutes_path'] ?? '') ?>', '<?= htmlspecialchars($report['attendance_records_path'] ?? '') ?>', '<?= htmlspecialchars($report['post_activity_reports_path'] ?? '') ?>', '<?= htmlspecialchars($report['financial_reports_path'] ?? '') ?>')" class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white rounded-lg text-xs font-bold transition-all">
+                                <button type="button" data-view-files data-report-id="<?= (int)$report['id'] ?>" data-can-manage="false"
+                                    data-files="<?= htmlspecialchars(json_encode([
+                                        'session_minutes' => $report['session_minutes_path'] ?? null,
+                                        'attendance_records' => $report['attendance_records_path'] ?? null,
+                                        'post_activity_reports' => $report['post_activity_reports_path'] ?? null,
+                                        'financial_reports' => $report['financial_reports_path'] ?? null
+                                    ]), ENT_QUOTES, 'UTF-8') ?>"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white rounded-lg text-xs font-bold transition-all">
                                     View Documents
                                 </button>
+                                <?php if ($canReviewMars && $report['status'] === 'pending'): ?>
+                                    <button type="button" onclick="reviewItem('mar', <?= (int)$report['id'] ?>, 'approve')" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-lg text-xs font-bold transition-all">
+                                        Approve
+                                    </button>
+                                    <button type="button" onclick="reviewItem('mar', <?= (int)$report['id'] ?>, 'return')" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-all">
+                                        Reject / Return
+                                    </button>
+                                <?php endif; ?>
+                                <?php if ($canApproveMars && $report['status'] === 'reviewed'): ?>
+                                    <button type="button" onclick="approveItem('mar', <?= (int)$report['id'] ?>)" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-indigo-500 text-white hover:bg-indigo-600 rounded-lg text-xs font-bold transition-all">
+                                        Final Approve
+                                    </button>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-400">No barangay MAR submissions found.</td>
+                        <td colspan="7" class="px-6 py-12 text-center text-slate-400">No barangay MAR submissions found.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -185,19 +223,19 @@ ob_start();
                 <div class="space-y-3">
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
                         <span class="text-sm font-semibold text-slate-700">1. Session Minutes</span>
-                        <a id="link_session_minutes" href="#" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View Document</a>
+                        <a id="link_session_minutes" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
                         <span class="text-sm font-semibold text-slate-700">2. Attendance Records</span>
-                        <a id="link_attendance_records" href="#" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View Document</a>
+                        <a id="link_attendance_records" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
                         <span class="text-sm font-semibold text-slate-700">3. Post-Activity Reports</span>
-                        <a id="link_post_activity" href="#" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View Document</a>
+                        <a id="link_post_activity" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
                         <span class="text-sm font-semibold text-slate-700">4. Financial Reports</span>
-                        <a id="link_financial_reports" href="#" target="_blank" class="text-indigo-600 hover:underline text-xs font-bold">View Document</a>
+                        <a id="link_financial_reports" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                 </div>
             </div>
@@ -210,7 +248,16 @@ ob_start();
     </div>
 </div>
 
+<?php require 'views/reports/document_preview_modal.php'; ?>
+
+<script src="assets/js/document-preview.js"></script>
 <script src="assets/js/reports.js"></script>
+<?php if ($canReviewMars): ?>
+<script src="assets/js/lydo.js"></script>
+<?php endif; ?>
+<?php if ($canApproveMars): ?>
+<script src="assets/js/fed.js"></script>
+<?php endif; ?>
 
 <?php
 $content = ob_get_clean();

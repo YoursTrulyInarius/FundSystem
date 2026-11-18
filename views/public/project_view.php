@@ -74,12 +74,12 @@ require_once 'includes/config.php';
                         </div>
                         <div class="space-y-3">
                             <?php
-                                $stage_order = ['planning', 'authorization', 'implementation', 'monitoring'];
+                                $stage_order = ['planning', 'lydo_approved', 'sk_fed_approved', 'final'];
                                 $labels = [
                                     'planning' => 'Planning',
-                                    'authorization' => 'Authorization',
-                                    'implementation' => 'Implementation',
-                                    'monitoring' => 'Monitoring',
+                                    'lydo_approved' => 'Approved by LYDO',
+                                    'sk_fed_approved' => 'Approved by SK Federation',
+                                    'final' => 'Final Approval',
                                 ];
                             ?>
                             <?php foreach ($stage_order as $stage): ?>

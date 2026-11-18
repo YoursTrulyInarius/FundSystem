@@ -46,16 +46,16 @@ class FedController {
                     ':user_id' => $_SESSION['user_id']
                 ]);
 
-                $db->commit();
-
-                // Auto-mark Monitoring milestone
                 require_once 'core/MilestoneHelper.php';
                 $proj_stmt = $db->prepare("SELECT project_id FROM transactions WHERE id = :id");
                 $proj_stmt->execute([':id' => $transaction_id]);
                 $proj_row = $proj_stmt->fetch(PDO::FETCH_ASSOC);
                 if ($proj_row) {
-                    MilestoneHelper::mark($db, $proj_row['project_id'], 'monitoring', 'Transaction officially recorded by SK Federation.');
+                    MilestoneHelper::mark($db, $proj_row['project_id'], 'sk_fed_approved', 'Transaction approved by SK Federation.');
+                    MilestoneHelper::mark($db, $proj_row['project_id'], 'final', 'Final project approval completed by SK Federation.');
                 }
+
+                $db->commit();
 
                 echo json_encode(['success' => true, 'message' => 'Transaction approved, recorded, and certified successfully.']);
             } catch (Exception $e) {

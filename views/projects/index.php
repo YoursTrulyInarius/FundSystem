@@ -5,7 +5,8 @@ require_once 'models/Project.php';
 $database = new Database();
 $db = $database->connect();
 $projectModel = new Project($db);
-$stmt = $projectModel->read($_SESSION['user_id']);
+$canManageProjects = ($_SESSION['role'] ?? '') === 'sk_admin';
+$stmt = $projectModel->read($canManageProjects ? $_SESSION['user_id'] : null);
 
 $page_title = 'Projects & ABYIP';
 ob_start();
@@ -15,8 +16,9 @@ ob_start();
 <div class="flex justify-between items-end mb-8 relative z-10">
     <div>
         <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Project Registry</h2>
-        <p class="text-slate-500 mt-2 font-medium">Manage and profile your SK-funded projects and activities.</p>
+        <p class="text-slate-500 mt-2 font-medium"><?= $canManageProjects ? 'Manage and profile your SK-funded projects and activities.' : 'Review SK-funded projects and activities across all barangays.' ?></p>
     </div>
+    <?php if ($canManageProjects): ?>
     <button
         onclick="document.getElementById('projectModal').classList.remove('hidden')"
         class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2">
@@ -25,6 +27,7 @@ ob_start();
         </svg>
         Register Project
     </button>
+    <?php endif; ?>
 </div>
 
 <!-- Projects Table -->
@@ -39,7 +42,9 @@ ob_start();
                     <th class="px-6 py-5">Budget</th>
                     <th class="px-6 py-5">Status</th>
                     <th class="px-6 py-5">Registered Date</th>
-                    <th class="px-6 py-5 text-right">Actions</th>
+                    <?php if ($canManageProjects): ?>
+                        <th class="px-6 py-5 text-right">Actions</th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -67,17 +72,19 @@ ob_start();
                             </td>
                             <td class="px-6 py-5 text-slate-500 font-medium">
                                 <?= date('M d, Y', strtotime($row['created_at'])) ?></td>
-                            <td class="px-6 py-5 text-right">
-                                <a href="project-view?id=<?= $row['id'] ?>"
-                                    class="inline-flex items-center justify-center px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white rounded-lg text-xs font-bold transition-all">
-                                    Manage
-                                </a>
-                            </td>
+                            <?php if ($canManageProjects): ?>
+                                <td class="px-6 py-5 text-right">
+                                    <a href="project-view?id=<?= $row['id'] ?>"
+                                        class="inline-flex items-center justify-center px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white rounded-lg text-xs font-bold transition-all">
+                                        Manage
+                                    </a>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" class="px-6 py-16 text-center">
+                        <td colspan="<?= $canManageProjects ? 6 : 5 ?>" class="px-6 py-16 text-center">
                             <div
                                 class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
                                 <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,8 +93,7 @@ ob_start();
                                 </svg>
                             </div>
                             <h3 class="text-sm font-bold text-slate-900">No Projects Found</h3>
-                            <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">Get started by registering your first SK
-                                project or activity from your approved ABYIP.</p>
+                            <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto"><?= $canManageProjects ? 'Get started by registering your first SK project or activity from your approved ABYIP.' : 'No SK-funded projects have been registered yet.' ?></p>
                         </td>
                     </tr>
                 <?php endif; ?>
@@ -96,6 +102,7 @@ ob_start();
     </div>
 </div>
 
+<?php if ($canManageProjects): ?>
 <!-- Modal -->
 <div id="projectModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
     aria-modal="true">
@@ -154,7 +161,11 @@ ob_start();
                             <option value="Health & Anti-Drug Abuse">Health & Anti-Drug Abuse</option>
                             <option value="Sports Development">Sports Development</option>
                             <option value="Capability Building">Capability Building</option>
+                            <option value="Other">Other</option>
                         </select>
+                        <input type="text" name="custom_budget_category" id="customBudgetCategory"
+                            class="hidden mt-3 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition"
+                            maxlength="100" placeholder="Enter a budget category">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Description / Alignment with
@@ -178,6 +189,7 @@ ob_start();
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <script src="assets/js/projects.js"></script>
 

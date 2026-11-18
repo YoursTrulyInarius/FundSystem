@@ -120,10 +120,10 @@ ob_start();
                                     ?>
                                     <div class="flex flex-col gap-2 mt-2">
                                         <?php foreach ($paths as $idx => $path): ?>
-                                            <a href="<?= htmlspecialchars($path) ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-md text-xs font-bold transition-all border border-blue-100 hover:border-blue-600 w-max" title="<?= htmlspecialchars(basename($path)) ?>">
+                                            <button type="button" data-preview-file="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars(basename($path), ENT_QUOTES, 'UTF-8') ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-md text-xs font-bold transition-all border border-blue-100 hover:border-blue-600 w-max text-left" title="<?= htmlspecialchars(basename($path)) ?>">
                                                 <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                                 <span class="max-w-[150px] truncate"><?= htmlspecialchars(basename($path)) ?></span>
-                                            </a>
+                                            </button>
                                         <?php endforeach; ?>
                                     </div>
                                 </td>
@@ -165,7 +165,10 @@ ob_start();
     <!-- Pending MARs Table -->
     <div class="card overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-900">Pending MARs (<?= count($pending_mars) ?>)</h3>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Pending MARs (<?= count($pending_mars) ?>)</h3>
+                <p class="mt-1 text-sm text-slate-500">Review all four attachments. Approval remarks are optional; rejecting returns the MAR with required correction remarks.</p>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
@@ -184,31 +187,31 @@ ob_start();
                                 <td class="px-6 py-4 font-bold text-slate-900"><?= htmlspecialchars($mar['barangay_name']) ?></td>
                                 <td class="px-6 py-4 font-medium"><?= date("F Y", mktime(0, 0, 0, $mar['month'], 1, $mar['year'])) ?></td>
                                 <td class="px-6 py-4 text-sm space-y-2 whitespace-nowrap">
-                                    <a href="<?= htmlspecialchars($mar['session_minutes_path']) ?>" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['session_minutes_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Session Minutes" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                         Session Minutes
-                                    </a>
-                                    <a href="<?= htmlspecialchars($mar['attendance_records_path']) ?>" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
+                                    </button>
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['attendance_records_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Attendance Records" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                         Attendance
-                                    </a>
-                                    <a href="<?= htmlspecialchars($mar['post_activity_reports_path']) ?>" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
+                                    </button>
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['post_activity_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Post-Activity Reports" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                         Post-Activity
-                                    </a>
-                                    <a href="<?= htmlspecialchars($mar['financial_reports_path']) ?>" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">
+                                    </button>
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['financial_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Financial Report" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         Financial Report
-                                    </a>
+                                    </button>
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                                     <button onclick="reviewItem('mar', <?= $mar['id'] ?>, 'approve')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                         Approve
                                     </button>
-                                    <button onclick="reviewItem('mar', <?= $mar['id'] ?>, 'return')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm rounded-lg text-sm font-bold transition-all">
+                                    <button onclick="reviewItem('mar', <?= $mar['id'] ?>, 'return')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 shadow-sm rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                                        Return
+                                        Reject / Return
                                     </button>
                                 </td>
                             </tr>
@@ -226,6 +229,9 @@ ob_start();
     </div>
 </div>
 
+<?php require 'views/reports/document_preview_modal.php'; ?>
+
+<script src="assets/js/document-preview.js"></script>
 <script src="assets/js/lydo.js"></script>
 
 <?php

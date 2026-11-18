@@ -5,13 +5,18 @@ require_once 'core/Database.php';
 
 class MilestoneHelper {
     /**
-     * Auto-mark a milestone stage as achieved for a given project.
-     * Uses INSERT IGNORE so it won't error or duplicate if already marked.
+     * Record an automatically achieved workflow milestone.
      */
     public static function mark($db, $project_id, $stage, $description = '') {
+        $valid_stages = ['planning', 'lydo_approved', 'sk_fed_approved', 'final'];
+        if (!in_array($stage, $valid_stages, true)) {
+            throw new InvalidArgumentException('Invalid project milestone stage.');
+        }
+
         $stmt = $db->prepare(
-            "INSERT IGNORE INTO project_milestones (project_id, stage, description, date_achieved)
-             VALUES (:pid, :stage, :desc, CURDATE())"
+            "INSERT INTO project_milestones (project_id, stage, description, date_achieved)
+             VALUES (:pid, :stage, :desc, CURDATE())
+             ON DUPLICATE KEY UPDATE id = id"
         );
         $stmt->execute([
             ':pid'   => $project_id,
@@ -21,9 +26,9 @@ class MilestoneHelper {
 
         // Auto-update project overall status based on milestone progress
         $new_status = null;
-        if ($stage === 'implementation') {
+        if ($stage === 'lydo_approved') {
             $new_status = 'ongoing';
-        } elseif ($stage === 'monitoring') {
+        } elseif ($stage === 'final') {
             $new_status = 'completed';
         }
 

@@ -9,6 +9,7 @@
     <title><?= $page_title ?? 'Dashboard' ?> - SK FUND System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/FundSystem/assets/js/sweetalert-defaults.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -125,7 +126,7 @@
                 </svg>
                 Dashboard
             </a>
-            <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin'): ?>
+            <?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['sk_admin', 'lydo', 'sk_fed'], true)): ?>
             <a href="projects" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'projects' || $current_route === 'project-view') ? $active_class : $inactive_class ?> mt-1">
                 <svg class="mr-3 h-5 w-5 <?= ($current_route === 'projects' || $current_route === 'project-view') ? 'text-slate-500' : 'text-slate-400' ?>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>

@@ -35,11 +35,12 @@ CREATE TABLE projects (
 CREATE TABLE project_milestones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
-    stage ENUM('planning', 'authorization', 'implementation', 'monitoring') NOT NULL,
+    stage ENUM('planning', 'lydo_approved', 'sk_fed_approved', 'final') NOT NULL,
     description TEXT,
     date_achieved DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_project_stage (project_id, stage),
     INDEX idx_project_id (project_id),
     INDEX idx_stage (stage)
 );
