@@ -15,9 +15,9 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 **Key Innovation**: An integrated **Community Feedback System** allows citizens to submit anonymous feedback and concerns about SK-funded projects directly through the public transparency portal, creating a channel for grassroots accountability that SK administrators can review, manage, and act upon.
 
 ## 🧾 Latest Version Update
-- **Version:** `2.2.0`
-- **Date:** 2026-11-06
-- **Summary:** Improved authentication and public-page behavior, added community-feedback and transaction-history usability updates, and clarified office account display names.
+- **Version:** `2.2.1`
+- **Date:** 2026-11-18
+- **Summary:** Synchronized project documentation with the current database schema, public barangay profiles, four-role authorization model, and milestone workflow.
 - **Registration:** The first SK Admin account can be created through public registration only while no SK Admin exists. After one is created, only an authenticated SK Admin can register additional accounts.
 - **Public barangay pages:** Citizen Feedback submission is available to signed-out public visitors only. SK Admin previews do not show the feedback form, and submitted messages are not listed publicly.
 - **Community feedback notifications:** The SK Admin navigation shows a red dot when unread feedback exists for that barangay.
@@ -30,7 +30,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Barangay profiles:** Public barangay detail pages now resolve uploaded cover photo URLs from the application root so the image displays when opened from a nested public route.
 - **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
 - **Authentication page layout:** Reduced the desktop white form panel width on login and registration pages without changing their content.
-- **Updated files:** `views/login.php`, `views/register.php`, `controllers/AuthController.php`, `controllers/PublicController.php`, `views/public/barangay_view.php`, `views/layout.php`, `views/transactions.php`, `database.sql`, `README.md`
+- **Updated files:** `database.sql`, `README.md`
 
 ---
 
@@ -202,7 +202,7 @@ The `watch_sk_fund` database includes **23 strategic indexes** designed to optim
 
 ## 👥 User Roles & Dashboard Breakdown
 
-The system enforces strict Separation of Duties across 5 distinct user role categories:
+The system enforces strict Separation of Duties across 4 active user role categories:
 
 ### 1. 🏢 SK Barangay Council Dashboard (`sk_admin`)
 * **Target Users**: SK Chairpersons, SK Treasurers, and Council Members at the barangay level.
@@ -213,7 +213,7 @@ The system enforces strict Separation of Duties across 5 distinct user role cate
   - **Recent Projects List**: Quick view of the 5 most recently created or updated projects
 * **Core Functionalities**:
   - **Project Registry & ABYIP Profiling**: Register and manage SK projects linked directly to their approved Annual Barangay Youth Investment Program (ABYIP) reference codes. Categorize by budget category (Equitable Access to Education, Environmental Protection, Climate Change Adaptation, Youth Employment & Livelihood, Health & Anti-Drug Abuse, Sports Development, or Capability Building).
-  - **Milestone & Progress Tracking**: Track physical project execution across 4 sequential stages (Planning → Authorization → Implementation → Monitoring) with status updates and date markers.
+  - **Milestone & Progress Tracking**: Track physical project execution across Planning → LYDO Approved → SK Federation Approved → Final stages with status updates and date markers.
   - **Financial Transaction Encoding**: Encode and upload financial records including ROA (Request for Obligation of Allotment), Disbursement Vouchers (DV), Procurement Documents, and Liquidation Reports with required file attachments for audit trail.
   - **MAR Submission Module**: Compile Monthly Accomplishment Reports with required supporting documents (Session Minutes, Attendance Records, Post-Activity Reports, Financial Statements) and submit directly to LYDO before monthly deadlines.
   - **Status Monitoring**: View transaction and report status progression from pending → reviewed → recorded to ensure timely compliance.
@@ -389,18 +389,13 @@ The application URL is `http://localhost/FundSystem/` when the cloned folder is 
 8. Choose `database.sql` from the cloned `FundSystem` directory (for example, `C:\xampp\htdocs\FundSystem\database.sql` on Windows with XAMPP)
 9. Click **Go** to import tables, indexes, and default users
 
-For an existing database created before this workflow update, run this once in the phpMyAdmin **SQL** tab so MARs can transition to the final SK Federation-approved status. Fresh installs already have this status in `database.sql`.
-```sql
-ALTER TABLE reports
-MODIFY COLUMN status ENUM('pending', 'reviewed', 'returned', 'recorded') DEFAULT 'pending';
-```
-
 **Database is now created with**:
-- ✅ 7 tables (users, projects, transactions, reports, certifications, feedback, milestones)
+- ✅ 8 tables (users, projects, project_milestones, transactions, reports, certifications, feedback, barangay_profiles)
 - ✅ All 23 performance indexes pre-defined
 - ✅ Foreign key relationships for referential integrity
 - ✅ 2 default test user accounts (LYDO and SK Federation)
 - ✅ `feedback` table with `read_at` column for tracking unread feedback
+- ✅ `barangay_profiles` table with uploaded image, tagline, description, and community benefits fields
 
 ### Step 3: Verify Database Connection
 Check that `core/Database.php` matches your local MySQL credentials. The example below uses the common default XAMPP credentials; WAMP/LAMP and secured installations may use different values:
@@ -469,14 +464,15 @@ FundSystem/
 │
 ├── models/
 │   ├── User.php                        # User authentication model
-│   └── Project.php                     # Project data model
+│   ├── Project.php                     # Project data model
+│   ├── Transaction.php                 # Transaction data model
+│   └── Report.php                      # MAR data model
 │
 ├── controllers/
 │   ├── AuthController.php              # Login, logout, registration
 │   ├── ProjectController.php           # Project CRUD operations
 │   ├── TransactionController.php       # Financial transaction handling
 │   ├── ReportController.php            # MAR submission & consolidation
-│   ├── MilestoneController.php         # Milestone tracking
 │   ├── CertificationController.php     # Certificate generation
 │   ├── LYDOController.php              # LYDO review operations
 │   ├── FedController.php               # SK Federation recording
@@ -600,7 +596,7 @@ Indexes: idx_user_id, idx_status, idx_created_at
 
 #### `project_milestones` (Progress Tracking)
 ```
-id, project_id (FK), stage (ENUM: planning/authorization/implementation/monitoring), 
+id, project_id (FK), stage (ENUM: planning/lydo_approved/sk_fed_approved/final),
 description, date_achieved, created_at
 Indexes: idx_project_id, idx_stage
 ```
@@ -628,10 +624,18 @@ Indexes: idx_transaction_id, idx_issued_by, idx_type
 
 #### `feedback` (Community Feedback) ⭐ **NEW**
 ```
-id, project_id (FK), user_name (VARCHAR 100), contact_info (VARCHAR 100 nullable), 
+id, project_id (FK), barangay_name (VARCHAR 100 nullable), user_name (VARCHAR 100),
+contact_info (VARCHAR 100 nullable),
 message (TEXT), created_at (TIMESTAMP), read_at (TIMESTAMP nullable)
-Indexes: idx_project_id, idx_read_at, idx_created_at
+Indexes: idx_project_id, idx_barangay_name, idx_read_at, idx_created_at
 ON DELETE CASCADE: Deletes feedback when project is deleted
+```
+
+#### `barangay_profiles` (Public Barangay Profiles)
+```
+id, barangay_name (unique), image_path, tagline, description, community_benefits,
+updated_at
+Indexes: idx_barangay_name
 ```
 
 ---
