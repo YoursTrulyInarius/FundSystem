@@ -13,29 +13,32 @@
                     <h2 class="section-title">Municipality of <span>Ramon Magsaysay</span></h2>
                     <p class="section-sub">Explore barangay projects, community benefits, and fund utilization. Drag or use the arrows to browse.</p>
                 </div>
-                <div class="brgy-carousel-controls mt-4 lg:mt-0">
-                    <button id="brgyPrev" class="brgy-nav-btn" aria-label="Previous barangay" disabled>
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <div class="brgy-dots" id="brgyDots"></div>
-                    <span class="brgy-counter" id="brgyCounter">1 / <?= count($barangayCards) ?></span>
-                    <button id="brgyNext" class="brgy-nav-btn" aria-label="Next barangay">
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
+                <?php if (!empty($barangayCards)): ?>
+                    <div class="brgy-carousel-controls mt-4 lg:mt-0">
+                        <button id="brgyPrev" class="brgy-nav-btn" aria-label="Previous barangay page" disabled>
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <div class="brgy-dots" id="brgyDots"></div>
+                        <span class="brgy-counter" id="brgyCounter" aria-live="polite">1 / <?= count($barangayCards) ?></span>
+                        <button id="brgyNext" class="brgy-nav-btn" aria-label="Next barangay page">
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
         <!-- Carousel viewport -->
-        <div class="brgy-carousel-viewport flex-1 min-h-0 brgy-viewport-el opacity-0" id="brgyViewport">
-            <div class="brgy-carousel-track" id="brgyTrack">
-                <?php foreach ($barangayCards as $bc):
-                    $bname = $bc['name'];
-                    $burl  = urlencode($bname);
-                    $imgPath = $bc['image_path'] ?? null;
-                ?>
-                <div class="brgy-card" data-brgy-name="<?= htmlspecialchars($bname) ?>"
-                     onclick="window.location.href='public/barangay?name=<?= $burl ?>'">
+        <?php if (!empty($barangayCards)): ?>
+            <div class="brgy-carousel-viewport flex-1 min-h-0 brgy-viewport-el opacity-0" id="brgyViewport">
+                <div class="brgy-carousel-track" id="brgyTrack">
+                    <?php foreach ($barangayCards as $bc):
+                        $bname = $bc['name'];
+                        $burl  = urlencode($bname);
+                        $imgPath = $bc['image_path'] ?? null;
+                    ?>
+                    <div class="brgy-card" data-brgy-name="<?= htmlspecialchars($bname) ?>"
+                         onclick="window.location.href='public/barangay?name=<?= $burl ?>'">
 
                     <?php if ($imgPath && file_exists($imgPath)): ?>
                         <img class="brgy-card-img"
@@ -76,10 +79,13 @@
                             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
-        </div>
+        <?php else: ?>
+            <p class="brgy-empty-state" role="status">No barangay profiles are available yet. Profiles will appear here when an SK account or barangay profile is added.</p>
+        <?php endif; ?>
 
     </div>
 </section>

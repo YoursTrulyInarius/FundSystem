@@ -1024,11 +1024,21 @@
             display: flex;
             gap: 1.25rem;
             height: 100%;
-            transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             will-change: transform;
             padding: 0.5rem 0.2rem 1.2rem;
         }
         .brgy-carousel-track.no-transition { transition: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .brgy-carousel-track { transition-duration: 0.01ms; }
+        }
+        .brgy-empty-state {
+            padding: 2rem;
+            border: 1px dashed #cbd5e1;
+            border-radius: 1rem;
+            color: #64748b;
+            text-align: center;
+        }
 
         .brgy-card {
             flex: 0 0 calc(25% - 0.95rem);
@@ -1577,11 +1587,15 @@
                 <li><a href="#hero"      class="nav-link opacity-0">Home</a></li>
                 <li><a href="#about"     class="nav-link opacity-0">About Us</a></li>
                 <li>
-                    <a href="login" class="btn-login nav-btn opacity-0">
+                    <a href="<?= isset($_SESSION['user_id']) ? 'dashboard' : 'login' ?>" class="btn-login nav-btn opacity-0">
                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/>
+                            <?php else: ?>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            <?php endif; ?>
                         </svg>
-                        Login
+                        <?= isset($_SESSION['user_id']) ? 'Dashboard' : 'Login' ?>
                     </a>
                 </li>
             </ul>
@@ -1612,7 +1626,7 @@
 
                 <!-- Subheadline -->
                 <p class="hero-sub hero-sub-el opacity-0">
-                    Official Sangguniang Kabataan digital oversight platform — tracking Annual Barangay Youth Investment Programs (ABYIP), audited public disbursements, and community accomplishments across all 27 constituent barangays of Ramon Magsaysay.
+                    Official Sangguniang Kabataan digital oversight platform — tracking Annual Barangay Youth Investment Programs (ABYIP), audited public disbursements, and community accomplishments across <?= (int)$barangay_count ?> registered barangay<?= (int)$barangay_count === 1 ? '' : 's' ?> of Ramon Magsaysay.
                 </p>
 
                 <!-- Trust Chips -->
@@ -1687,8 +1701,8 @@
                                 </svg>
                             </div>
                             <div class="metric-val"><?= $barangay_count ?? 0 ?></div>
-                            <div class="metric-lbl">Barangay Councils</div>
-                            <div class="metric-sub">100% municipal-wide coverage</div>
+                            <div class="metric-lbl">Barangays Listed</div>
+                            <div class="metric-sub">Live profiles and SK accounts</div>
                         </div>
                     </div>
 
@@ -1739,17 +1753,17 @@
                             <span class="about-banner-badge">🏛️ Republic Act No. 10742 & Municipal SK Fund Ordinance</span>
                             <h3 class="about-banner-title">Modernizing Sangguniang Kabataan Governance</h3>
                             <p class="about-banner-desc">
-                                Institutionalized to digitalize the review, recording, financial reporting, and milestone tracking of youth funds across the 27 constituent barangays of the Municipality of Ramon Magsaysay, Zamboanga del Sur.
+                                Institutionalized to digitalize the review, recording, financial reporting, and milestone tracking of youth funds across registered barangays of the Municipality of Ramon Magsaysay, Zamboanga del Sur.
                             </p>
                         </div>
                         <div class="about-banner-stats">
                             <div class="about-banner-stat">
-                                <div class="num">27</div>
-                                <div class="lbl">Constituent Barangays</div>
+                                <div class="num"><?= (int)$barangay_count ?></div>
+                                <div class="lbl">Barangays in Portal</div>
                             </div>
                             <div class="about-banner-stat">
-                                <div class="num">100%</div>
-                                <div class="lbl">Digital Records</div>
+                                <div class="num">Live</div>
+                                <div class="lbl">Database Data</div>
                             </div>
                             <div class="about-banner-stat">
                                 <div class="num">Open</div>
@@ -1920,27 +1934,54 @@
 
                 const cards = Array.from(track.querySelectorAll('.brgy-card'));
                 const total = cards.length;
+                if (!total) return;
+
                 let current = 0;
                 let autoplayTimer = null;
                 let isDragging = false;
 
-                // Compute how many cards are visible at once
-                function visibleCount() {
-                    const w = viewport.offsetWidth;
-                    if (w < 600)  return 1;
-                    if (w < 900)  return 2;
-                    if (w < 1280) return 3;
-                    return 4;
+                function layout() {
+                    const trackStyle = getComputedStyle(track);
+                    const gap = parseFloat(trackStyle.gap) || 0;
+                    const padding = (parseFloat(trackStyle.paddingLeft) || 0) + (parseFloat(trackStyle.paddingRight) || 0);
+                    const cardWidth = cards[0].getBoundingClientRect().width;
+                    const availableWidth = Math.max(0, viewport.clientWidth - padding);
+                    const visible = cardWidth > 0
+                        ? Math.max(1, Math.min(total, Math.floor((availableWidth + gap + 1) / (cardWidth + gap))))
+                        : 1;
+
+                    return {
+                        gap,
+                        cardWidth,
+                        visible,
+                        maxIndex: Math.max(total - visible, 0)
+                    };
                 }
 
-                // Build dots (one per page, not per card)
-                function pageCount() { return Math.ceil(total / visibleCount()); }
+                function pageStarts() {
+                    const { visible, maxIndex } = layout();
+                    const starts = [];
+                    for (let index = 0; index < maxIndex; index += visible) {
+                        starts.push(index);
+                    }
+                    if (starts[starts.length - 1] !== maxIndex) starts.push(maxIndex);
+                    return starts;
+                }
+
+                function currentPage() {
+                    const starts = pageStarts();
+                    let page = 0;
+                    starts.forEach((start, index) => {
+                        if (start <= current) page = index;
+                    });
+                    return page;
+                }
 
                 function updateAutoplay() {
                     clearInterval(autoplayTimer);
                     autoplayTimer = null;
 
-                    if (document.hidden || isDragging || total <= visibleCount()) {
+                    if (document.hidden || isDragging || total <= layout().visible) {
                         return;
                     }
 
@@ -1951,8 +1992,8 @@
 
                 function buildDots() {
                     dotsEl.innerHTML = '';
-                    const pages = pageCount();
-                    for (let i = 0; i < pages; i++) {
+                    const starts = pageStarts();
+                    for (let i = 0; i < starts.length; i++) {
                         const d = document.createElement('button');
                         d.className = 'brgy-dot' + (i === 0 ? ' active' : '');
                         d.setAttribute('aria-label', 'Go to page ' + (i + 1));
@@ -1964,14 +2005,12 @@
                     }
                 }
 
-                function currentPage() { return Math.round(current / visibleCount()); }
+                function pageCount() { return pageStarts().length; }
 
                 function updateUI() {
-                    const vc = visibleCount();
-                    // Compute card width + gap
-                    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-                    const cardW = (viewport.offsetWidth - gap * (vc - 1)) / vc;
-                    const offset = current * (cardW + gap);
+                    const { gap, cardWidth, visible, maxIndex } = layout();
+                    current = Math.max(0, Math.min(current, maxIndex));
+                    const offset = current * (cardWidth + gap);
                     track.style.transform = `translateX(-${offset}px)`;
 
                     // dots
@@ -1980,27 +2019,29 @@
                         d.classList.toggle('active', i === pg));
 
                     // counter
-                    const displayIdx = Math.min(current + vc, total);
+                    const displayIdx = Math.min(current + visible, total);
                     counterEl.textContent = (current + 1) + '–' + displayIdx + ' / ' + total;
 
                     // buttons
                     prevBtn.disabled = current === 0;
-                    nextBtn.disabled = current >= total - vc;
+                    nextBtn.disabled = current >= maxIndex;
                 }
 
                 function goToCard(idx) {
-                    const vc = visibleCount();
-                    current = Math.max(0, Math.min(idx, total - vc));
+                    current = Math.max(0, Math.min(idx, layout().maxIndex));
                     updateUI();
                 }
-                function goToPage(pg) { goToCard(pg * visibleCount()); }
+                function goToPage(pg) {
+                    const starts = pageStarts();
+                    goToCard(starts[Math.max(0, Math.min(pg, starts.length - 1))]);
+                }
 
                 prevBtn.addEventListener('click', () => {
-                    goToCard(current - visibleCount());
+                    goToPage(currentPage() - 1);
                     updateAutoplay();
                 });
                 nextBtn.addEventListener('click', () => {
-                    goToCard(current + visibleCount());
+                    goToPage(currentPage() + 1);
                     updateAutoplay();
                 });
 
@@ -2033,21 +2074,18 @@
                 function onDragMove(clientX) {
                     if (!isDragging) return;
                     movedPx = clientX - startX;
-                    const vc  = visibleCount();
-                    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-                    const cardW = (viewport.offsetWidth - gap * (vc - 1)) / vc;
-                    const dragOffset = scrollStart * (cardW + gap) - movedPx;
-                    track.style.transform = `translateX(-${Math.max(0, dragOffset)}px)`;
+                    const { gap, cardWidth, maxIndex } = layout();
+                    const dragOffset = scrollStart * (cardWidth + gap) - movedPx;
+                    const maxOffset = maxIndex * (cardWidth + gap);
+                    track.style.transform = `translateX(-${Math.min(maxOffset, Math.max(0, dragOffset))}px)`;
                 }
                 function onDragEnd() {
                     if (!isDragging) return;
                     isDragging = false;
                     track.classList.remove('no-transition');
                     viewport.classList.remove('is-dragging');
-                    const vc  = visibleCount();
-                    const gap = parseFloat(getComputedStyle(track).gap) || 0;
-                    const cardW = (viewport.offsetWidth - gap * (vc - 1)) / vc;
-                    const threshold = cardW * 0.25;
+                    const { cardWidth } = layout();
+                    const threshold = cardWidth * 0.25;
                     if (movedPx < -threshold) goToCard(scrollStart + 1);
                     else if (movedPx > threshold) goToCard(scrollStart - 1);
                     else goToCard(scrollStart);

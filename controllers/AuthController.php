@@ -293,7 +293,7 @@ class AuthController {
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
 
-        // Public registration is limited to creating the first SK Admin account.
+        // Public registration is limited to SK Admin accounts.
         if (!$isSkAdmin && $role !== 'sk_admin') {
             echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
             return;
@@ -342,18 +342,28 @@ class AuthController {
         $db = $database->connect();
 
         $registrationLockAcquired = false;
+        $registrationLockName = null;
         try {
-            if (!$isSkAdmin) {
-                $lockStmt = $db->query("SELECT GET_LOCK('fundsystem_initial_sk_admin', 10)");
+            if ($role === 'sk_admin') {
+                $registrationLockName = 'fundsystem_sk_admin_' . md5(strtolower($barangay_name));
+                $lockStmt = $db->prepare("SELECT GET_LOCK(:lock_name, 10)");
+                $lockStmt->execute([':lock_name' => $registrationLockName]);
                 $registrationLockAcquired = (int) $lockStmt->fetchColumn() === 1;
                 if (!$registrationLockAcquired) {
-                    echo json_encode(['success' => false, 'message' => 'Initial SK Admin setup is busy. Please try again.']);
+                    echo json_encode(['success' => false, 'message' => 'Registration for this barangay is busy. Please try again.']);
                     return;
                 }
 
-                $adminStmt = $db->query("SELECT id FROM users WHERE role = 'sk_admin' LIMIT 1");
+                $adminStmt = $db->prepare("
+                    SELECT id
+                    FROM users
+                    WHERE role = 'sk_admin'
+                      AND LOWER(TRIM(REPLACE(barangay_name, 'Barangay ', ''))) = LOWER(:barangay_name)
+                    LIMIT 1
+                ");
+                $adminStmt->execute([':barangay_name' => $barangay_name]);
                 if ($adminStmt->fetch()) {
-                    echo json_encode(['success' => false, 'message' => 'An SK Admin account already exists. Please sign in with that account.']);
+                    echo json_encode(['success' => false, 'message' => 'An SK Admin account is already registered for this barangay. Please choose another barangay.']);
                     return;
                 }
             }
@@ -394,8 +404,9 @@ class AuthController {
                 echo json_encode(['success' => false, 'message' => 'Failed to create account. Please try again.']);
             }
         } finally {
-            if ($registrationLockAcquired) {
-                $db->query("SELECT RELEASE_LOCK('fundsystem_initial_sk_admin')");
+            if ($registrationLockAcquired && $registrationLockName !== null) {
+                $releaseLockStmt = $db->prepare("SELECT RELEASE_LOCK(:lock_name)");
+                $releaseLockStmt->execute([':lock_name' => $registrationLockName]);
             }
         }
     }

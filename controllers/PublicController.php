@@ -4,15 +4,23 @@ require_once 'core/Database.php';
 
 class PublicController {
 
-    public static $barangay_list = [
-        'Bagong Opon', 'Bambong Daku', 'Bambong Diut', 'Bobongan',
-        'Campo IV', 'Campo V', 'Caniangan', 'Dipalusan',
-        'Eastern Bobongan', 'Esperanza', 'Gapasan', 'Katipunan',
-        'Kauswagan', 'Lower Sambulawan', 'Mabini', 'Magsaysay',
-        'Malating', 'Paradise', 'Pasingkalan', 'Poblacion',
-        'San Fernando', 'Santo Rosario', 'Sapa Anding', 'Sinaguing',
-        'Switch', 'Upper Laperian', 'Wakat'
-    ];
+    public static function getBarangayNames(PDO $db): array {
+        $stmt = $db->query("
+            SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) AS barangay_name
+            FROM users
+            WHERE role = 'sk_admin'
+              AND barangay_name IS NOT NULL
+              AND TRIM(barangay_name) <> ''
+            UNION
+            SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) AS barangay_name
+            FROM barangay_profiles
+            WHERE barangay_name IS NOT NULL
+              AND TRIM(barangay_name) <> ''
+            ORDER BY barangay_name
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 
     public function index() {
         $database = new Database();
@@ -58,14 +66,14 @@ class PublicController {
         $liveStats = $countStmt->fetch(PDO::FETCH_ASSOC);
         $total_projects = (int) ($liveStats['total_projects'] ?? 0);
         $recorded_transactions = (int) ($liveStats['recorded_transactions'] ?? 0);
-        $registeredBarangayStmt = $db->query("SELECT COUNT(DISTINCT TRIM(REPLACE(barangay_name, 'Barangay ', ''))) FROM users WHERE role = 'sk_admin' AND barangay_name IS NOT NULL AND barangay_name != ''");
-        $barangay_count = (int) $registeredBarangayStmt->fetchColumn();
+        $barangayNames = self::getBarangayNames($db);
+        $barangay_count = count($barangayNames);
 
         // 4. Fetch barangay profiles (uploaded cover images, taglines)
         $bpStmt = $db->query("SELECT * FROM barangay_profiles");
         $profiles_by_bname = [];
         while ($bp = $bpStmt->fetch(PDO::FETCH_ASSOC)) {
-            $bClean = str_replace('Barangay ', '', $bp['barangay_name']);
+            $bClean = trim(str_replace('Barangay ', '', $bp['barangay_name']));
             $profiles_by_bname[$bClean] = $bp;
         }
 
@@ -73,8 +81,10 @@ class PublicController {
         $skStmt = $db->query("SELECT id, full_name, email, barangay_name FROM users WHERE role = 'sk_admin'");
         $officials_by_bname = [];
         while ($sk = $skStmt->fetch(PDO::FETCH_ASSOC)) {
-            $bClean = str_replace('Barangay ', '', $sk['barangay_name']);
-            $officials_by_bname[$bClean] = $sk;
+            $bClean = trim(str_replace('Barangay ', '', $sk['barangay_name'] ?? ''));
+            if ($bClean !== '') {
+                $officials_by_bname[$bClean] = $sk;
+            }
         }
 
         // 6. Fetch comments / feedback grouped by barangay
@@ -85,7 +95,7 @@ class PublicController {
                              ORDER BY f.created_at DESC");
         $feedback_by_bname = [];
         while ($fb = $fbStmt->fetch(PDO::FETCH_ASSOC)) {
-            $eff = str_replace('Barangay ', '', $fb['effective_barangay'] ?? '');
+            $eff = trim(str_replace('Barangay ', '', $fb['effective_barangay'] ?? ''));
             if ($eff !== '') {
                 $feedback_by_bname[$eff][] = $fb;
             }
@@ -97,7 +107,7 @@ class PublicController {
         $recorded_by_bname = [];
 
         foreach ($projects as $p) {
-            $bClean = str_replace('Barangay ', '', $p['barangay_name'] ?? '');
+            $bClean = trim(str_replace('Barangay ', '', $p['barangay_name'] ?? ''));
             if ($bClean !== '') {
                 $p['milestones'] = $milestones_by_project[$p['id']] ?? [];
                 $projects_by_bname[$bClean][] = $p;
@@ -107,16 +117,16 @@ class PublicController {
 
         foreach ($transactions as $t) {
             if ($t['status'] === 'recorded') {
-                $bClean = str_replace('Barangay ', '', $t['barangay_name'] ?? '');
+                $bClean = trim(str_replace('Barangay ', '', $t['barangay_name'] ?? ''));
                 if ($bClean !== '') {
                     $recorded_by_bname[$bClean] = ($recorded_by_bname[$bClean] ?? 0) + (float)$t['amount'];
                 }
             }
         }
 
-        // 8. Build comprehensive dataset for all 27 barangays
+        // 8. Build the public dataset from current SK accounts and barangay profiles.
         $barangayCards = [];
-        foreach (self::$barangay_list as $bname) {
+        foreach ($barangayNames as $bname) {
             $bOfficial = $officials_by_bname[$bname] ?? null;
 
             $bProjects = $projects_by_bname[$bname] ?? [];

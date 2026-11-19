@@ -1,7 +1,8 @@
 if (window.Swal) {
     window.Swal = window.Swal.mixin({
         showCloseButton: true,
-        confirmButtonText: 'Okay'
+        confirmButtonText: 'Okay',
+        heightAuto: false
     });
 
     const sweetAlertStyles = document.createElement('style');

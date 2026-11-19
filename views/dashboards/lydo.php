@@ -5,7 +5,7 @@ require_once 'core/Database.php';
 $database = new Database();
 $db = $database->connect();
 
-$barangays = PublicController::$barangay_list;
+$barangays = PublicController::getBarangayNames($db);
 $selected_barangay = trim($_GET['barangay'] ?? '');
 if ($selected_barangay !== '' && !in_array($selected_barangay, $barangays, true)) {
     $selected_barangay = '';
