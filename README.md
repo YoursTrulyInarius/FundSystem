@@ -15,10 +15,14 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 **Key Innovation**: An integrated **Community Feedback System** allows citizens to submit anonymous feedback and concerns about SK-funded projects directly through the public transparency portal, creating a channel for grassroots accountability that SK administrators can review, manage, and act upon.
 
 ## 🧾 Latest Version Update
-- **Version:** `2.2.1`
-- **Date:** 2026-11-18
-- **Summary:** Synchronized project documentation with the current database schema, public barangay profiles, four-role authorization model, and milestone workflow.
-- **Registration:** The first SK Admin account can be created through public registration only while no SK Admin exists. After one is created, only an authenticated SK Admin can register additional accounts.
+- **Version:** `2.2.2`
+- **Date:** 2026-11-19
+- **Summary:** Added database-driven barangay listings, per-barangay SK Admin registration, and dashboard layout fixes.
+- **Registration:** Public registration allows one SK Admin account per barangay. Registrations for different barangays can proceed independently, while duplicate accounts for the same barangay are prevented.
+- **Public barangay directory:** The directory and its counts are built from current SK Admin accounts and barangay profiles instead of a hard-coded list. Signed-in users see a Dashboard link; visitors see Login.
+- **Barangay carousel:** Page counts and visible-item numbering use the rendered card dimensions. Sliding uses a smoother transition and respects reduced-motion preferences.
+- **LYDO dashboard:** The barangay filter uses the same live database-backed list as the public directory.
+- **Review dialogs:** SweetAlert2 no longer changes the dashboard body's height, keeping the sidebar and logout control visible while approving or returning submissions.
 - **Public barangay pages:** Citizen Feedback submission is available to signed-out public visitors only. SK Admin previews do not show the feedback form, and submitted messages are not listed publicly.
 - **Community feedback notifications:** The SK Admin navigation shows a red dot when unread feedback exists for that barangay.
 - **Transaction history:** Removed the repeated page heading and added status and barangay filters that apply immediately when selected. Pending transactions are not included in the history.
@@ -30,7 +34,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **Barangay profiles:** Public barangay detail pages now resolve uploaded cover photo URLs from the application root so the image displays when opened from a nested public route.
 - **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
 - **Authentication page layout:** Reduced the desktop white form panel width on login and registration pages without changing their content.
-- **Updated files:** `database.sql`, `README.md`
+- **Updated files:** `controllers/AuthController.php`, `controllers/PublicController.php`, `views/dashboards/lydo.php`, `views/public/barangays.php`, `views/public/home.php`, `assets/js/sweetalert-defaults.js`, `README.md`
 
 ---
 
@@ -46,7 +50,7 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 ## ✅ Major Functionalities
 
-- **User Management** – Allows the first SK Admin to be registered during initial setup and authenticated SK Admins to create and manage accounts for SK Barangay Councils, LYDO personnel, and SK Federation officers.
+- **User Management** – Allows one SK Admin account per barangay through public registration and authenticated SK Admins to create and manage accounts for SK Barangay Councils, LYDO personnel, and SK Federation officers.
 - **User Authentication** – Allows authorized users to securely access the system using their assigned user accounts and role-based credentials.
 - **Project Registry and Profiling** – Allows SK Barangay Councils to register and manage SK-funded projects based on the approved Annual Barangay Youth Investment Program (ABYIP) and budget.
 - **Milestone and Progress Tracking** – Allows SK Barangay Councils to record and monitor the progress of projects from planning to completion.
@@ -718,5 +722,5 @@ This system was developed for the Municipality of Ramon Magsaysay, Zamboanga del
 - SweetAlert2 (modals)
 - PHPMailer (email support)
 
-**Last Updated**: October 21, 2026
+**Last Updated**: November 19, 2026
 **Version**: 2.1.0
