@@ -293,9 +293,9 @@ class AuthController {
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
 
-        // Public registration is limited to SK Admin accounts.
+        // Public registration is limited to SK Council accounts.
         if (!$isSkAdmin && $role !== 'sk_admin') {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Admin can register new users.']);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Only SK Council members can register new users.']);
             return;
         }
 
@@ -363,7 +363,7 @@ class AuthController {
                 ");
                 $adminStmt->execute([':barangay_name' => $barangay_name]);
                 if ($adminStmt->fetch()) {
-                    echo json_encode(['success' => false, 'message' => 'An SK Admin account is already registered for this barangay. Please choose another barangay.']);
+                    echo json_encode(['success' => false, 'message' => 'An SK Council account is already registered for this barangay. Please choose another barangay.']);
                     return;
                 }
             }

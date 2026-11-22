@@ -6,7 +6,30 @@ $database = new Database();
 $db = $database->connect();
 $projectModel = new Project($db);
 $canManageProjects = ($_SESSION['role'] ?? '') === 'sk_admin';
-$stmt = $projectModel->read($canManageProjects ? $_SESSION['user_id'] : null);
+$project_status_options = [
+    'planned' => 'Planned',
+    'ongoing' => 'Ongoing',
+    'completed' => 'Completed'
+];
+
+if ($canManageProjects) {
+    $stmt = $projectModel->read($_SESSION['user_id']);
+} else {
+    require_once 'controllers/PublicController.php';
+    $barangays = PublicController::getBarangayNames($db);
+    $selected_barangay = isset($_GET['barangay']) && is_string($_GET['barangay']) ? trim($_GET['barangay']) : '';
+    if ($selected_barangay !== '' && !in_array($selected_barangay, $barangays, true)) {
+        $selected_barangay = '';
+    }
+    $selected_project_status = isset($_GET['status']) && is_string($_GET['status']) ? trim($_GET['status']) : '';
+    if (!array_key_exists($selected_project_status, $project_status_options)) {
+        $selected_project_status = '';
+    }
+    $stmt = $projectModel->readWithFilters(
+        $selected_barangay !== '' ? $selected_barangay : null,
+        $selected_project_status !== '' ? $selected_project_status : null
+    );
+}
 
 $page_title = 'Projects & ABYIP';
 ob_start();
@@ -29,6 +52,34 @@ ob_start();
     </button>
     <?php endif; ?>
 </div>
+
+<?php if (!$canManageProjects): ?>
+<form method="get" action="projects" class="mb-6 flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm relative z-10">
+    <div>
+        <label for="projectBarangayFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Barangay</label>
+        <select id="projectBarangayFilter" name="barangay" onchange="this.form.submit()" class="min-w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+            <option value="">All Barangays</option>
+            <?php foreach ($barangays as $barangay): ?>
+                <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>>
+                    Barangay <?= htmlspecialchars($barangay) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div>
+        <label for="projectStatusFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Project Status</label>
+        <select id="projectStatusFilter" name="status" onchange="this.form.submit()" class="min-w-48 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+            <option value="">All project statuses</option>
+            <?php foreach ($project_status_options as $value => $label): ?>
+                <option value="<?= htmlspecialchars($value) ?>" <?= $selected_project_status === $value ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($label) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <p class="text-sm text-slate-500">Project status tracks progress; it is not an approval decision.</p>
+</form>
+<?php endif; ?>
 
 <!-- Projects Table -->
 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative z-10">

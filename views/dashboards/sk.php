@@ -53,7 +53,7 @@ if (!is_array($community_benefits)) {
     $community_benefits = [];
 }
 
-$page_title = 'SK Administrator Dashboard';
+$page_title = 'SK Council Dashboard';
 ob_start();
 ?>
 
@@ -112,7 +112,7 @@ ob_start();
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
     <div class="card p-6 bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
         <h3 class="text-sm font-bold text-amber-800 mb-1 uppercase tracking-wider">Returned Corrections</h3>
-        <p class="text-xs text-amber-700 mb-4">LYDO returned these items for correction and resubmission.</p>
+        <p class="text-xs text-amber-700 mb-4">LYDO or SK Federation returned these items for correction and resubmission.</p>
         <p class="text-4xl font-black text-amber-900"><?= $returned_count ?></p>
     </div>
 
@@ -120,7 +120,7 @@ ob_start();
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="text-lg font-bold text-slate-900">Returned Items for Correction</h3>
-                <p class="text-sm text-slate-500 mt-1">Review LYDO remarks and resubmit the required documents.</p>
+                <p class="text-sm text-slate-500 mt-1">Review the rejection reason and correct the MAR before resubmitting.</p>
             </div>
             <span class="text-xs uppercase font-semibold text-slate-500 tracking-[0.2em]">Last updated</span>
         </div>

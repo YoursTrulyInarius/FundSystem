@@ -1,5 +1,6 @@
 <?php
 require_once 'core/Database.php';
+require_once 'views/reports/mar_helpers.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -47,13 +48,13 @@ ob_start();
     </div>
 </div>
 
-<p class="mb-6 text-sm text-slate-600">Only items approved by the LYDO appear here. SK Federation can approve and certify them, but cannot edit submitted details or documents.</p>
+<p class="mb-6 text-sm text-slate-600">Only transactions certified as complete by the LYDO appear here for SK Federation recording. The SK Federation can approve a MAR without remarks or reject it with a required reason; submitted details and documents cannot be edited here.</p>
 
 <div class="grid grid-cols-1 gap-8">
     <!-- Pending Transactions Table -->
     <div class="card overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-900">Transactions Awaiting Final Approval (<?= count($pending_txs) ?>)</h3>
+            <h3 class="text-lg font-bold text-slate-900">Transactions Awaiting SK Federation Recording (<?= count($pending_txs) ?>)</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
@@ -91,9 +92,16 @@ ob_start();
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <button onclick="approveItem('tx', <?= $tx['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
+                                    <button
+                                        onclick="approveItem('tx', <?= (int) $tx['id'] ?>, this.dataset)"
+                                        data-barangay="<?= htmlspecialchars($tx['barangay_name'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-reference-no="<?= htmlspecialchars($tx['reference_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-project-activity="<?= htmlspecialchars($tx['project_title'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-amount="<?= htmlspecialchars((string) $tx['amount'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-today="<?= date('Y-m-d') ?>"
+                                        class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Approve & Certify
+                                        Record &amp; Certify
                                     </button>
                                 </td>
                             </tr>
@@ -128,31 +136,39 @@ ob_start();
                 <tbody class="divide-y divide-slate-100">
                     <?php if(count($pending_mars) > 0): ?>
                         <?php foreach($pending_mars as $mar): ?>
+                            <?php
+                            $detailsPayload = mar_details_payload($mar);
+                            $attachmentLabels = mar_attachment_labels($mar);
+                            ?>
                             <tr class="hover:bg-blue-50/50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-slate-900"><?= htmlspecialchars($mar['barangay_name']) ?></td>
                                 <td class="px-6 py-4 font-medium"><?= date("F Y", mktime(0, 0, 0, $mar['month'], 1, $mar['year'])) ?></td>
                                 <td class="px-6 py-4 text-sm space-y-2 whitespace-nowrap">
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['session_minutes_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Session Minutes" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-mar-details="<?= htmlspecialchars(json_encode($detailsPayload), ENT_QUOTES, 'UTF-8') ?>" class="mb-1 flex items-center gap-2 font-semibold text-indigo-700 hover:text-indigo-900">View MAR Form</button>
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['session_minutes_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['session_minutes'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        Session Minutes
+                                        <?= htmlspecialchars($attachmentLabels['session_minutes']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['attendance_records_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Attendance Records" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['attendance_records_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['attendance_records'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                        Attendance
+                                        <?= htmlspecialchars($attachmentLabels['attendance_records']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['post_activity_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Post-Activity Reports" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['post_activity_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['post_activity_reports'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                        Post-Activity
+                                        <?= htmlspecialchars($attachmentLabels['post_activity_reports']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['financial_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Financial Report" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['financial_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['financial_reports'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Financial Report
+                                        <?= htmlspecialchars($attachmentLabels['financial_reports']) ?>
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <button onclick="approveItem('mar', <?= $mar['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-indigo-500 text-white hover:bg-indigo-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         Approve
+                                    </button>
+                                    <button onclick="rejectMarItem(<?= $mar['id'] ?>)" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 shadow-sm rounded-lg text-sm font-bold transition-all">
+                                        Reject
                                     </button>
                                 </td>
                             </tr>
@@ -171,9 +187,11 @@ ob_start();
 </div>
 
 <?php require 'views/reports/document_preview_modal.php'; ?>
+<?php require 'views/reports/mar_details_modal.php'; ?>
 
 <script src="assets/js/document-preview.js"></script>
-<script src="assets/js/fed.js"></script>
+<script src="assets/js/mar-details.js"></script>
+<script src="assets/js/fed.js?v=annex3-recording-v1"></script>
 
 <?php
 $content = ob_get_clean();

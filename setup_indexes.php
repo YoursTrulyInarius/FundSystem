@@ -48,6 +48,46 @@ $indexes = [
 $success_count = 0;
 $error_count = 0;
 
+// Add structured MAR form data to reports created before the form redesign.
+try {
+    $columnStmt = $db->query("SHOW COLUMNS FROM reports LIKE 'form_data'");
+    if (!$columnStmt->fetch(PDO::FETCH_ASSOC)) {
+        $db->exec("ALTER TABLE reports ADD COLUMN form_data LONGTEXT NULL AFTER status");
+        echo "✓ Added reports.form_data for the redesigned MAR form.<br>";
+    }
+} catch (PDOException $e) {
+    $error_count++;
+    echo "✗ Error adding reports.form_data: " . htmlspecialchars($e->getMessage()) . "<br>";
+}
+
+$certificationColumns = [
+    'review_barangay_name' => 'VARCHAR(100) NULL',
+    'reference_document_no' => 'VARCHAR(100) NULL',
+    'project_activity' => 'VARCHAR(255) NULL',
+    'issue_place' => 'VARCHAR(150) NULL',
+    'date_of_transaction' => 'DATE NULL',
+    'date_reviewed' => 'DATE NULL',
+    'review_status' => 'VARCHAR(32) NULL',
+    'recording_barangay_name' => 'VARCHAR(100) NULL',
+    'registry_control_no' => 'VARCHAR(100) NULL',
+    'entry_no' => 'VARCHAR(100) NULL',
+    'date_recorded' => 'DATE NULL',
+    'compliance_status' => 'VARCHAR(100) NULL'
+];
+foreach ($certificationColumns as $column => $definition) {
+    try {
+        $columnStmt = $db->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'certifications' AND COLUMN_NAME = :column");
+        $columnStmt->execute([':column' => $column]);
+        if ((int) $columnStmt->fetchColumn() === 0) {
+            $db->exec("ALTER TABLE certifications ADD COLUMN `$column` $definition");
+            echo "✓ Added certifications.$column.<br>";
+        }
+    } catch (PDOException $e) {
+        $error_count++;
+        echo "✗ Error adding certifications.$column: " . htmlspecialchars($e->getMessage()) . "<br>";
+    }
+}
+
 foreach ($indexes as $sql) {
     try {
         $db->exec($sql);

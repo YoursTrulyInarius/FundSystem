@@ -1,12 +1,13 @@
 <?php
 require_once 'controllers/PublicController.php';
 require_once 'core/Database.php';
+require_once 'views/reports/mar_helpers.php';
 
 $database = new Database();
 $db = $database->connect();
 
 $barangays = PublicController::getBarangayNames($db);
-$selected_barangay = trim($_GET['barangay'] ?? '');
+$selected_barangay = isset($_GET['barangay']) && is_string($_GET['barangay']) ? trim($_GET['barangay']) : '';
 if ($selected_barangay !== '' && !in_array($selected_barangay, $barangays, true)) {
     $selected_barangay = '';
 }
@@ -51,17 +52,19 @@ ob_start();
 ?>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
-    <form method="get" action="dashboard" class="md:col-span-3 flex flex-wrap items-center gap-3">
-        <label for="barangayFilter" class="text-sm font-semibold text-slate-700">Filter by barangay</label>
-        <select id="barangayFilter" name="barangay" onchange="this.form.submit()"
-            class="min-w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
-            <option value="">All Barangays</option>
-            <?php foreach ($barangays as $barangay): ?>
-                <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>>
-                    Barangay <?= htmlspecialchars($barangay) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+    <form method="get" action="dashboard" class="md:col-span-3 flex flex-wrap items-end gap-3">
+        <div>
+            <label for="barangayFilter" class="mb-1 block text-sm font-semibold text-slate-700">Filter by barangay</label>
+            <select id="barangayFilter" name="barangay" onchange="this.form.submit()"
+                class="min-w-56 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200">
+                <option value="">All Barangays</option>
+                <?php foreach ($barangays as $barangay): ?>
+                    <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>>
+                        Barangay <?= htmlspecialchars($barangay) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </form>
     <div class="card p-6 bg-white border border-slate-200 shadow-sm rounded-2xl">
         <h3 class="text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Pending Reviews</h3>
@@ -139,9 +142,16 @@ ob_start();
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                    <button onclick="reviewItem('tx', <?= $tx['id'] ?>, 'approve')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
+                                    <button
+                                        onclick="reviewItem('tx', <?= (int) $tx['id'] ?>, 'approve', this.dataset)"
+                                        data-barangay="<?= htmlspecialchars($tx['barangay_name'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-reference-no="<?= htmlspecialchars($tx['reference_no'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                        data-project-activity="<?= htmlspecialchars($tx['project_title'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-amount="<?= htmlspecialchars((string) $tx['amount'], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-today="<?= date('Y-m-d') ?>"
+                                        class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm hover:shadow-md rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Approve
+                                        Review &amp; Certify
                                     </button>
                                     <button onclick="reviewItem('tx', <?= $tx['id'] ?>, 'return')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
@@ -167,7 +177,7 @@ ob_start();
         <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
             <div>
                 <h3 class="text-lg font-bold text-slate-900">Pending MARs (<?= count($pending_mars) ?>)</h3>
-                <p class="mt-1 text-sm text-slate-500">Review all four attachments. Approval remarks are optional; rejecting returns the MAR with required correction remarks.</p>
+                <p class="mt-1 text-sm text-slate-500">Add optional remarks to report rows. Approve the MAR, or reject it with a required reason.</p>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -183,25 +193,31 @@ ob_start();
                 <tbody class="divide-y divide-slate-100">
                     <?php if(count($pending_mars) > 0): ?>
                         <?php foreach($pending_mars as $mar): ?>
+                            <?php
+                            $detailsPayload = mar_details_payload($mar);
+                            $detailsPayload['can_edit_remarks'] = true;
+                            $attachmentLabels = mar_attachment_labels($mar);
+                            ?>
                             <tr class="hover:bg-blue-50/50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-slate-900"><?= htmlspecialchars($mar['barangay_name']) ?></td>
                                 <td class="px-6 py-4 font-medium"><?= date("F Y", mktime(0, 0, 0, $mar['month'], 1, $mar['year'])) ?></td>
                                 <td class="px-6 py-4 text-sm space-y-2 whitespace-nowrap">
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['session_minutes_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Session Minutes" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-mar-details="<?= htmlspecialchars(json_encode($detailsPayload), ENT_QUOTES, 'UTF-8') ?>" class="mb-1 flex items-center gap-2 font-semibold text-indigo-700 hover:text-indigo-900">View MAR Form</button>
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['session_minutes_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['session_minutes'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        Session Minutes
+                                        <?= htmlspecialchars($attachmentLabels['session_minutes']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['attendance_records_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Attendance Records" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['attendance_records_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['attendance_records'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                        Attendance
+                                        <?= htmlspecialchars($attachmentLabels['attendance_records']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['post_activity_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Post-Activity Reports" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['post_activity_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['post_activity_reports'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                        Post-Activity
+                                        <?= htmlspecialchars($attachmentLabels['post_activity_reports']) ?>
                                     </button>
-                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['financial_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="Financial Report" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
+                                    <button type="button" data-preview-file="<?= htmlspecialchars($mar['financial_reports_path'], ENT_QUOTES, 'UTF-8') ?>" data-preview-title="<?= htmlspecialchars($attachmentLabels['financial_reports'], ENT_QUOTES, 'UTF-8') ?>" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap text-left">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Financial Report
+                                        <?= htmlspecialchars($attachmentLabels['financial_reports']) ?>
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
@@ -209,9 +225,9 @@ ob_start();
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                         Approve
                                     </button>
-                                    <button onclick="reviewItem('mar', <?= $mar['id'] ?>, 'return')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 shadow-sm rounded-lg text-sm font-bold transition-all">
+                                    <button onclick="reviewItem('mar', <?= $mar['id'] ?>, 'reject')" class="inline-flex items-center gap-1.5 justify-center px-4 py-2 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 shadow-sm rounded-lg text-sm font-bold transition-all">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                                        Reject / Return
+                                        Reject
                                     </button>
                                 </td>
                             </tr>
@@ -230,9 +246,11 @@ ob_start();
 </div>
 
 <?php require 'views/reports/document_preview_modal.php'; ?>
+<?php require 'views/reports/mar_details_modal.php'; ?>
 
 <script src="assets/js/document-preview.js"></script>
-<script src="assets/js/lydo.js"></script>
+<script src="assets/js/mar-details.js"></script>
+<script src="assets/js/lydo.js?v=annex2-a4-v6"></script>
 
 <?php
 $content = ob_get_clean();

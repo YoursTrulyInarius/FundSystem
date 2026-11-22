@@ -20,8 +20,9 @@ require_once 'includes/config.php';
         .section-title { font-size: 1.15rem; font-weight: 800; }
         .table-header { background: #f8fafc; }
     </style>
+    <link rel="stylesheet" href="/FundSystem/assets/css/municipal-theme.css">
 </head>
-<body>
+<body class="public-page">
     <div class="min-h-screen">
         <div class="max-w-6xl mx-auto px-4 py-8">
             <div class="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">

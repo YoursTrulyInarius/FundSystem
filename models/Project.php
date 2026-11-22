@@ -34,6 +34,28 @@ class Project {
         return $stmt;
     }
 
+    public function readWithFilters($barangay = null, $status = null) {
+        $query = "SELECT p.*, u.barangay_name
+                  FROM " . $this->table . " p
+                  JOIN users u ON p.user_id = u.id
+                  WHERE u.role = 'sk_admin'";
+        $params = [];
+
+        if ($barangay !== null && $barangay !== '') {
+            $query .= " AND TRIM(REPLACE(u.barangay_name, 'Barangay ', '')) = :barangay";
+            $params[':barangay'] = $barangay;
+        }
+        if ($status !== null && $status !== '') {
+            $query .= " AND p.status = :status";
+            $params[':status'] = $status;
+        }
+
+        $query .= ' ORDER BY p.created_at DESC';
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
     // Create a new project
     public function create() {
         $query = 'INSERT INTO ' . $this->table . ' (user_id, title, description, abyip_code, budget_category, budget) VALUES (:user_id, :title, :description, :abyip_code, :budget_category, :budget)';

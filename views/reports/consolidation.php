@@ -1,5 +1,6 @@
 <?php
 require_once 'core/Database.php';
+require_once 'views/reports/mar_helpers.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -76,9 +77,9 @@ ob_start();
         <h2 class="text-2xl font-extrabold text-slate-900">MAR Consolidation & Compliance Monitoring</h2>
         <p class="text-sm text-slate-500">
             <?php if ($canReviewMars): ?>
-                Review pending MARs and return reports with correction remarks.
+                Add optional remarks to pending MAR rows. Approve the MAR, or reject it with a required reason.
             <?php elseif ($canApproveMars): ?>
-                Approve MARs that have already passed LYDO review for final approval.
+                Approve or reject MARs that have passed LYDO review. Rejections require a reason.
             <?php else: ?>
                 Track compliance and consolidate Monthly Accomplishment Reports across constituent barangays.
             <?php endif; ?>
@@ -152,6 +153,11 @@ ob_start();
             <tbody class="divide-y divide-slate-100">
                 <?php if (!empty($reports)): ?>
                     <?php foreach ($reports as $report): ?>
+                        <?php
+                        $detailsPayload = mar_details_payload($report);
+                        $detailsPayload['can_edit_remarks'] = $canReviewMars && $report['status'] === 'pending';
+                        $formData = mar_form_data($report);
+                        ?>
                         <tr class="hover:bg-blue-50/50 transition-colors">
                             <td class="px-6 py-4 font-bold text-slate-900"><?= htmlspecialchars($report['barangay_name'] ?? 'N/A') ?></td>
                             <td class="px-6 py-4 text-slate-700"><?= htmlspecialchars($report['submitter']) ?></td>
@@ -172,16 +178,22 @@ ob_start();
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-slate-600 max-w-xs">
-                                <?= htmlspecialchars($report['remarks'] ?: '—') ?>
+                                <?= $report['status'] === 'returned' ? htmlspecialchars($report['remarks'] ?: 'No rejection reason provided.') : '—' ?>
                             </td>
                             <td class="px-6 py-4 text-xs text-slate-400 font-medium"><?= date('M d, Y', strtotime($report['submitted_at'])) ?></td>
                             <td class="px-6 py-4 text-right">
+                                <button type="button" data-mar-details="<?= htmlspecialchars(json_encode($detailsPayload), ENT_QUOTES, 'UTF-8') ?>"
+                                    class="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-all">
+                                    View Form
+                                </button>
                                 <button type="button" data-view-files data-report-id="<?= (int)$report['id'] ?>" data-can-manage="false"
                                     data-files="<?= htmlspecialchars(json_encode([
                                         'session_minutes' => $report['session_minutes_path'] ?? null,
                                         'attendance_records' => $report['attendance_records_path'] ?? null,
                                         'post_activity_reports' => $report['post_activity_reports_path'] ?? null,
-                                        'financial_reports' => $report['financial_reports_path'] ?? null
+                                        'financial_reports' => $report['financial_reports_path'] ?? null,
+                                        'other_images' => $formData['other_images'],
+                                        'attachment_labels' => mar_attachment_labels($report)
                                     ]), ENT_QUOTES, 'UTF-8') ?>"
                                     class="inline-flex items-center justify-center px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-900 hover:text-white rounded-lg text-xs font-bold transition-all">
                                     View Documents
@@ -191,12 +203,15 @@ ob_start();
                                         Approve
                                     </button>
                                     <button type="button" onclick="reviewItem('mar', <?= (int)$report['id'] ?>, 'return')" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-all">
-                                        Reject / Return
+                                        Reject
                                     </button>
                                 <?php endif; ?>
                                 <?php if ($canApproveMars && $report['status'] === 'reviewed'): ?>
                                     <button type="button" onclick="approveItem('mar', <?= (int)$report['id'] ?>)" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-indigo-500 text-white hover:bg-indigo-600 rounded-lg text-xs font-bold transition-all">
                                         Final Approve
+                                    </button>
+                                    <button type="button" onclick="rejectMarItem(<?= (int)$report['id'] ?>)" class="ml-1 inline-flex items-center justify-center px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-all">
+                                        Reject
                                     </button>
                                 <?php endif; ?>
                             </td>
@@ -222,21 +237,22 @@ ob_start();
                 <h3 class="text-xl font-bold text-slate-900 tracking-tight mb-4">Submitted MAR Documents</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
-                        <span class="text-sm font-semibold text-slate-700">1. Session Minutes</span>
+                        <span data-document-label="session_minutes" class="text-sm font-semibold text-slate-700">1. SK Minutes with Attendance and photo documentation</span>
                         <a id="link_session_minutes" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
-                        <span class="text-sm font-semibold text-slate-700">2. Attendance Records</span>
+                        <span data-document-label="attendance_records" class="text-sm font-semibold text-slate-700">2. SK Resolutions</span>
                         <a id="link_attendance_records" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
-                        <span class="text-sm font-semibold text-slate-700">3. Post-Activity Reports</span>
+                        <span data-document-label="post_activity_reports" class="text-sm font-semibold text-slate-700">3. Post Activity Report with Pictures</span>
                         <a id="link_post_activity" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
                     <div class="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
-                        <span class="text-sm font-semibold text-slate-700">4. Financial Reports</span>
+                        <span data-document-label="financial_reports" class="text-sm font-semibold text-slate-700">4. Copy of Monthly Utilization Report (with DV)</span>
                         <a id="link_financial_reports" href="#" class="inline-flex items-center rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">View Document</a>
                     </div>
+                    <div id="otherImageDocuments" class="hidden"></div>
                 </div>
             </div>
             <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse border-t border-slate-100">
@@ -249,8 +265,10 @@ ob_start();
 </div>
 
 <?php require 'views/reports/document_preview_modal.php'; ?>
+<?php require 'views/reports/mar_details_modal.php'; ?>
 
 <script src="assets/js/document-preview.js"></script>
+<script src="assets/js/mar-details.js"></script>
 <script src="assets/js/reports.js"></script>
 <?php if ($canReviewMars): ?>
 <script src="assets/js/lydo.js"></script>

@@ -94,19 +94,23 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.65rem;
             text-decoration: none;
+            min-width: 0;
         }
-        .brand-icon {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            background: #2563eb;
+        .brand-logos {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 0.35rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
         }
+        .brand-logo {
+            display: block;
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+        .brand-logo-lydo { width: 64px; height: 64px; }
         .nav-links {
             display: flex;
             align-items: center;
@@ -160,6 +164,12 @@
         @media (max-width: 720px) {
             .navbar { height: 64px; }
             .navbar-inner { padding: 0 1rem; }
+            .brand { gap: 0.45rem; }
+            .brand-logos { gap: 0.2rem; }
+            .brand-logo { width: 40px; height: 40px; }
+            .brand-logo-lydo { width: 52px; height: 52px; }
+            .brand-copy span:first-child { font-size: 0.88rem !important; }
+            .brand-copy span:last-child { font-size: 0.58rem !important; }
             .nav-toggle { display: inline-flex; flex-shrink: 0; }
             .nav-links {
                 display: none;
@@ -1559,6 +1569,141 @@
                 right: 0.75rem;
             }
         }
+
+        /* Experimental palette inspired by the municipal letterhead. */
+        :root {
+            --c-primary: #10345A;
+            --c-secondary: #FFFFFF;
+            --c-accent: #C73632;
+            --c-bg: #F4F6F8;
+            --c-border: #D8E0E8;
+            --c-text-dark: #19344E;
+            --c-text-muted: #5B6E80;
+            --c-accent-light: #FFF4D6;
+            --c-navy: #10345A;
+            --c-gold: #F0C342;
+            --c-red: #C73632;
+        }
+
+        body { background: var(--c-bg); }
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 0;
+        }
+        .navbar::after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--c-navy) 0 72%, var(--c-gold) 72% 90%, var(--c-red) 90%);
+            pointer-events: none;
+        }
+        .nav-links a:hover { color: var(--c-red); }
+        .btn-login,
+        .brgy-card-btn {
+            background: var(--c-gold);
+            color: var(--c-navy);
+            box-shadow: 0 4px 14px rgba(16, 52, 90, 0.2);
+        }
+        .btn-login:hover,
+        .brgy-card-btn:hover {
+            background: #E4B32F;
+            color: var(--c-navy);
+            box-shadow: 0 8px 22px rgba(16, 52, 90, 0.24);
+        }
+        .nav-links a.btn-login { color: var(--c-navy); }
+        .hero-section {
+            background:
+                radial-gradient(ellipse 75% 55% at 50% 0, rgba(240, 195, 66, 0.16), transparent 75%),
+                linear-gradient(140deg, #0B2948 0%, var(--c-navy) 58%, #17446F 100%);
+            border-bottom: 0;
+        }
+        .hero-section::before {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--c-navy) 0 72%, var(--c-gold) 72% 90%, var(--c-red) 90%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.94);
+            border-color: rgba(240, 195, 66, 0.7);
+            color: var(--c-navy);
+        }
+        .live-dot { background: var(--c-gold); box-shadow: 0 0 0 3px rgba(240, 195, 66, 0.28); }
+        .hero-title { color: #FFFFFF; }
+        .hero-title span {
+            background: linear-gradient(110deg, #F5D46C 0%, var(--c-gold) 52%, #F28A64 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub { color: rgba(255, 255, 255, 0.82); }
+        .hero-cta-secondary {
+            background: var(--c-gold);
+            border-color: var(--c-gold);
+            color: var(--c-navy);
+            box-shadow: 0 6px 18px rgba(5, 24, 43, 0.2);
+        }
+        .hero-cta-secondary:hover {
+            background: #E4B32F;
+            border-color: #E4B32F;
+            color: var(--c-navy);
+        }
+        .metric-icon-wrap,
+        .about-card-icon {
+            background: #FFF4D6;
+            border-color: #EBD489;
+            color: var(--c-navy);
+        }
+        .metric-icon-wrap svg { stroke: var(--c-navy); }
+        .section-pill {
+            background: #FFF4D6;
+            border-color: #EBD489;
+            color: var(--c-red);
+        }
+        .section-pill-dot { background: var(--c-red); }
+        .brgy-section {
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--c-bg) 100%);
+        }
+        .brgy-section .section-pill {
+            background: #FFF4D6;
+            border-color: #EBD489;
+            color: var(--c-red);
+        }
+        .brgy-section .section-title span,
+        .about-section .section-title span { color: var(--c-red); }
+        .brgy-card-btn { border: 1px solid #E4B32F; }
+        .brgy-nav-btn:hover {
+            background: #FFF4D6;
+            border-color: var(--c-gold);
+            color: var(--c-navy);
+        }
+        .brgy-dot.active { background: var(--c-red); }
+        .about-section {
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--c-bg) 100%);
+        }
+        .about-banner {
+            background: linear-gradient(135deg, #0B2948 0%, var(--c-navy) 100%);
+        }
+        .about-banner-badge {
+            background: rgba(240, 195, 66, 0.16);
+            border-color: rgba(240, 195, 66, 0.42);
+            color: #F5D46C;
+        }
+        .about-banner-stat .num { color: var(--c-gold); }
+        .about-card-tag { color: var(--c-red); }
+        .site-footer-card::before {
+            background: linear-gradient(180deg, var(--c-gold), var(--c-red));
+        }
+        .site-footer-chip {
+            background: #FFF4D6;
+            color: var(--c-red);
+        }
     </style>
 </head>
 
@@ -1568,12 +1713,11 @@
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="#" class="brand nav-brand opacity-0">
-                <div class="brand-icon">
-                    <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#FFFFFF" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
+                <div class="brand-logos" aria-label="Municipality and LYDO logos">
+                    <img class="brand-logo" src="/FundSystem/assets/img/annex2-municipal-seal.png" alt="Municipality of Ramon Magsaysay seal">
+                    <img class="brand-logo brand-logo-lydo" src="/FundSystem/assets/img/annex2-lydo-seal.png" alt="Local Youth Development Office logo">
                 </div>
-                <div style="display:flex; flex-direction:column; line-height:1.15; text-align:left;">
+                <div class="brand-copy" style="display:flex; flex-direction:column; line-height:1.15; text-align:left;">
                     <span style="font-weight:900; font-size:1.02rem; color:#0f172a; letter-spacing:-0.02em;">SK FUND System</span>
                     <span style="font-size:0.68rem; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:0.08em;">Ramon Magsaysay</span>
                 </div>

@@ -9,6 +9,7 @@ class Report {
     public $month;
     public $year;
     public $status;
+    public $form_data;
     public $session_minutes_path;
     public $attendance_records_path;
     public $post_activity_reports_path;
@@ -38,15 +39,16 @@ class Report {
 
     // Create a new MAR report entry
     public function create() {
-        $query = 'INSERT INTO ' . $this->table . ' 
-            (user_id, month, year, session_minutes_path, attendance_records_path, post_activity_reports_path, financial_reports_path) 
-            VALUES (:user_id, :month, :year, :sm_path, :ar_path, :par_path, :fr_path)';
+        $query = 'INSERT INTO ' . $this->table . '
+            (user_id, month, year, form_data, session_minutes_path, attendance_records_path, post_activity_reports_path, financial_reports_path)
+            VALUES (:user_id, :month, :year, :form_data, :sm_path, :ar_path, :par_path, :fr_path)';
         
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':user_id', $this->user_id);
         $stmt->bindParam(':month', $this->month);
         $stmt->bindParam(':year', $this->year);
+        $stmt->bindParam(':form_data', $this->form_data);
         $stmt->bindParam(':sm_path', $this->session_minutes_path);
         $stmt->bindParam(':ar_path', $this->attendance_records_path);
         $stmt->bindParam(':par_path', $this->post_activity_reports_path);

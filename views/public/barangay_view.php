@@ -82,16 +82,20 @@
             font-size: 1.02rem; color: var(--c-text);
             display: flex; align-items: center; gap: 0.65rem; text-decoration: none;
         }
-        .brand-icon {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: #000000; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+        .brand-logos {
+            display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0;
         }
+        .brand-logo {
+            display: block; height: 48px; object-fit: contain; width: 48px;
+        }
+        .brand-logo-lydo { height: 60px; width: 60px; }
         @media (max-width: 480px) {
             .navbar-inner { gap: 0.5rem; }
             .back-link { gap: 0.3rem; font-size: 0.72rem; }
-            .brand { gap: 0.4rem; font-size: 0.85rem; }
-            .brand-icon { width: 29px; height: 29px; }
+            .brand { gap: 0.35rem; font-size: 0.75rem; }
+            .brand-logos { gap: 0.15rem; }
+            .brand-logo { height: 36px; width: 36px; }
+            .brand-logo-lydo { height: 48px; width: 48px; }
         }
 
         /* ════════ Hero ════════ */
@@ -394,8 +398,9 @@
         }
         .section-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: #2563eb; }
     </style>
+    <link rel="stylesheet" href="/FundSystem/assets/css/municipal-theme.css">
 </head>
-<body>
+<body class="public-page">
 
     <!-- ════════ Navbar ════════ -->
     <nav class="navbar">
@@ -407,10 +412,9 @@
                 Back to Public Portal
             </a>
             <a href="/FundSystem/" class="brand">
-                <div class="brand-icon">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#ffffff" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
+                <div class="brand-logos" aria-label="Municipality and LYDO logos">
+                    <img class="brand-logo" src="/FundSystem/assets/img/annex2-municipal-seal.png" alt="Municipality of Ramon Magsaysay seal">
+                    <img class="brand-logo brand-logo-lydo" src="/FundSystem/assets/img/annex2-lydo-seal.png" alt="Local Youth Development Office logo">
                 </div>
                 SK FUND System
             </a>
@@ -560,6 +564,9 @@
                         <span>Transaction Ledger</span>
                         <span style="font-size:0.8rem;font-weight:700;color:var(--c-text-muted);"><?= count($transactions) ?> records</span>
                     </p>
+                    <p style="font-size:0.82rem;color:var(--c-text-muted);margin:-0.35rem 0 1rem;line-height:1.55;">
+                        View issued LYDO review and SK Federation recording certificates alongside each transaction.
+                    </p>
                     <?php if (empty($transactions)): ?>
                         <div class="empty-box">No transactions recorded yet.</div>
                     <?php else: ?>
@@ -572,6 +579,7 @@
                                     <th>Amount</th>
                                     <th>Status</th>
                                     <th>Date</th>
+                                    <th>Certificates</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -592,6 +600,24 @@
                                         </span>
                                     </td>
                                     <td><?= date('M d, Y', strtotime($tx['created_at'])) ?></td>
+                                    <td>
+                                        <?php if (!empty($tx['certificates'])): ?>
+                                            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.4rem;">
+                                                <?php if (isset($tx['certificates']['review'])): ?>
+                                                    <a href="/FundSystem/certification?id=<?= (int) $tx['certificates']['review']['id'] ?>&amp;public=1" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.6rem;border:1px solid #bfdbfe;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:0.72rem;font-weight:700;text-decoration:none;white-space:nowrap;">
+                                                        LYDO Review Certificate
+                                                    </a>
+                                                <?php endif; ?>
+                                                <?php if (isset($tx['certificates']['recording'])): ?>
+                                                    <a href="/FundSystem/certification?id=<?= (int) $tx['certificates']['recording']['id'] ?>&amp;public=1" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.6rem;border:1px solid #a7f3d0;border-radius:999px;background:#ecfdf5;color:#047857;font-size:0.72rem;font-weight:700;text-decoration:none;white-space:nowrap;">
+                                                        SK Federation Recording
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="td-small">Not issued</span>
+                                        <?php endif; ?>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -641,7 +667,8 @@
                         </div>
                         <div class="form-field">
                             <label for="fbMsg">Message</label>
-                            <textarea id="fbMsg" name="message" placeholder="Share your suggestion or concern..." required></textarea>
+                            <textarea id="fbMsg" name="message" maxlength="300" aria-describedby="fbMsgCounter" placeholder="Share your suggestion or concern..." required></textarea>
+                            <div id="fbMsgCounter" class="text-right text-xs text-slate-500" aria-live="polite">0 / 300 characters</div>
                         </div>
                         <div id="brgyFbStatus" style="font-size:0.8rem;margin-bottom:0.6rem;min-height:1.2em;"></div>
                         <button type="submit" class="btn-submit" id="brgyFbBtn">
@@ -663,6 +690,16 @@
     <script>
         // ── Feedback submit ─────────────────────────────
         const feedbackForm = document.getElementById('brgyFeedbackForm');
+        const feedbackMessage = document.getElementById('fbMsg');
+        const feedbackMessageCounter = document.getElementById('fbMsgCounter');
+        const updateFeedbackMessageCounter = () => {
+            if (feedbackMessage && feedbackMessageCounter) {
+                feedbackMessageCounter.textContent = `${feedbackMessage.value.length} / 300 characters`;
+            }
+        };
+        feedbackMessage?.addEventListener('input', updateFeedbackMessageCounter);
+        updateFeedbackMessageCounter();
+
         feedbackForm?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const statusEl = document.getElementById('brgyFbStatus');
@@ -684,6 +721,7 @@
                         confirmButtonColor: '#0f172a', confirmButtonText: 'Done'
                     });
                     this.reset();
+                    updateFeedbackMessageCounter();
                     statusEl.textContent = '';
                 } else {
                     statusEl.textContent = data.message || 'Unable to submit.';

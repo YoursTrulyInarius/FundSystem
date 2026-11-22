@@ -55,9 +55,10 @@ if (!empty($email) && !empty($otp)) {
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
     </style>
+    <link rel="stylesheet" href="/FundSystem/assets/css/municipal-theme.css">
 </head>
 
-<body class="text-slate-800 antialiased bg-slate-50 flex items-center justify-center min-h-screen p-6">
+<body class="auth-page text-slate-800 antialiased bg-slate-50 flex items-center justify-center min-h-screen p-6">
 
     <div class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-8 sm:p-10 card-container opacity-0 transform translate-y-8">
         

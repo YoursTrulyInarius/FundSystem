@@ -1,5 +1,8 @@
 <?php
 // views/layout.php
+$role_label = ($_SESSION['role'] ?? '') === 'sk_admin'
+    ? 'SK Council'
+    : ($_SESSION['role'] ?? 'Public');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,10 +18,10 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#0f172a',
-                        secondary: '#1e293b',
-                        accent: '#3b82f6',
-                        background: '#f8fafc',
+                        primary: '#10345A',
+                        secondary: '#F4F6F8',
+                        accent: '#F0C342',
+                        background: '#F4F6F8',
                         surface: '#ffffff'
                     }
                 }
@@ -26,6 +29,7 @@
         }
     </script>
     <link rel="stylesheet" href="/FundSystem/assets/css/mobile-responsive.css">
+    <link rel="stylesheet" href="/FundSystem/assets/css/mar-form.css">
     <style>
         body {
             background-color: #f8fafc;
@@ -104,6 +108,7 @@
             background-color: #1e293b;
         }
     </style>
+    <link rel="stylesheet" href="/FundSystem/assets/css/municipal-theme.css">
 </head>
 <body class="dashboard-shell flex h-screen overflow-hidden text-slate-800">
 
@@ -111,13 +116,28 @@
     <aside id="appSidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col h-full" aria-label="Dashboard navigation">
         <div class="p-6 border-b border-slate-200">
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">SK FUND System</h1>
-            <p class="text-xs text-slate-500 mt-1"><?= htmlspecialchars($_SESSION['role'] ?? 'Public') ?> Portal</p>
+            <p class="text-xs text-slate-500 mt-1"><?= htmlspecialchars($role_label) ?> Portal</p>
         </div>
         
         <?php
         $current_route = $route ?? '';
         $active_class = "bg-slate-100 text-slate-900";
         $inactive_class = "text-slate-600 hover:bg-slate-50 hover:text-slate-900";
+        $mar_notification_status = null;
+        if (($_SESSION['role'] ?? '') === 'lydo') {
+            $mar_notification_status = 'pending';
+        } elseif (($_SESSION['role'] ?? '') === 'sk_fed') {
+            $mar_notification_status = 'reviewed';
+        }
+        $has_pending_role_mar = false;
+        if ($mar_notification_status !== null && isset($_SESSION['user_id'])) {
+            require_once 'core/Database.php';
+            $notification_database = new Database();
+            $notification_connection = $notification_database->connect();
+            $pending_mar_stmt = $notification_connection->prepare('SELECT 1 FROM reports WHERE status = :status LIMIT 1');
+            $pending_mar_stmt->execute([':status' => $mar_notification_status]);
+            $has_pending_role_mar = $pending_mar_stmt->fetchColumn() !== false;
+        }
         ?>
         <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
             <a href="dashboard" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'dashboard') ? $active_class : $inactive_class ?>">
@@ -146,10 +166,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 MAR & Compliance Reports
+                <?php if ($has_pending_role_mar): ?>
+                    <span class="ml-auto h-2.5 w-2.5 shrink-0 rounded-full bg-red-600 ring-2 ring-white" aria-hidden="true" title="MARs require review"></span>
+                    <span class="sr-only">MARs are awaiting your review.</span>
+                <?php endif; ?>
             </a>
             <?php endif; ?>
             
-            <!-- SK Admin Only Section -->
+            <!-- SK Council Only Section -->
             <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'sk_admin'): ?>
             <a href="feedback" class="flex items-center px-3 py-2 text-sm font-medium rounded-md <?= ($current_route === 'feedback') ? $active_class : $inactive_class ?> mt-1">
                 <div class="relative">

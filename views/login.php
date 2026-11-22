@@ -47,23 +47,19 @@ if (isset($_SESSION['user_id'])) {
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
     </style>
+    <link rel="stylesheet" href="/FundSystem/assets/css/municipal-theme.css">
 </head>
 
-<body class="text-slate-800 antialiased">
+<body class="auth-page text-slate-800 antialiased">
 
     <div class="min-h-screen w-full flex flex-col lg:flex-row">
 
         <!-- Left Side: Branding / Text -->
-        <div class="hidden lg:flex w-full lg:w-[62%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
-            <!-- New Background Image -->
-            <div class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('assets/img/bg.png');">
-            </div>
-            <!-- Dark Overlay for Readability -->
-            <div class="absolute inset-0 bg-black/75 z-0"></div>
+        <div class="auth-brand-panel hidden lg:flex w-full lg:w-[62%] relative overflow-hidden flex-col justify-center px-16 xl:px-24">
 
-            <div class="relative z-10 w-full max-w-lg left-content opacity-0 transform translate-y-8">
+            <div class="relative z-10 w-full max-w-5xl left-content opacity-0 transform translate-y-8">
                 <a href="/FundSystem/"
-                    class="inline-flex items-center text-sm font-medium text-slate-400 hover:text-blue-400 transition mb-12 group">
+                    class="inline-flex items-center text-sm font-medium text-slate-400 hover:text-blue-400 transition mb-8 group">
                     <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -72,31 +68,42 @@ if (isset($_SESSION['user_id'])) {
                     Back to Public Portal
                 </a>
 
-                <h1 class="text-4xl xl:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
-                    SK FUND System
-                </h1>
+                <div class="auth-brand-identity">
+                    <img src="/FundSystem/assets/img/annex2-municipal-seal.png"
+                        alt="Municipality of Ramon Magsaysay seal"
+                        class="auth-brand-seal">
+                    <div class="auth-brand-copy">
+                        <p class="auth-brand-kicker">Municipality of Ramon Magsaysay</p>
+                        <h1 class="auth-brand-title">SK FUND System</h1>
+                        <p class="auth-brand-description">
+                            A centralized platform for monitoring youth development programs, ensuring transparency,
+                            accountability, and fiscal responsibility across all barangays.
+                        </p>
+                    </div>
+                </div>
 
-                <p class="text-lg text-slate-300 font-medium mb-12 leading-relaxed">
-                    A centralized platform for monitoring youth development programs, ensuring transparency,
-                    accountability, and fiscal responsibility across all barangays.
-                </p>
-
-                <div class="flex items-center space-x-4 text-slate-400 text-sm font-medium">
-                    <div class="flex items-center"><svg class="w-5 h-5 mr-2 text-slate-500" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
+                <div class="auth-brand-features">
+                    <div class="auth-brand-feature">
+                        <svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg> SK Profiling</div>
-                    <div class="flex items-center"><svg class="w-5 h-5 mr-2 text-slate-500" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
+                        </svg>
+                        SK Profiling
+                    </div>
+                    <div class="auth-brand-feature">
+                        <svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg> MAR Submissions</div>
-                    <div class="flex items-center"><svg class="w-5 h-5 mr-2 text-slate-500" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
+                        </svg>
+                        MAR Submissions
+                    </div>
+                    <div class="auth-brand-feature">
+                        <svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg> Official Registry</div>
+                        </svg>
+                        Official Registry
+                    </div>
                 </div>
             </div>
         </div>

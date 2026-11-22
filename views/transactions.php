@@ -9,21 +9,26 @@ $status_options = [
     'recorded' => 'Recorded',
     'returned' => 'Returned'
 ];
+$isSkCouncil = ($_SESSION['role'] ?? '') === 'sk_admin';
 $selected_status = $_GET['status'] ?? '';
 if (!array_key_exists($selected_status, $status_options)) {
     $selected_status = '';
 }
 
-$barangayStmt = $db->query("SELECT DISTINCT u.barangay_name
-    FROM transactions t
-    JOIN projects p ON t.project_id = p.id
-    JOIN users u ON p.user_id = u.id
-    WHERE t.status != 'pending' AND u.barangay_name IS NOT NULL AND u.barangay_name != ''
-    ORDER BY u.barangay_name");
-$barangays = $barangayStmt->fetchAll(PDO::FETCH_COLUMN);
-$selected_barangay = $_GET['barangay'] ?? '';
-if (!in_array($selected_barangay, $barangays, true)) {
-    $selected_barangay = '';
+$barangays = [];
+$selected_barangay = '';
+if (!$isSkCouncil) {
+    $barangayStmt = $db->query("SELECT DISTINCT u.barangay_name
+        FROM transactions t
+        JOIN projects p ON t.project_id = p.id
+        JOIN users u ON p.user_id = u.id
+        WHERE t.status != 'pending' AND u.barangay_name IS NOT NULL AND u.barangay_name != ''
+        ORDER BY u.barangay_name");
+    $barangays = $barangayStmt->fetchAll(PDO::FETCH_COLUMN);
+    $selected_barangay = $_GET['barangay'] ?? '';
+    if (!in_array($selected_barangay, $barangays, true)) {
+        $selected_barangay = '';
+    }
 }
 
 $history_tx_query = "SELECT t.*, p.title as project_title, u.barangay_name
@@ -32,6 +37,10 @@ $history_tx_query = "SELECT t.*, p.title as project_title, u.barangay_name
     JOIN users u ON p.user_id = u.id
     WHERE t.status != 'pending'";
 $query_params = [];
+if ($isSkCouncil) {
+    $history_tx_query .= " AND p.user_id = :user_id";
+    $query_params[':user_id'] = (int) $_SESSION['user_id'];
+}
 if ($selected_status !== '') {
     $history_tx_query .= " AND t.status = :status";
     $query_params[':status'] = $selected_status;
@@ -51,7 +60,7 @@ ob_start();
 
 <!-- Transaction filters -->
 <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between relative z-10">
-    <p class="text-sm font-medium text-slate-500">View historical transactions across all barangays.</p>
+    <p class="text-sm font-medium text-slate-500"><?= $isSkCouncil ? 'View your barangay\'s transaction history.' : 'View historical transactions across all barangays.' ?></p>
     <form method="get" class="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div>
             <label for="statusFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Status</label>
@@ -62,15 +71,17 @@ ob_start();
                 <?php endforeach; ?>
             </select>
         </div>
-        <div>
-            <label for="barangayFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Barangay</label>
-            <select id="barangayFilter" name="barangay" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
-                <option value="">All barangays</option>
-                <?php foreach ($barangays as $barangay): ?>
-                    <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>><?= htmlspecialchars($barangay) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        <?php if (!$isSkCouncil): ?>
+            <div>
+                <label for="barangayFilter" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Barangay</label>
+                <select id="barangayFilter" name="barangay" onchange="this.form.submit()" class="min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
+                    <option value="">All barangays</option>
+                    <?php foreach ($barangays as $barangay): ?>
+                        <option value="<?= htmlspecialchars($barangay) ?>" <?= $selected_barangay === $barangay ? 'selected' : '' ?>><?= htmlspecialchars($barangay) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>
         <button type="submit" class="min-h-10 rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-700">Filter</button>
         <?php if ($selected_status !== '' || $selected_barangay !== ''): ?>
             <a href="transactions" class="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Clear</a>
@@ -150,7 +161,7 @@ ob_start();
                                 <svg class="w-12 h-12 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                No transaction history found across any barangay.
+                                <?= $isSkCouncil ? 'No transaction history found for your barangay.' : 'No transaction history found across any barangay.' ?>
                             </div>
                         </td>
                     </tr>

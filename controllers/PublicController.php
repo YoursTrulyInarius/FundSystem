@@ -219,6 +219,24 @@ class PublicController {
             $inIds = implode(',', array_map('intval', $project_ids));
             $tStmt = $db->query("SELECT t.*, p.title as project_title FROM transactions t JOIN projects p ON t.project_id = p.id WHERE t.project_id IN ($inIds) ORDER BY t.created_at DESC");
             $transactions = $tStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $certificateStmt = $db->query("SELECT c.id, c.transaction_id, c.type
+                FROM certifications c
+                JOIN transactions t ON c.transaction_id = t.id
+                WHERE c.transaction_id IN ($inIds)
+                  AND (
+                    (c.type = 'review' AND c.review_status IN ('complete', 'minor_clarification') AND t.status IN ('reviewed', 'recorded'))
+                    OR (c.type = 'recording' AND t.status = 'recorded')
+                  )
+                ORDER BY c.created_at ASC");
+            $certificatesByTransaction = [];
+            while ($certificate = $certificateStmt->fetch(PDO::FETCH_ASSOC)) {
+                $certificatesByTransaction[$certificate['transaction_id']][$certificate['type']] = $certificate;
+            }
+            foreach ($transactions as &$transaction) {
+                $transaction['certificates'] = $certificatesByTransaction[$transaction['id']] ?? [];
+            }
+            unset($transaction);
         }
 
         $isPublicVisitor = !isset($_SESSION['user_id']);
@@ -249,7 +267,21 @@ class PublicController {
         $barangay_name = trim($_POST['barangay_name'] ?? '');
         $user_name     = trim($_POST['user_name'] ?? '');
         $contact_info  = trim($_POST['contact_info'] ?? '');
-        $message       = trim($_POST['message'] ?? '');
+        $messageInput  = $_POST['message'] ?? '';
+
+        if (!is_string($messageInput)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid feedback message.']);
+            return;
+        }
+
+        if (mb_strlen($messageInput, 'UTF-8') > 300) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Feedback must be 300 characters or fewer.']);
+            return;
+        }
+
+        $message = trim($messageInput);
 
         if (!$project_id && empty($barangay_name)) {
             header('Content-Type: application/json');
@@ -311,7 +343,7 @@ class PublicController {
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'sk_admin') {
-            echo json_encode(['success' => false, 'message' => 'Unauthorized access. Only SK Administrators can update photos.']);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access. Only SK Council members can update photos.']);
             return;
         }
 

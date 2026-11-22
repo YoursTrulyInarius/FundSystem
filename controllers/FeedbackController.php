@@ -13,7 +13,7 @@ class FeedbackController {
             exit;
         }
         
-        // Only SK Admin can view feedback
+        // Only SK Council can view feedback
         if ($_SESSION['role'] !== 'sk_admin') {
             header('Location: /FundSystem/dashboard');
             exit;
@@ -22,8 +22,62 @@ class FeedbackController {
         $database = new Database();
         $db = $database->connect();
 
-        // Fetch all feedback with project and user info (both project-specific and barangay-wide)
-        $query = "SELECT 
+        $periodOptions = [
+            'all' => 'All time',
+            '7_days' => 'Last 7 days',
+            '30_days' => 'Last 30 days',
+            '3_months' => 'Last 3 months',
+            '6_months' => 'Last 6 months',
+        ];
+        $periodIntervals = [
+            '7_days' => [7, 'DAY'],
+            '30_days' => [30, 'DAY'],
+            '3_months' => [3, 'MONTH'],
+            '6_months' => [6, 'MONTH'],
+        ];
+        $requestedPeriod = $_GET['period'] ?? 'all';
+        $feedbackPeriod = is_string($requestedPeriod) && isset($periodOptions[$requestedPeriod])
+            ? $requestedPeriod
+            : 'all';
+        $perPage = 10;
+        $pageInput = $_GET['page'] ?? 1;
+        $requestedPage = is_scalar($pageInput)
+            ? filter_var((string) $pageInput, FILTER_VALIDATE_INT)
+            : false;
+        $currentPage = $requestedPage !== false && $requestedPage > 0 ? $requestedPage : 1;
+        $userId = (int) $_SESSION['user_id'];
+
+        $feedbackScope = "(
+            p.user_id = :project_user_id
+            OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :barangay_user_id LIMIT 1)
+            OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :normalized_user_id LIMIT 1)
+        )";
+        $dateCondition = '';
+        if (isset($periodIntervals[$feedbackPeriod])) {
+            [$intervalAmount, $intervalUnit] = $periodIntervals[$feedbackPeriod];
+            $dateCondition = " AND f.created_at >= DATE_SUB(NOW(), INTERVAL {$intervalAmount} {$intervalUnit})";
+        }
+
+        $bindFeedbackScope = static function (PDOStatement $statement) use ($userId): void {
+            $statement->bindValue(':project_user_id', $userId, PDO::PARAM_INT);
+            $statement->bindValue(':barangay_user_id', $userId, PDO::PARAM_INT);
+            $statement->bindValue(':normalized_user_id', $userId, PDO::PARAM_INT);
+        };
+
+        $countQuery = "SELECT COUNT(*)
+            FROM feedback f
+            LEFT JOIN projects p ON f.project_id = p.id
+            WHERE {$feedbackScope}{$dateCondition}";
+        $countStmt = $db->prepare($countQuery);
+        $bindFeedbackScope($countStmt);
+        $countStmt->execute();
+        $totalFeedback = (int) $countStmt->fetchColumn();
+        $totalPages = max(1, (int) ceil($totalFeedback / $perPage));
+        $currentPage = min($currentPage, $totalPages);
+        $offset = ($currentPage - 1) * $perPage;
+
+        // Fetch only the requested page while preserving project and barangay scope.
+        $query = "SELECT
                 f.id,
                 f.project_id,
                 f.barangay_name as feedback_barangay,
@@ -39,15 +93,18 @@ class FeedbackController {
             FROM feedback f
             LEFT JOIN projects p ON f.project_id = p.id
             LEFT JOIN users u ON p.user_id = u.id
-            WHERE p.user_id = :user_id 
-               OR f.barangay_name = (SELECT barangay_name FROM users WHERE id = :user_id LIMIT 1)
-               OR f.barangay_name = (SELECT TRIM(REPLACE(barangay_name, 'Barangay ', '')) FROM users WHERE id = :user_id LIMIT 1)
-            ORDER BY f.created_at DESC";
+            WHERE {$feedbackScope}{$dateCondition}
+            ORDER BY f.created_at DESC
+            LIMIT :limit OFFSET :offset";
         
         $stmt = $db->prepare($query);
-        $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+        $bindFeedbackScope($stmt);
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $firstFeedbackNumber = $totalFeedback > 0 ? $offset + 1 : 0;
+        $lastFeedbackNumber = min($offset + count($feedbacks), $totalFeedback);
 
         // Mark all unread feedback as read when admin visits this page
         $markReadQuery = "UPDATE feedback f

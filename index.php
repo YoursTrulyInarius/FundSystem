@@ -165,7 +165,7 @@ switch ($route) {
         break;
 
     case 'certification':
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) && ($_GET['public'] ?? '') !== '1') {
             header("Location: " . $base_path . "login");
             exit;
         }
@@ -191,7 +191,7 @@ switch ($route) {
             header("Location: " . $base_path . "login");
             exit;
         }
-        // SK Admin sees submission form, LYDO and SK Federation see consolidation view
+        // SK Council sees submission form, LYDO and SK Federation see consolidation view
         if ($_SESSION['role'] === 'sk_admin') {
             require 'views/reports/sk_reports.php';
         } elseif (in_array($_SESSION['role'], ['lydo', 'sk_fed'])) {
@@ -224,6 +224,12 @@ switch ($route) {
         $reportCtrl->submit_mar();
         break;
 
+    case 'api/reports/resubmit':
+        require 'controllers/ReportController.php';
+        $reportCtrl = new ReportController();
+        $reportCtrl->resubmit_mar();
+        break;
+
     case 'api/reports/update_document':
         require 'controllers/ReportController.php';
         $reportCtrl = new ReportController();
@@ -248,6 +254,12 @@ switch ($route) {
         require 'controllers/LYDOController.php';
         $lydo = new LYDOController();
         $lydo->review_mar();
+        break;
+
+    case 'api/lydo/save_mar_remarks':
+        require 'controllers/LYDOController.php';
+        $lydo = new LYDOController();
+        $lydo->save_mar_remarks();
         break;
 
     case 'api/fed/record_tx':
