@@ -14,28 +14,25 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 
 **Key Innovation**: An integrated **Community Feedback System** allows citizens to submit anonymous feedback and concerns about SK-funded projects directly through the public transparency portal, creating a channel for grassroots accountability that SK Councils can review, manage, and act upon.
 
-## 🧾 Latest Version Update
-- **Version:** `2.2.2`
-- **Date:** 2026-11-19
-- **Summary:** Added database-driven barangay listings, per-barangay SK Council registration, and dashboard layout fixes.
-- **Registration:** Public registration allows one SK Council account per barangay. Registrations for different barangays can proceed independently, while duplicate accounts for the same barangay are prevented.
-- **Public barangay directory:** The directory and its counts are built from current SK Council accounts and barangay profiles instead of a hard-coded list. Signed-in users see a Dashboard link; visitors see Login.
-- **Barangay carousel:** Page counts and visible-item numbering use the rendered card dimensions. Sliding uses a smoother transition and respects reduced-motion preferences.
-- **Projects & ABYIP:** LYDO and SK Federation can filter projects by barangay and status (planned, ongoing, or completed). These statuses track progress and are not approval decisions. LYDO's dashboard also has a barangay filter for its pending review queues.
-- **Review dialogs:** SweetAlert2 no longer changes the dashboard body's height, keeping the sidebar and logout control visible while approving or returning submissions.
-- **LYDO transaction review:** LYDO issues the Annex 2 Certification of Completeness and Review with one of its three outcomes. Incomplete submissions require a correction note and are returned; complete or clarification outcomes proceed to SK Federation recording.
-- **Public barangay pages:** Citizen Feedback submission is available to signed-out public visitors only. SK Council previews do not show the feedback form, and submitted messages are not listed publicly.
-- **Community feedback notifications:** The SK Council navigation shows a red dot when unread feedback exists for that barangay.
-- **Transaction history:** Added status and barangay filters for LYDO and SK Federation; SK Council users see only their own barangay's transactions. Pending transactions are not included in the history.
-- **Office account names:** Default LYDO and SK Federation accounts display as `LYDO OFFICE` and `SK FEDERATION`.
-- **Previous update:** Improved mobile/tablet layouts and fixed uploaded barangay cover photos not rendering on public detail pages.
-- **Role simplification:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
-- **Changed:** Removed the Mayor and Accountant dashboards and roles (`mayor_office`, `verification`) from application authorization, seed data, routes, and documentation.
-- **Responsive UI:** Added a shared responsive stylesheet, mobile navigation, scrollable tables, touch-friendly form controls, and mobile modal layouts. Responsive behavior is applied through 768px tablet widths while preserving the desktop layout at 1024px and above.
-- **Barangay profiles:** Public barangay detail pages now resolve uploaded cover photo URLs from the application root so the image displays when opened from a nested public route.
-- **Active Roles:** `sk_admin` (SK Barangay Councils), `lydo` (Local Youth Development Office), `sk_fed` (SK Federation), and `public` (Public Transparency Portal).
-- **Authentication page layout:** Reduced the desktop white form panel width on login and registration pages without changing their content.
-- **Updated files:** `controllers/AuthController.php`, `controllers/PublicController.php`, `views/dashboards/lydo.php`, `views/public/barangays.php`, `views/public/home.php`, `assets/js/sweetalert-defaults.js`, `README.md`
+## Versioning and Change History
+
+The project uses **Semantic Versioning** (`MAJOR.MINOR.PATCH`): major versions indicate breaking changes, minor versions add backward-compatible features, and patch versions contain fixes. Update this section when preparing a release.
+
+| Version | Date | Release summary |
+| --- | --- | --- |
+| `2.3.0` | 2026-11-23 | Current release: expanded MAR and certification workflows, public certificate transparency, feedback controls, and a shared municipal design system. |
+| `2.2.2` | 2026-11-19 | Database-driven barangay directory, per-barangay SK Council registration, responsive fixes, and dashboard filters. |
+
+### `2.3.0` — 2026-11-23
+
+- **MAR submission and review:** Structured Annex 4 reporting, required supporting-document uploads, field validation, LYDO-only per-row remarks, and correction/resubmission flow.
+- **LYDO and SK Federation workflow:** LYDO reviews or returns submissions; SK Federation acts on LYDO-reviewed items. Rejections require a reason, while submitted details remain read-only during approval.
+- **Digital certificates:** Generate portrait A4 LYDO Annex 2 review and SK Federation Annex 3 recording certificates. The public portal exposes certificate links only for eligible records.
+- **Reports and transaction history:** Improve review queues, status/barangay filters, and consolidated municipal compliance reporting.
+- **Public transparency:** Expand public barangay/project pages with a recorded-transactions ledger, eligible certificate links, and Municipality of Ramon Magsaysay and LYDO branding.
+- **Community feedback:** Add date presets and 10-item pagination to the SK feedback dashboard, expandable previews for messages over 180 characters, and a 300-character public message limit enforced in both the form and API.
+- **Shared visual design:** Apply the municipal navy, neutral, gold, and red palette across public, dashboard, and authentication views. Enlarge and animate the municipal seal on login/registration; honor reduced-motion preferences.
+- **Registration and data setup:** Keep per-barangay registration safeguards and add the schema/migration support needed for certificate records.
 
 ---
 
@@ -55,16 +52,17 @@ Mandated under Republic Act No. 10742 (*SK Reform Act of 2015*) and the local Mu
 - **User Authentication** – Allows authorized users to securely access the system using their assigned user accounts and role-based credentials.
 - **Project Registry and Profiling** – Allows SK Barangay Councils to register and manage SK-funded projects based on the approved Annual Barangay Youth Investment Program (ABYIP) and budget.
 - **Milestone and Progress Tracking** – Allows SK Barangay Councils to record and monitor the progress of projects from planning to completion.
-- **Financial Transaction Management** – Allows SK Barangay Councils to record financial transactions and upload supporting documents related to SK-funded projects. The transaction history can be filtered by status or barangay, with selections applied immediately.
-- **Monthly Accomplishment Report (MAR) Submission** – Allows SK Barangay Councils to prepare and submit Monthly Accomplishment Reports (MAR) and supporting documents to the Local Youth Development Office (LYDO) by the 10th day of the succeeding month, unless otherwise prescribed by law or municipal policy.
-- **Compliance and Completeness Review** – Allows LYDO personnel to review submitted reports and supporting documents to ensure compliance with the approved requirements.
-- **Deficiency Notification** – Allows LYDO personnel to notify SK Barangay Councils of incomplete or non-compliant submissions and request corrections before resubmission.
-- **SK Federation Approval** – Allows the SK Federation to approve and certify only submissions already reviewed by the LYDO; submitted transaction and report details remain read-only.
+- **Financial Transaction Management** – Allows SK Barangay Councils to record financial transactions and upload supporting documents related to SK-funded projects. Transaction history can be filtered by status or barangay, with data scoped to the user's role and barangay.
+- **Monthly Accomplishment Report (MAR) Submission** – Allows SK Barangay Councils to complete the structured Annex 4 report and submit its required supporting documents to LYDO by the 10th day of the succeeding month, unless otherwise prescribed by law or municipal policy. Form data is validated before submission.
+- **Compliance and Completeness Review** – Allows LYDO personnel to review submitted reports and supporting documents, issue a review outcome, and add per-row remarks when corrections are needed.
+- **Deficiency Notification** – Allows LYDO personnel to return incomplete or non-compliant submissions with a required reason so SK Barangay Councils can correct and resubmit them.
+- **SK Federation Approval** – Allows the SK Federation to approve or reject only submissions already reviewed by LYDO; rejection requires a reason, and submitted transaction/report details remain read-only.
+- **Digital Certificate Generation** – Generates portrait A4 LYDO Annex 2 review and SK Federation Annex 3 recording certificates for eligible transactions.
 - **Report Consolidation** – Allows the SK Federation to consolidate barangay reports into a municipal-wide compliance report.
 - **Quarterly Compliance Monitoring Report Generation** – Allows the SK Federation to generate Quarterly Compliance Monitoring Reports using the consolidated records stored in the system.
-- **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects and fund utilization through a public online portal.
+- **Public Transparency Portal** – Allows community members and youth beneficiaries to view the status of SK-funded projects, recorded fund utilization, and eligible LYDO/SK Federation certificates through a public online portal.
 - **Barangay Public Profiles** – Displays registered barangays’ uploaded cover photos, profile information, community benefits, projects, and transactions.
-- **Citizen Feedback Management** – Allows signed-out public visitors to submit feedback, questions, or concerns regarding SK-funded projects. SK Council members can review feedback and see an unread-feedback indicator in the dashboard navigation.
+- **Citizen Feedback Management** – Allows signed-out public visitors to submit feedback (up to 300 characters) about SK-funded projects. SK Council members can filter feedback by date, browse 10 items per page, expand long messages, and see an unread-feedback indicator.
 - **Responsive Web Interface** – Supports phones, tablets, and desktop browsers with mobile navigation, internally scrollable tables, touch-friendly forms, and mobile-friendly dialogs.
 - **Logout** – Securely ends the active session of an authorized user.
 
@@ -261,15 +259,16 @@ The system enforces strict Separation of Duties across 4 active user role catego
 * **Core Functionalities**:
   - **Barangay Project Explorer**: Search and filter active/completed SK projects by barangay, project type, or keyword; view project descriptions, approved budgets, and current status without requiring login.
   - **Public Fund Ledger Inspection**: Browse transparent summaries of all recorded SK financial transactions, including project association, fund amounts, transaction types, and official recording dates to enable citizen oversight.
-  - **Community Feedback Channel**: Submit anonymous feedback, questions, or concerns regarding specific SK-funded projects directly to municipal authorities through integrated modal feedback forms.
+  - **Public Certificates**: Open eligible LYDO review and SK Federation recording certificates from the transaction ledger without exposing certificates for ineligible records.
+  - **Community Feedback Channel**: Signed-out visitors can submit feedback, questions, or concerns about SK-funded projects. Messages are limited to 300 characters in the form and validated by the server.
   - **Accessibility & Openness**: No login required; information is formatted for public accessibility; promotes citizens' right to information under the Freedom of Information Executive Order.
   - **Feedback Submission Process**:
     1. Public user browses projects on home portal
     2. Clicks "View details" button on any project
     3. Project modal opens showing full details, budget, status, transactions
     4. At bottom of modal: Anonymous feedback form appears
-    5. User optionally enters name/contact info (defaults to "Anonymous")
-    6. Submits message via "Send Feedback" button
+    5. User optionally enters name/contact info (defaults to "Anonymous") and writes a message of up to 300 characters
+    6. Submits the message via "Send Feedback"
     7. Async Fetch request to `api/feedback` endpoint (no page reload)
     8. SweetAlert notification confirms submission success
     9. Feedback stored in database with timestamp and project association
@@ -289,6 +288,8 @@ The system enforces strict Separation of Duties across 4 active user role catego
     - Message in highlighted box
     - Project context grid (Owner, Barangay, Budget)
     - Delete button with trash icon
+  - **Date Filters and Pagination**: Filter by all time, 7 days, 30 days, 3 months, or 6 months; show 10 feedback items per page.
+  - **Long Message Preview**: Messages over 180 characters can be expanded and collapsed without overflowing their cards.
   - **Empty State**: Icon and message if no feedback received yet
 * **Core Functionalities**:
   - **View Anonymous Feedback**: Read all community concerns about their projects in one dashboard
